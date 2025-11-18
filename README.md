@@ -6,6 +6,7 @@
 
 [![Vue.js](https://img.shields.io/badge/Vue.js-3.2.13-brightgreen.svg)](https://vuejs.org/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind-2.2.17-blue.svg)](https://tailwindcss.com/)
+[![Netlify Status](https://img.shields.io/badge/Deployed%20on-Netlify-00c7b7.svg)](https://netlify.com/)
 
 </div>
 
@@ -13,16 +14,35 @@
 
 ## 🎯 ¿Qué es Leo Perfecto?
 
-Leo Perfecto es una aplicación educativa que enseña a identificar y clasificar **palabras clave** en textos (sustantivos, verbos, adjetivos, conectores) mediante **dos juegos interactivos**:
+Leo Perfecto es una aplicación educativa diseñada para mejorar la **comprensión lectora** mediante **tres juegos interactivos progresivos**:
 
-- **Juego 1:** Preguntas de opción múltiple sobre identificación de palabras clave
-- **Juego 2:** Drag & drop para completar textos con palabras categorizadas
+### 🎮 Los 3 Juegos
 
-La aplicación incluye:
-- 🎮 Sistema de progreso con localStorage
-- 🤖 Mascota interactiva con feedback educativo
-- 📊 Dashboard de progreso con métricas y logros
-- 🎨 Diseño responsive y profesional con Tailwind CSS
+1. **Juego 1 - Identificación de Palabras Clave**
+   - Preguntas de opción múltiple sobre sustantivos, verbos, adjetivos y conectores
+   - Feedback inmediato con explicaciones educativas
+   - 12 textos literarios únicos
+
+2. **Juego 2 - Clasificación y Contexto**
+   - Drag & drop para completar textos con palabras categorizadas
+   - Sistema de vidas (3 intentos por palabra)
+   - 10 ejercicios con validación exacta
+
+3. **Juego 3 - Comprensión Lectora Integral** ✨ *NUEVO*
+   - 30 textos con preguntas de comprensión profunda
+   - 5 habilidades: Idea Principal, Causa-Efecto, Inferencias, Detalles Específicos, Propósito/Intención
+   - Modos Práctica (sin tiempo) y Desafío (1:30 min con timer visual)
+   - Pantalla de instrucciones interactiva con Leo
+
+### ✨ Características Principales
+
+- 🎮 Sistema de progreso inteligente con análisis por juego
+- 🤖 Mascota interactiva "Leo" con feedback contextual
+- 📊 Dashboard completo con métricas, logros y análisis de fortalezas/debilidades
+- 🎯 Sistema de niveles y rachas de práctica
+- 🎨 Diseño minimalista y profesional con Tailwind CSS
+- 🔊 Feedback auditivo con Web Audio API
+- 📱 100% Responsive (móvil, tablet, desktop)
 
 ---
 
@@ -37,7 +57,7 @@ La aplicación incluye:
 
 ```bash
 # Clonar el repositorio
-git clone https://github.com/TU_USUARIO/leo-perfecto.git
+git clone https://github.com/cesarJorquera/leo-perfecto.git
 cd leo-perfecto
 
 # Instalar dependencias
@@ -55,7 +75,7 @@ La aplicación estará disponible en `http://localhost:8080`
 npm run build
 ```
 
-Genera carpeta `dist/` lista para desplegar.
+Genera carpeta `dist/` lista para desplegar en Netlify.
 
 ---
 
@@ -72,16 +92,29 @@ leo-perfecto/
 ├── public/                     # Archivos estáticos
 ├── src/
 │   ├── assets/                # Imágenes, estilos, animaciones
+│   │   ├── icons/            # Iconos de la mascota (feliz/triste)
+│   │   ├── img/              # Imágenes de contenido
+│   │   ├── animations.css    # Animaciones personalizadas
+│   │   └── main.css          # Estilos globales
 │   ├── components/            # Componentes Vue
-│   │   ├── MiProgreso.vue    # Dashboard de progreso
-│   │   ├── mascota.vue       # Asistente virtual
-│   │   ├── pant_game_1.vue   # Juego 1: Preguntas
-│   │   └── pant_game_2.vue   # Juego 2: Drag & Drop
-│   ├── data/                 # Datos estáticos
-│   │   ├── game1_texts.js    # Textos literarios
-│   │   └── quest_game_keyword.js  # Preguntas
+│   │   ├── MiProgreso.vue    # Dashboard de progreso y métricas
+│   │   ├── mascota.vue       # Asistente virtual Leo
+│   │   ├── pant_bienvenida.vue    # Pantalla inicial
+│   │   ├── pant_game_1.vue   # Juego 1: Identificación
+│   │   ├── pant_game_2.vue   # Juego 2: Clasificación
+│   │   ├── pant_game_3.vue   # Juego 3: Comprensión ✨
+│   │   ├── pant_instrucciones_game3.vue  # Instrucciones J3 ✨
+│   │   ├── pant_reglas_game1.vue   # Reglas del juego 1
+│   │   ├── pant_reglas_game2.vue   # Reglas del juego 2
+│   │   └── pant_texto_game1.vue    # Visor de textos J1
+│   ├── data/                 # Datos estáticos (JSON)
+│   │   ├── game1_texts.js    # 12 textos literarios
+│   │   ├── game2_texts.js    # 10 ejercicios clasificación ✨
+│   │   ├── game3_texts.js    # 30 textos comprensión ✨
+│   │   └── quest_game_keyword.js  # Preguntas J1
 │   ├── utils/                # Utilidades
-│   │   └── eventBus.js       # Event bus (mitt)
+│   │   ├── eventBus.js       # Event bus (mitt)
+│   │   └── gameManager.js    # Gestión inteligente de progreso ✨
 │   ├── App.vue               # Componente raíz
 │   └── main.js               # Punto de entrada
 │
@@ -94,138 +127,177 @@ leo-perfecto/
 
 ## 🎮 Características Actuales
 
-### ✅ Implementado
+### ✅ Implementado (v1.2 - Noviembre 2024)
 
-- **Juego 1 (Preguntas):** Sistema de preguntas con feedback inmediato y explicaciones educativas
-- **Juego 2 (Drag & Drop):** Clasificación de palabras con sistema de vidas y validación exacta
-- **Sistema de Progreso:** Persistencia en localStorage con métricas y estadísticas
-- **Dashboard Completo:** Niveles, barra de progreso, logros, racha y análisis de fortalezas/debilidades
-- **Mascota Interactiva:** Asistente con ayuda progresiva y feedback contextual
-- **Sistema de Sonidos:** Web Audio API para feedback auditivo
-- **Diseño Responsive:** Funciona en móvil, tablet y desktop
-- **Navegación Inteligente:** Auto-refresh del dashboard después de juegos
+#### 🎯 Sistema de Juegos Completo
+- **Juego 1:** 12 textos literarios con preguntas de identificación y feedback educativo
+- **Juego 2:** 10 ejercicios drag & drop con validación exacta y sistema de vidas
+- **Juego 3:** 30 textos de comprensión lectora con 5 habilidades cognitivas
+  - Modos: Práctica (sin límite) y Desafío (1:30 min con timer visual)
+  - Pantalla de instrucciones interactiva con Leo
+  - Explicaciones detalladas por cada respuesta
 
-### � Pendiente (Próximas Semanas)
+#### 📊 Sistema de Progreso Inteligente
+- **GameManager:** Selección inteligente de juegos (prioriza no completados)
+- **Persistencia:** localStorage con análisis por juego individual
+- **Dashboard Completo:**
+  - Niveles dinámicos (Aprendiz → Maestro de la Lectura)
+  - Barra de progreso total del curso (32 juegos)
+  - Métricas: Juegos completados, efectividad, racha de días
+  - 10 logros desbloqueables (Primer Paso, Experto, Perfección, etc.)
+  - Análisis de fortalezas y debilidades con consejos personalizados
 
-- **Integración IA:** Recomendaciones personalizadas con OpenAI/Gemini
-- **Juego 3:** Sistema de comprensión global y análisis crítico
-- **Backend:** API REST con autenticación y base de datos
-- **Vue Router:** Sistema de rutas profesional
-- **Pinia:** Store centralizado para gestión de estado
-- **Testing:** Tests unitarios y E2E
+#### 🤖 Mascota Interactiva "Leo"
+- Feedback contextual según rendimiento
+- Sistema de ayuda progresiva (3 niveles)
+- Animaciones de estado (feliz/triste/neutro)
+- Asistente de IA con 3 funciones: Consejo, Explicación, Pregunta Práctica
+
+#### 🎨 Diseño y UX
+- Colores suaves y minimalistas (escala 300-400)
+- Interfaz 100% responsive (móvil, tablet, desktop)
+- Animaciones CSS personalizadas (scale, float, pulse)
+- Sistema de sonidos con Web Audio API (hover, click, acierto/error)
+- Iconos SVG profesionales (sin emojis en producción)
+
+#### 🏗️ Arquitectura
+- **3 Unidades de Aprendizaje:** Fundamentos Básicos, Comprensión Lectora, Aplicación (próximamente)
+- **Sistema modular:** Componentes reutilizables y separación de responsabilidades
+- **Event Bus (mitt):** Comunicación entre componentes sin props drilling
+- **Código limpio:** Comentarios técnicos, estructura clara, manejo de errores
+
+### 🚧 En Desarrollo (v2.0 - Próximamente)
+
+- **Integración IA:** Recomendaciones personalizadas con API OpenAI/Gemini
+- **Backend REST:** Node.js + Express + PostgreSQL
+  - Autenticación JWT
+  - Sistema multi-usuario
+  - Rankings globales
+- **Vue Router:** Navegación SPA profesional con rutas protegidas
+- **Pinia Store:** Gestión centralizada de estado
+- **Testing:** Vitest + Cypress para tests unitarios y E2E
+- **Unidad 3:** Textos extensos, síntesis, análisis crítico y metacognición
 
 ---
 
-## 📊 Estado del Proyecto
-
-**Versión Actual:** 0.9.0 (MVP - casi completo)
-
-| Componente | Estado | Prioridad |
-|------------|--------|-----------|
-| Juego 1 (Preguntas) | ✅ Completo | - |
-| Juego 2 (Drag & Drop) | ✅ Completo | - |
-| Sistema de Progreso | ✅ Completo | - |
-| Dashboard Avanzado | ✅ Completo | - |
-| Mascota con Feedback | ✅ Completo | - |
-| UI Responsive | ✅ Completo | - |
-| **Integración IA** | ⏳ Pendiente | 🔴 Alta |
-| **Juego 3** | ⏳ Pendiente | 🔴 Alta |
-| Vue Router | ❌ Futuro | 🟡 Media |
-| Backend + DB | ❌ Futuro | 🟡 Media |
-| Testing | ❌ Futuro | 🟢 Baja |
-
-**Plazo MVP:** Fin de mes (noviembre 2025)
-
----
-
-## �️ Stack Tecnológico
+## 🛠️ Stack Tecnológico
 
 - **Framework:** Vue.js 3.2.13 (Options API)
-- **Estilos:** Tailwind CSS 2.2.17
-- **Build:** Vue CLI 5.0
-- **Event Bus:** Mitt 3.0.1
-- **Audio:** Web Audio API (sin dependencias externas)
+- **Estilos:** Tailwind CSS 2.2.17 + PostCSS
+- **Build Tool:** Vue CLI 5.0.0
+- **Event Bus:** Mitt 3.0.1 (comunicación entre componentes)
+- **Audio:** Web Audio API nativa (sin librerías externas)
 - **Persistencia:** localStorage (preparado para migración a backend)
+- **Deploy:** Netlify (CI/CD automático desde GitHub)
 
 ---
 
-## 📚 Documentación
+## 📚 Documentación Completa
 
-| Documento | Propósito | Audiencia |
-|-----------|-----------|-----------|
-| [PROJECT_OVERVIEW.md](./docs/PROJECT_OVERVIEW.md) | Arquitectura y estructura completa | Todos los desarrolladores |
-| [BEST_PRACTICES.md](./docs/BEST_PRACTICES.md) | Evaluación de código y mejoras | Desarrolladores senior |
-| [AGREGAR_TEXTOS.md](./docs/AGREGAR_TEXTOS.md) | Cómo agregar contenido nuevo | Creadores de contenido |
-| [GUIA_DISENO_PROFESIONAL.md](./docs/GUIA_DISENO_PROFESIONAL.md) | Paleta de colores y UI/UX | Diseñadores |
-
----
-
-## 🚀 Deploy a Netlify
-
-El proyecto incluye `netlify.toml` configurado para deploy automático.
-
-### Opción 1: Netlify UI (Drag & Drop)
-
-```bash
-npm run build
-# Arrastra carpeta dist/ a https://app.netlify.com/drop
-```
-
-### Opción 2: Desde GitHub (Recomendado)
-
-1. Sube el proyecto a GitHub
-2. Conecta el repositorio en Netlify
-3. Configuración automática desde `netlify.toml`
-4. Deploy automático en cada push
-
-### Opción 3: Netlify CLI
-
-```bash
-npm install -g netlify-cli
-npm run build
-netlify deploy --prod
-```
+| Documento | Descripción | Audiencia |
+|-----------|-------------|-----------|
+| [PROJECT_OVERVIEW.md](./docs/PROJECT_OVERVIEW.md) | Arquitectura completa del proyecto | Todos los desarrolladores |
+| [BEST_PRACTICES.md](./docs/BEST_PRACTICES.md) | Evaluación de código y mejoras recomendadas | Desarrolladores senior |
+| [AGREGAR_TEXTOS.md](./docs/AGREGAR_TEXTOS.md) | Guía para agregar contenido educativo | Creadores de contenido |
+| [GUIA_DISENO_PROFESIONAL.md](./docs/GUIA_DISENO_PROFESIONAL.md) | Guía de diseño y estilos | Diseñadores/Frontend |
 
 ---
 
-## 🤝 Contribución
+## 🤝 Cómo Contribuir
 
-### Para Agregar Contenido
+### 📝 Para Agregar Contenido Educativo
 
-1. Lee [AGREGAR_TEXTOS.md](./docs/AGREGAR_TEXTOS.md)
-2. Agrega texto en `src/data/game1_texts.js`
+1. Lee la [Guía de Agregar Textos](./docs/AGREGAR_TEXTOS.md)
+2. Agrega textos en:
+   - `src/data/game1_texts.js` (Juego 1: Identificación)
+   - `src/data/game2_texts.js` (Juego 2: Clasificación)
+   - `src/data/game3_texts.js` (Juego 3: Comprensión)
 3. Agrega preguntas en `src/data/quest_game_keyword.js`
-4. Prueba localmente con `npm run serve`
+4. Prueba localmente: `npm run serve`
+5. Verifica que no haya errores en consola
 
-### Para Desarrolladores
+### 💻 Para Desarrolladores
 
-1. Lee [PROJECT_OVERVIEW.md](./docs/PROJECT_OVERVIEW.md)
-2. Revisa [BEST_PRACTICES.md](./docs/BEST_PRACTICES.md)
-3. Sigue convenciones de código existentes
-4. Crea PR con descripción clara
+1. **Fork** el repositorio
+2. Lee [PROJECT_OVERVIEW.md](./docs/PROJECT_OVERVIEW.md) para entender la arquitectura
+3. Revisa [BEST_PRACTICES.md](./docs/BEST_PRACTICES.md) para seguir estándares
+4. Crea una rama: `git checkout -b feature/nueva-funcionalidad`
+5. Commit siguiendo convenciones: `git commit -m "feat: descripción"`
+6. Push: `git push origin feature/nueva-funcionalidad`
+7. Abre un **Pull Request** con descripción detallada
+
+### 🎨 Convenciones de Commit
+
+- `feat:` Nueva funcionalidad
+- `fix:` Corrección de bugs
+- `docs:` Cambios en documentación
+- `style:` Cambios de estilo (formato, CSS)
+- `refactor:` Refactorización sin cambio funcional
+- `test:` Agregar o modificar tests
+- `chore:` Tareas de mantenimiento
 
 ---
 
-## � Contacto
+## 📋 Roadmap 2025
 
-- **Desarrollador:** Cesar
-- **Proyecto:** Aplicación educativa Leo Perfecto
-- **Fecha límite MVP:** Fin de noviembre 2025
+### Q1 2025 (Enero - Marzo)
+- [ ] Integración con API de OpenAI/Gemini para análisis de texto
+- [ ] Backend REST con Node.js + Express
+- [ ] Base de datos PostgreSQL
+- [ ] Sistema de autenticación JWT
+
+### Q2 2025 (Abril - Junio)
+- [ ] Vue Router con rutas protegidas
+- [ ] Pinia Store (gestión de estado centralizada)
+- [ ] Sistema multi-usuario con perfiles
+- [ ] Rankings globales en tiempo real
+
+### Q3 2025 (Julio - Septiembre)
+- [ ] Testing completo (Vitest + Cypress)
+- [ ] PWA (Progressive Web App)
+- [ ] Modo offline
+- [ ] Notificaciones push
+
+### Q4 2025 (Octubre - Diciembre)
+- [ ] Unidad 3: Textos extensos y metacognición
+- [ ] Sistema de recompensas avanzado
+- [ ] Integración con plataformas educativas (Google Classroom)
+- [ ] App móvil nativa (React Native/Flutter)
 
 ---
 
-## � Próximos Pasos Inmediatos
+## 📞 Contacto y Soporte
 
-1. ✅ Subir proyecto a GitHub
-2. ✅ Deploy a Netlify
-3. ⏳ Integrar IA (OpenAI/Gemini)
-4. ⏳ Desarrollar Juego 3
-5. ⏳ Testing con usuarios reales
+- **Desarrollador Principal:** César Jorquera
+- **Email:** ces.jorquera@duocuc.cl
+- **Repositorio:** [github.com/cesarJorquera/leo-perfecto](https://github.com/cesarJorquera/leo-perfecto)
+- **Demo en vivo:** [Netlify Deploy](https://leo-perfecto.netlify.app) *(actualizar URL)*
+
+### 🐛 Reportar Bugs
+
+Si encuentras un error:
+1. Verifica que no esté ya reportado en [Issues](https://github.com/cesarJorquera/leo-perfecto/issues)
+2. Crea un nuevo Issue con:
+   - Descripción clara del problema
+   - Pasos para reproducirlo
+   - Capturas de pantalla (si aplica)
+   - Información del navegador/dispositivo
+
+---
+
+## 📜 Licencia
+
+Este proyecto es parte de un trabajo académico de **DuocUC**.  
+Todos los derechos reservados © 2024-2025
 
 ---
 
 <div align="center">
 
-**Hecho con ❤️ para mejorar la comprensión lectora**
+**🎓 Desarrollado con ❤️ para mejorar la comprensión lectora en estudiantes**
+
+[![Made with Vue.js](https://img.shields.io/badge/Made%20with-Vue.js-42b883.svg)](https://vuejs.org/)
+[![Styled with Tailwind](https://img.shields.io/badge/Styled%20with-Tailwind-38bdf8.svg)](https://tailwindcss.com/)
+[![Deployed on Netlify](https://img.shields.io/badge/Deployed%20on-Netlify-00c7b7.svg)](https://netlify.com/)
 
 </div>
