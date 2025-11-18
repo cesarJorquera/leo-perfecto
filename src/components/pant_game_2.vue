@@ -1,6 +1,24 @@
 <template>
   <div class="space-y-6">
-    <div class="bg-white rounded-3xl shadow-xl p-8 md:p-12">
+    <!-- Mensaje de error si no hay datos válidos -->
+    <div v-if="!hasValidData" class="bg-white rounded-3xl shadow-xl p-8 text-center">
+      <div class="text-6xl mb-4">⚠️</div>
+      <h2 class="text-2xl font-bold text-gray-800 mb-4">
+        Texto no disponible
+      </h2>
+      <p class="text-gray-600 mb-6">
+        Lo sentimos, este texto aún no está configurado.
+      </p>
+      <button 
+        @click="$emit('restart-game2')"
+        class="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-8 py-3 rounded-xl font-semibold text-lg transition-all hover:shadow-lg hover:scale-105"
+      >
+        Volver al inicio
+      </button>
+    </div>
+
+    <!-- Juego normal cuando hay datos válidos -->
+    <div v-else class="bg-white rounded-3xl shadow-xl p-8 md:p-12">
       <h2 class="text-2xl md:text-3xl font-bold text-gray-800 mb-6 text-center">
         Clasifica las palabras
       </h2>
@@ -192,12 +210,24 @@
             
             <!-- Botones cuando se completa el juego exitosamente -->
             <template v-if="mostrarResultado">
+              <!-- Botón para siguiente texto si existe -->
               <button 
+                v-if="hasNextText"
+                @click="irASiguienteTexto"
+                class="bg-gradient-to-r from-green-500 to-blue-600 text-white px-8 py-4 rounded-xl font-bold text-lg hover:scale-105 transition-all shadow-lg"
+              >
+                📖 Siguiente Texto
+              </button>
+              
+              <!-- Botón para ver progreso si no hay más textos -->
+              <button 
+                v-else
                 @click="irAMiProgreso"
                 class="bg-gradient-to-r from-green-500 to-blue-600 text-white px-8 py-4 rounded-xl font-bold text-lg hover:scale-105 transition-all shadow-lg"
               >
-                � Ver Mi Progreso
+                📊 Ver Mi Progreso
               </button>
+              
               <button 
                 @click="reiniciarJuego"
                 class="bg-gradient-to-r from-purple-400 to-pink-500 text-white px-8 py-3 rounded-xl font-semibold hover:scale-105 transition-all shadow-lg"
@@ -218,6 +248,7 @@
 // ============================================
 import mascota from './mascota.vue'
 import { createGameManager } from '../utils/gameManager'
+import { getGame2TextById } from '../data/game2_texts'
 
 export default {
   name: 'GameDragDrop',
@@ -234,6 +265,11 @@ export default {
     playerName: {
       type: String,
       default: 'Jugador'
+    },
+    textId: {
+      type: String,
+      default: 'drag1',
+      description: 'ID del texto para el juego de drag & drop'
     }
   },
   
@@ -242,63 +278,16 @@ export default {
   // ============================================
   data() {
     return {
-      palabrasPorTipo: {
-        verbos: [
-          { id: 1, texto: "entregaron", tipo: "verbo", colocada: false },
-          { id: 2, texto: "advirtió", tipo: "verbo", colocada: false },
-          { id: 3, texto: "debían", tipo: "verbo", colocada: false },
-          { id: 4, texto: "felicitó", tipo: "verbo", colocada: false }
-        ],
-        sustantivos: [
-          { id: 5, texto: "Harry", tipo: "sustantivo", colocada: false },
-          { id: 6, texto: "Espejo de Oesed", tipo: "sustantivo", colocada: false },
-          { id: 7, texto: "deseos", tipo: "sustantivo", colocada: false },
-          { id: 8, texto: "juicio", tipo: "sustantivo", colocada: false }
-        ],
-        conectores: [
-          { id: 9, texto: "Después", tipo: "conector", colocada: false },
-          { id: 10, texto: "ya que", tipo: "conector", colocada: false }
-        ],
-        adjetivos: [
-          { id: 11, texto: "equivocadas", tipo: "adjetivo", colocada: false },
-          { id: 12, texto: "graves", tipo: "adjetivo", colocada: false },
-          { id: 13, texto: "profundos", tipo: "adjetivo", colocada: false }
-        ]
-      },
-      espaciosTexto: [
-        { tipo: 'espacio', tipoRequerido: 'conector', palabraColocada: null, palabraCorrectaId: 9 },
-        { tipo: 'texto', texto: ' de que ' },
-        { tipo: 'espacio', tipoRequerido: 'sustantivo', palabraColocada: null, palabraCorrectaId: 5 },
-        { tipo: 'texto', texto: ', Ron y Hermione ' },
-        { tipo: 'espacio', tipoRequerido: 'verbo', palabraColocada: null, palabraCorrectaId: 1 },
-        { tipo: 'texto', texto: ' el ' },
-        { tipo: 'espacio', tipoRequerido: 'sustantivo', palabraColocada: null, palabraCorrectaId: 6 },
-        { tipo: 'texto', texto: ' a Dumbledore, el director los ' },
-        { tipo: 'espacio', tipoRequerido: 'verbo', palabraColocada: null, palabraCorrectaId: 4 },
-        { tipo: 'texto', texto: ' por su valentía y les explicó que el objeto en manos ' },
-        { tipo: 'espacio', tipoRequerido: 'adjetivo', palabraColocada: null, palabraCorrectaId: 11 },
-        { tipo: 'texto', texto: ' podría haber tenido consecuencias ' },
-        { tipo: 'espacio', tipoRequerido: 'adjetivo', palabraColocada: null, palabraCorrectaId: 12 },
-        { tipo: 'texto', texto: ' para todos en Hogwarts. Sin embargo, les ' },
-        { tipo: 'espacio', tipoRequerido: 'verbo', palabraColocada: null, palabraCorrectaId: 2 },
-        { tipo: 'texto', texto: ' que no ' },
-        { tipo: 'espacio', tipoRequerido: 'verbo', palabraColocada: null, palabraCorrectaId: 3 },
-        { tipo: 'texto', texto: ' confiar nunca en sus ' },
-        { tipo: 'espacio', tipoRequerido: 'sustantivo', palabraColocada: null, palabraCorrectaId: 7 },
-        { tipo: 'texto', texto: ' más ' },
-        { tipo: 'espacio', tipoRequerido: 'adjetivo', palabraColocada: null, palabraCorrectaId: 13 },
-        { tipo: 'texto', texto: ', ' },
-        { tipo: 'espacio', tipoRequerido: 'conector', palabraColocada: null, palabraCorrectaId: 10 },
-        { tipo: 'texto', texto: ' a veces podían nublar el ' },
-        { tipo: 'espacio', tipoRequerido: 'sustantivo', palabraColocada: null, palabraCorrectaId: 8 },
-        { tipo: 'texto', texto: '.' }
-      ],
+      palabrasPorTipo: null,  // Se cargará desde datos
+      espaciosTexto: null,    // Se cargará desde datos
+      currentTextData: null,  // Almacena el texto completo
       estadoMascota: 'feliz',
       mensajeMascota: '¡Arrastra las palabras a los espacios correctos del texto! Si te equivocas, perderás una vida.',
       mostrarResultado: false,
       mostrarVidasAgotadas: false,
       aciertos: 0,
       errores: 0,
+      erroresJuego: [],       // Array de errores específicos
       vidasMaximas: 4,
       pistaActiva: false,
       indicePista: null,
@@ -312,28 +301,61 @@ export default {
         '¡Genial! ¡Lo estás haciendo muy bien!',
         '¡Bravo! ¡Palabra correcta!'
       ],
-      audioContext: null
+      audioContext: null,
+      hasNextText: false,
+      nextTextId: null
     }
   },
   computed: {
+    // Validar que los datos estén cargados
+    hasValidData() {
+      return this.palabrasPorTipo && this.espaciosTexto && this.currentTextData
+    },
+    
     totalEspacios() {
+      if (!this.espaciosTexto) return 0
       return this.espaciosTexto.filter(e => e.tipo === 'espacio').length
     },
+    
     espaciosCompletados() {
+      if (!this.espaciosTexto) return 0
       return this.espaciosTexto.filter(e => e.tipo === 'espacio' && e.palabraColocada).length
     },
+    
     progreso() {
+      if (this.totalEspacios === 0) return 0
       return Math.round((this.espaciosCompletados / this.totalEspacios) * 100)
     },
+    
     vidasRestantes() {
       return Math.max(0, this.vidasMaximas - this.errores)
     }
   },
   mounted() {
+    // Cargar datos del texto
+    this.loadTextData()
+    
     // Inicializar AudioContext para sonidos
     this.audioContext = new (window.AudioContext || window.webkitAudioContext)()
   },
   methods: {
+    /**
+     * Cargar datos del texto según el textId
+     */
+    loadTextData() {
+      const textData = getGame2TextById(this.textId)
+      
+      if (!textData) {
+        console.error(`Texto ${this.textId} no encontrado`)
+        return
+      }
+      
+      // Hacer deep copy para evitar mutaciones del original
+      this.currentTextData = JSON.parse(JSON.stringify(textData))
+      this.palabrasPorTipo = JSON.parse(JSON.stringify(textData.palabrasPorTipo))
+      this.espaciosTexto = JSON.parse(JSON.stringify(textData.espaciosTexto))
+    },
+    
     playSound(type) {
       if (!this.audioContext) return
       
@@ -417,6 +439,14 @@ export default {
         this.playSound('error')
         setTimeout(() => { this.animarError = false }, 600)
         
+        // Guardar error específico
+        this.erroresJuego.push({
+          palabraColocada: palabra.texto,
+          tipoColocado: palabra.tipo,
+          tipoRequerido: espacio.tipoRequerido,
+          mensaje: this.getMensajeError(palabra, espacio)
+        });
+        
         // Llamar a la mascota directamente (igual que en game 1)
         if (this.$refs.mascota) {
           this.$refs.mascota.showFeedback(this.getMensajeError(palabra, espacio), 'incorrect')
@@ -460,7 +490,43 @@ export default {
         
         // Guardar progreso automáticamente al completar
         this.guardarProgresoGame2()
+        
+        // Verificar si hay más textos disponibles
+        this.checkNextText()
       }
+    },
+    
+    /**
+     * Verificar si hay un siguiente texto no completado
+     */
+    checkNextText() {
+      const playerName = this.playerName || localStorage.getItem('leo-perfecto-player') || 'anonimo'
+      const progressKey = `leo-perfecto-progress-${playerName}`
+      const savedProgress = localStorage.getItem(progressKey)
+      
+      const availableTexts = ['drag1', 'drag2', 'drag3']
+      const currentIndex = availableTexts.indexOf(this.textId)
+      
+      if (savedProgress && currentIndex < availableTexts.length - 1) {
+        try {
+          const progress = JSON.parse(savedProgress)
+          const game2Progress = progress.filter(p => p.gameId === 2)
+          const completedTexts = game2Progress.map(p => p.textId)
+          
+          // Buscar el siguiente texto no completado
+          for (let i = currentIndex + 1; i < availableTexts.length; i++) {
+            if (!completedTexts.includes(availableTexts[i])) {
+              this.nextTextId = availableTexts[i]
+              this.hasNextText = true
+              return
+            }
+          }
+        } catch (error) {
+          console.error('Error al verificar siguiente texto:', error)
+        }
+      }
+      
+      this.hasNextText = false
     },
     
     /**
@@ -477,13 +543,14 @@ export default {
         // Calcular score en porcentaje
         const score = Math.round((this.aciertos / this.totalEspacios) * 100)
         
-        // Registrar intento
+        // Registrar intento con textId dinámico
         const resultado = gameManager.registrarIntento({
-          textId: 'drag1', // ID único para el juego de clasificar palabras
+          textId: this.textId, // ID dinámico del texto actual
           gameId: 2, // Juego 2: Clasificar palabras
           correctAnswers: this.aciertos,
           totalQuestions: this.totalEspacios,
-          score: score
+          score: score,
+          errores: this.erroresJuego // Agregar errores específicos
         })
 
         if (resultado.success) {
@@ -522,6 +589,13 @@ export default {
     // Navega a Mi Progreso después de completar el juego
     irAMiProgreso() {
       this.$emit('continue')
+    },
+    
+    // Ir al siguiente texto disponible
+    irASiguienteTexto() {
+      if (this.nextTextId) {
+        this.$emit('try-next-text', this.nextTextId)
+      }
     },
     
     // Método legacy: mantener por compatibilidad

@@ -2,7 +2,7 @@
   <div class="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50">
     <div class="container mx-auto px-4 py-8 max-w-7xl">
       
-      <!-- Header Atractivo -->
+      <!-- Header -->
       <div class="bg-white rounded-2xl shadow-xl p-6 md:p-8 mb-8 border-2 border-purple-200">
         <div class="flex flex-col md:flex-row items-center justify-between gap-4">
           <div class="flex items-center gap-4">
@@ -16,8 +16,18 @@
                 <span v-else>¡Hola de nuevo, {{playerName}}!</span>
               </h1>
               <p class="text-base text-gray-600 font-medium">
-                <span v-if="!isReturningUser">🚀 Comienza tu aventura de aprendizaje</span>
-                <span v-else>✨ Continúa mejorando tus habilidades</span>
+                <span v-if="!isReturningUser" class="flex items-center gap-2">
+                  <svg class="w-5 h-5 text-indigo-600" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" />
+                  </svg>
+                  <span>Comienza tu aventura de aprendizaje</span>
+                </span>
+                <span v-else class="flex items-center gap-2">
+                  <svg class="w-5 h-5 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.007 5.404.433c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.433 2.082-5.006z" clip-rule="evenodd" />
+                  </svg>
+                  <span>Continúa mejorando tus habilidades</span>
+                </span>
               </p>
             </div>
           </div>
@@ -55,21 +65,21 @@
               </div>
 
               <!-- Título -->
-              <h3 class="text-2xl font-extrabold text-blue-900 mb-3 leading-tight">
+              <h3 class="text-2xl font-extrabold text-blue-900 mb-4 leading-tight">
                 Fundamentos Básicos
               </h3>
 
-              <!-- Descripción Corta -->
-              <p class="text-sm text-gray-700 mb-4">
-                Identifica palabras clave
-              </p>
+              <!-- Habilidades Actuales -->
+              <div class="mb-4 px-2">
+                <p class="text-sm text-gray-800 font-semibold mb-2">• Identifica palabras clave en textos breves</p>
+              </div>
 
-              <!-- Contador de Juegos -->
-              <div class="flex items-center gap-2 mb-4">
-                <div class="bg-white rounded-lg px-4 py-2 shadow-sm border border-blue-200">
-                  <span class="text-2xl font-bold text-blue-600">2</span>
-                  <span class="text-xs text-gray-600 ml-1">juegos</span>
-                </div>
+              <!-- Próximamente -->
+              <div class="mb-4 px-2">
+                <p class="text-xs text-gray-500 italic mb-1.5">🕒 Próximamente:</p>
+                <p class="text-xs text-gray-600">• Reconocimiento de sinónimos y antónimos</p>
+                <p class="text-xs text-gray-600">• Vocabulario contextual básico</p>
+                <p class="text-xs text-gray-600">• Estructura de oraciones simples</p>
               </div>
 
               <!-- Barra de Progreso -->
@@ -90,17 +100,20 @@
               <button 
                 @click="iniciarUnidad(1)"
                 @mouseenter="playSound('hover')"
-                class="w-full bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white py-3 px-6 rounded-xl font-bold text-lg transition-all shadow-lg hover:shadow-xl transform hover:scale-105">
-                🎮 Jugar
+                class="w-full bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white py-3 px-6 rounded-xl font-bold text-lg transition-all shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center justify-center gap-2">
+                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" />
+                </svg>
+                <span>Jugar</span>
               </button>
             </div>
           </div>
 
           <!-- Unidad 2 - Comprensión Inferencial y Analítica -->
-          <div class="group bg-gradient-to-br from-green-100 to-emerald-50 rounded-2xl p-6 border-2 border-green-300 shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 opacity-90">
+          <div class="group bg-green-100 rounded-2xl p-6 border-2 border-green-300 shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-2">
             <div class="flex flex-col items-center text-center">
               <!-- Icono Grande -->
-              <div class="bg-gradient-to-br from-green-500 to-emerald-600 text-white rounded-2xl p-5 mb-4 shadow-xl">
+              <div class="bg-green-500 text-white rounded-2xl p-5 mb-4 shadow-xl">
                 <svg class="w-14 h-14" fill="currentColor" viewBox="0 0 24 24">
                   <path fill-rule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm8.706-1.442c1.146-.573 2.437.463 2.126 1.706l-.709 2.836.042-.02a.75.75 0 01.67 1.34l-.04.022c-1.147.573-2.438-.463-2.127-1.706l.71-2.836-.042.02a.75.75 0 11-.671-1.34l.041-.022zM12 9a.75.75 0 100-1.5.75.75 0 000 1.5z" clip-rule="evenodd" />
                 </svg>
@@ -112,38 +125,57 @@
               </div>
 
               <!-- Título -->
-              <h3 class="text-2xl font-extrabold text-green-900 mb-3 leading-tight">
-                Comprensión Avanzada
+              <h3 class="text-2xl font-extrabold text-green-900 mb-4 leading-tight">
+                Comprensión Lectora
               </h3>
 
-              <!-- Descripción Corta -->
-              <p class="text-sm text-gray-700 mb-4">
-                Inferencias y análisis profundo
-              </p>
-
-              <!-- Contador de Juegos -->
-              <div class="flex items-center gap-2 mb-4">
-                <div class="bg-white rounded-lg px-4 py-2 shadow-sm border border-green-200">
-                  <span class="text-2xl font-bold text-green-600">1</span>
-                  <span class="text-xs text-gray-600 ml-1">juego</span>
-                </div>
+              <!-- Habilidades Actuales -->
+              <div class="mb-4 px-2">
+                <p class="text-sm text-gray-800 font-semibold mb-2">• Identificar Idea Principal</p>
+                <p class="text-sm text-gray-800 font-semibold mb-2">• Identificar Causa-Efecto</p>
+                <p class="text-sm text-gray-800 font-semibold mb-2">• Hacer Inferencias</p>
+                <p class="text-sm text-gray-800 font-semibold mb-2">• Identificar Detalles Específicos</p>
+                <p class="text-sm text-gray-800 font-semibold mb-2">• Identificar Propósito/Intención</p>
               </div>
 
-              <!-- Badge Estado -->
-              <div class="bg-amber-100 border-2 border-amber-400 text-amber-800 text-sm px-5 py-2 rounded-full font-extrabold shadow-md mb-5">
-                🚧 Próximamente
+              <!-- Próximamente -->
+              <div class="mb-4 px-2">
+                <p class="text-xs text-gray-500 italic mb-1.5">🕒 Próximamente:</p>
+                <p class="text-xs text-gray-600">• Comparación y contraste de ideas</p>
+                <p class="text-xs text-gray-600">• Interpretación de metáforas</p>
+                <p class="text-xs text-gray-600">• Análisis de estructura textual</p>
+              </div>
+
+              <!-- Barra de Progreso -->
+              <div class="w-full mb-5">
+                <div class="flex justify-between items-center mb-2">
+                  <span class="text-xs font-semibold text-green-700">Progreso</span>
+                  <span class="text-xs font-bold text-green-600">{{ getUnidadProgress(2) }}%</span>
+                </div>
+                <div class="w-full bg-green-200 rounded-full h-3 shadow-inner">
+                  <div 
+                    class="bg-green-500 h-3 rounded-full transition-all duration-500 flex items-center justify-end pr-1"
+                    :style="{ width: getUnidadProgress(2) + '%' }"
+                  >
+                    <span v-if="getUnidadProgress(2) > 10" class="text-xs font-bold text-white">{{ getUnidadProgress(2) }}%</span>
+                  </div>
+                </div>
               </div>
 
               <!-- Botón -->
               <button 
-                disabled
-                class="w-full bg-gray-300 text-gray-600 py-3 px-6 rounded-xl font-bold text-lg cursor-not-allowed opacity-70 shadow-md">
-                🔒 Bloqueado
+                @click="iniciarUnidad(2)"
+                @mouseenter="playSound('hover')"
+                class="w-full bg-green-600 hover:bg-green-700 text-white py-3 px-6 rounded-xl font-bold text-lg transition-all hover:shadow-2xl hover:scale-105 transform flex items-center justify-center gap-2">
+                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M10 2a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0v-1.5A.75.75 0 0110 2zM10 15a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0v-1.5A.75.75 0 0110 15zM10 7a3 3 0 100 6 3 3 0 000-6zM15.657 5.404a.75.75 0 10-1.06-1.06l-1.061 1.06a.75.75 0 001.06 1.06l1.06-1.06zM6.464 14.596a.75.75 0 10-1.06-1.06l-1.06 1.06a.75.75 0 001.06 1.06l1.06-1.06zM18 10a.75.75 0 01-.75.75h-1.5a.75.75 0 010-1.5h1.5A.75.75 0 0118 10zM5 10a.75.75 0 01-.75.75h-1.5a.75.75 0 010-1.5h1.5A.75.75 0 015 10zM14.596 15.657a.75.75 0 001.06-1.06l-1.06-1.061a.75.75 0 10-1.06 1.06l1.06 1.06zM5.404 6.464a.75.75 0 001.06-1.06l-1.06-1.06a.75.75 0 10-1.061 1.06l1.06 1.06z" />
+                </svg>
+                <span>Empezar Unidad</span>
               </button>
             </div>
           </div>
           <!-- Unidad 3 - Aplicación y Metacognición -->
-          <div class="group bg-gradient-to-br from-red-100 to-rose-50 rounded-2xl p-6 border-2 border-red-300 shadow-lg opacity-90">
+          <div class="group bg-red-100 rounded-2xl p-6 border-2 border-red-300 shadow-lg opacity-90">
             <div class="flex flex-col items-center text-center">
               <!-- Icono Grande -->
               <div class="bg-gradient-to-br from-red-500 to-rose-600 text-white rounded-2xl p-5 mb-4 shadow-xl">
@@ -158,33 +190,35 @@
               </div>
 
               <!-- Título -->
-              <h3 class="text-2xl font-extrabold text-red-900 mb-3 leading-tight">
+              <h3 class="text-2xl font-extrabold text-red-900 mb-4 leading-tight">
                 Aplicación y Metacognición
               </h3>
 
-              <!-- Descripción Corta -->
-              <p class="text-sm text-gray-700 mb-4">
-                Estrategias avanzadas y reflexión
-              </p>
-
-              <!-- Contador de Juegos -->
-              <div class="flex items-center gap-2 mb-4">
-                <div class="bg-white rounded-lg px-4 py-2 shadow-sm border border-red-200">
-                  <span class="text-2xl font-bold text-red-600">?</span>
-                  <span class="text-xs text-gray-600 ml-1">juegos</span>
-                </div>
+              <!-- Próximamente -->
+              <div class="mb-4 px-2">
+                <p class="text-xs text-gray-500 italic mb-1.5">🕒 Próximamente:</p>
+                <p class="text-xs text-gray-600">• Lectura de textos extensos y complejos</p>
+                <p class="text-xs text-gray-600">• Síntesis y resumen de información</p>
+                <p class="text-xs text-gray-600">• Análisis crítico y formación de opiniones</p>
+                <p class="text-xs text-gray-600">• Estrategias de concentración y retención</p>
               </div>
 
               <!-- Badge Estado -->
-              <div class="bg-gray-200 border-2 border-gray-400 text-gray-700 text-sm px-5 py-2 rounded-full font-extrabold shadow-md mb-5">
-                🔒 Próximamente
+              <div class="bg-yellow-200 border-2 border-yellow-400 text-yellow-800 text-sm px-5 py-2 rounded-full font-extrabold shadow-md mb-5 flex items-center justify-center gap-2">
+                <svg class="w-5 h-5 text-yellow-600" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M10 1a4.5 4.5 0 00-4.5 4.5V9H5a2 2 0 00-2 2v6a2 2 0 002 2h10a2 2 0 002-2v-6a2 2 0 00-2-2h-.5V5.5A4.5 4.5 0 0010 1zm3 8V5.5a3 3 0 10-6 0V9h6z" clip-rule="evenodd" />
+                </svg>
+                <span>Próximamente</span>
               </div>
 
               <!-- Botón -->
               <button 
                 disabled
-                class="w-full bg-gray-300 text-gray-600 py-3 px-6 rounded-xl font-bold text-lg cursor-not-allowed opacity-70 shadow-md">
-                🔒 Bloqueado
+                class="w-full bg-gray-300 text-gray-600 py-3 px-6 rounded-xl font-bold text-lg cursor-not-allowed opacity-70 shadow-md flex items-center justify-center gap-2">
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M10 1a4.5 4.5 0 00-4.5 4.5V9H5a2 2 0 00-2 2v6a2 2 0 002 2h10a2 2 0 002-2v-6a2 2 0 00-2-2h-.5V5.5A4.5 4.5 0 0010 1zm3 8V5.5a3 3 0 10-6 0V9h6z" clip-rule="evenodd" />
+                </svg>
+                <span>Bloqueado</span>
               </button>
             </div>
           </div>
@@ -267,7 +301,7 @@
                   <path fill-rule="evenodd" d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.007 5.404.433c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.433 2.082-5.006z" clip-rule="evenodd" />
                 </svg>
               </div>
-              <p class="text-5xl font-extrabold text-white mb-2">{{ efectividad }}%</p>
+              <p class="text-5xl font-extrabold text-white mb-2">{{ efectividadSegura }}%</p>
               <p class="text-sm text-white font-bold uppercase tracking-wide">Efectividad</p>
             </div>
           </div>
@@ -294,7 +328,12 @@
                 <path fill-rule="evenodd" d="M5.166 2.621v.858c-1.035.148-2.059.33-3.071.543a.75.75 0 00-.584.859 6.753 6.753 0 006.138 5.6 6.73 6.73 0 002.743 1.346A6.707 6.707 0 019.279 15H8.54c-1.036 0-1.875.84-1.875 1.875V19.5h-.75a2.25 2.25 0 00-2.25 2.25c0 .414.336.75.75.75h15a.75.75 0 00.75-.75 2.25 2.25 0 00-2.25-2.25h-.75v-2.625c0-1.036-.84-1.875-1.875-1.875h-.739a6.706 6.706 0 01-1.112-3.173 6.73 6.73 0 002.743-1.347 6.753 6.753 0 006.139-5.6.75.75 0 00-.585-.858 47.077 47.077 0 00-3.07-.543V2.62a.75.75 0 00-.658-.744 49.22 49.22 0 00-6.093-.377c-2.063 0-4.096.128-6.093.377a.75.75 0 00-.657.744zm0 2.629c0 1.196.312 2.32.857 3.294A5.266 5.266 0 013.16 5.337a45.6 45.6 0 012.006-.343v.256zm13.5 0v-.256c.674.1 1.343.214 2.006.343a5.265 5.265 0 01-2.863 3.207 6.72 6.72 0 00.857-3.294z" clip-rule="evenodd" />
               </svg>
             </div>
-            <h3 class="text-2xl font-bold text-gray-800">🏆 Logros Desbloqueados</h3>
+            <h3 class="text-2xl font-bold text-gray-800 flex items-center gap-2">
+              <svg class="w-7 h-7 text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M5.166 2.621v.858c-1.035.148-2.059.33-3.071.543a.75.75 0 00-.584.859 6.753 6.753 0 006.138 5.6 6.73 6.73 0 002.743 1.346A6.707 6.707 0 019.279 15H8.54c-1.036 0-1.875.84-1.875 1.875V19.5h-.75a2.25 2.25 0 00-2.25 2.25c0 .414.336.75.75.75h15a.75.75 0 00.75-.75 2.25 2.25 0 00-2.25-2.25h-.75v-2.625c0-1.036-.84-1.875-1.875-1.875h-.739a6.706 6.706 0 01-1.112-3.173 6.73 6.73 0 002.743-1.347 6.753 6.753 0 006.139-5.6.75.75 0 00-.585-.858 47.077 47.077 0 00-3.07-.543V2.62a.75.75 0 00-.658-.744 49.22 49.22 0 00-6.093-.377c-2.063 0-4.096.128-6.093.377a.75.75 0 00-.657.744zm0 2.629c0 1.196.312 2.32.857 3.294A5.266 5.266 0 013.16 5.337a45.6 45.6 0 012.006-.343v.256zm13.5 0v-.256c.674.1 1.343.214 2.006.343a5.265 5.265 0 01-2.863 3.207 6.72 6.72 0 00.857-3.294z" clip-rule="evenodd" />
+              </svg>
+              <span>Logros Desbloqueados</span>
+            </h3>
           </div>
           
           <!-- Carousel de Logros -->
@@ -368,15 +407,15 @@
             <!-- Logro: Experto -->
             <div :class="[
               'rounded-xl p-5 text-center transition-all transform hover:scale-105 cursor-pointer border-2 flex-shrink-0 w-40 snap-center',
-              efectividad >= 80 
+              efectividadSegura >= 80 
                 ? 'bg-gradient-to-b from-cyan-400 to-cyan-200 shadow-lg border-cyan-300' 
                 : 'bg-white border-gray-300 shadow-md'
             ]">
-              <div class="text-5xl mb-2">{{ efectividad >= 80 ? '⭐' : '🔒' }}</div>
-              <p :class="['text-sm font-extrabold mb-1', efectividad >= 80 ? 'text-gray-800' : 'text-gray-700']">
+              <div class="text-5xl mb-2">{{ efectividadSegura >= 80 ? '⭐' : '🔒' }}</div>
+              <p :class="['text-sm font-extrabold mb-1', efectividadSegura >= 80 ? 'text-gray-800' : 'text-gray-700']">
                 Experto
               </p>
-              <p :class="['text-xs font-semibold', efectividad >= 80 ? 'text-gray-700' : 'text-gray-600']">
+              <p :class="['text-xs font-semibold', efectividadSegura >= 80 ? 'text-gray-700' : 'text-gray-600']">
                 80% efectividad
               </p>
             </div>
@@ -384,15 +423,15 @@
             <!-- Logro: Perfección -->
             <div :class="[
               'rounded-xl p-5 text-center transition-all transform hover:scale-105 cursor-pointer border-2 flex-shrink-0 w-40 snap-center',
-              efectividad >= 95 
+              efectividadSegura >= 95 
                 ? 'bg-gradient-to-b from-amber-400 to-amber-200 shadow-lg border-amber-300' 
                 : 'bg-white border-gray-300 shadow-md'
             ]">
-              <div class="text-5xl mb-2">{{ efectividad >= 95 ? '👑' : '🔒' }}</div>
-              <p :class="['text-sm font-extrabold mb-1', efectividad >= 95 ? 'text-gray-800' : 'text-gray-700']">
+              <div class="text-5xl mb-2">{{ efectividadSegura >= 95 ? '👑' : '🔒' }}</div>
+              <p :class="['text-sm font-extrabold mb-1', efectividadSegura >= 95 ? 'text-gray-800' : 'text-gray-700']">
                 Perfección
               </p>
-              <p :class="['text-xs font-semibold', efectividad >= 95 ? 'text-gray-700' : 'text-gray-600']">
+              <p :class="['text-xs font-semibold', efectividadSegura >= 95 ? 'text-gray-700' : 'text-gray-600']">
                 95% efectividad
               </p>
             </div>
@@ -474,7 +513,12 @@
                   <path fill-rule="evenodd" d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.007 5.404.433c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.433 2.082-5.006z" clip-rule="evenodd" />
                 </svg>
               </div>
-              <h3 class="text-xl font-extrabold text-emerald-800">💪 Tus Fortalezas</h3>
+              <h3 class="text-xl font-extrabold text-emerald-800 flex items-center gap-2">
+                <svg class="w-6 h-6 text-emerald-700" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                </svg>
+                <span>Tus Fortalezas</span>
+              </h3>
             </div>
             <div v-if="fortalezas.length > 0" class="space-y-3">
               <div v-for="(fortaleza, index) in fortalezas" :key="index" 
@@ -494,7 +538,11 @@
               </div>
             </div>
             <div v-else class="bg-white rounded-xl p-8 border-2 border-emerald-200 text-center shadow-md">
-              <div class="text-5xl mb-3">🎯</div>
+              <div class="flex justify-center mb-3">
+                <svg class="w-16 h-16 text-emerald-500" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.007 5.404.433c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.433 2.082-5.006z" clip-rule="evenodd" />
+                </svg>
+              </div>
               <p class="text-sm font-semibold text-gray-700 mb-2">¡Empieza a descubrir tus fortalezas!</p>
               <p class="text-xs text-gray-500">Completa ejercicios para ver en qué destacas</p>
             </div>
@@ -508,7 +556,12 @@
                   <path fill-rule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zM12.75 9a.75.75 0 00-1.5 0v2.25H9a.75.75 0 000 1.5h2.25V15a.75.75 0 001.5 0v-2.25H15a.75.75 0 000-1.5h-2.25V9z" clip-rule="evenodd" />
                 </svg>
               </div>
-              <h3 class="text-xl font-extrabold text-rose-800">🎯 Áreas de Mejora</h3>
+              <h3 class="text-xl font-extrabold text-rose-800 flex items-center gap-2">
+                <svg class="w-6 h-6 text-rose-700" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M10 2a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0v-1.5A.75.75 0 0110 2zM10 15a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0v-1.5A.75.75 0 0110 15zM10 7a3 3 0 100 6 3 3 0 000-6zM15.657 5.404a.75.75 0 10-1.06-1.06l-1.061 1.06a.75.75 0 001.06 1.06l1.06-1.06zM6.464 14.596a.75.75 0 10-1.06-1.06l-1.06 1.06a.75.75 0 001.06 1.06l1.06-1.06zM18 10a.75.75 0 01-.75.75h-1.5a.75.75 0 010-1.5h1.5A.75.75 0 0118 10zM5 10a.75.75 0 01-.75.75h-1.5a.75.75 0 010-1.5h1.5A.75.75 0 015 10zM14.596 15.657a.75.75 0 001.06-1.06l-1.06-1.061a.75.75 0 10-1.06 1.06l1.06 1.06zM5.404 6.464a.75.75 0 001.06-1.06l-1.06-1.06a.75.75 0 10-1.061 1.06l1.06 1.06z" />
+                </svg>
+                <span>Áreas de Mejora</span>
+              </h3>
             </div>
             <div v-if="debilidades.length > 0" class="space-y-3">
               <div v-for="(debilidad, index) in debilidades" :key="index" 
@@ -522,8 +575,11 @@
                       <div class="bg-rose-100 rounded-full px-3 py-1">
                         <p class="text-xs font-bold text-rose-700">{{ debilidad.porcentaje }}%</p>
                       </div>
-                      <div class="bg-blue-100 rounded-full px-3 py-1">
-                        <p class="text-xs font-semibold text-blue-700">💡 {{ debilidad.consejo }}</p>
+                      <div class="bg-blue-100 rounded-full px-3 py-1 flex items-center gap-1">
+                        <svg class="w-3 h-3 text-blue-700" fill="currentColor" viewBox="0 0 20 20">
+                          <path d="M11 3a1 1 0 10-2 0v1a1 1 0 102 0V3zM15.657 5.757a1 1 0 00-1.414-1.414l-.707.707a1 1 0 001.414 1.414l.707-.707zM18 10a1 1 0 01-1 1h-1a1 1 0 110-2h1a1 1 0 011 1zM5.05 6.464A1 1 0 106.464 5.05l-.707-.707a1 1 0 00-1.414 1.414l.707.707zM5 10a1 1 0 01-1 1H3a1 1 0 110-2h1a1 1 0 011 1zM8 16v-1h4v1a2 2 0 11-4 0zM12 14c.015-.34.208-.646.477-.859a4 4 0 10-4.954 0c.27.213.462.519.476.859h4.002z" />
+                        </svg>
+                        <p class="text-xs font-semibold text-blue-700">{{ debilidad.consejo }}</p>
                       </div>
                     </div>
                   </div>
@@ -531,7 +587,11 @@
               </div>
             </div>
             <div v-else class="bg-white rounded-xl p-8 border-2 border-rose-200 text-center shadow-md">
-              <div class="text-5xl mb-3">📚</div>
+              <div class="flex justify-center mb-3">
+                <svg class="w-16 h-16 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M10.75 16.82A7.462 7.462 0 0115 15.5c.71 0 1.396.098 2.046.282A.75.75 0 0018 15.06v-11a.75.75 0 00-.546-.721A9.006 9.006 0 0015 3a8.963 8.963 0 00-4.25 1.065V16.82zM9.25 4.065A8.963 8.963 0 005 3c-.85 0-1.673.118-2.454.339A.75.75 0 002 4.06v11a.75.75 0 00.954.721A7.506 7.506 0 015 15.5c1.579 0 3.042.487 4.25 1.32V4.065z" />
+                </svg>
+              </div>
               <p class="text-sm font-semibold text-gray-700 mb-2">¡Todo marcha bien!</p>
               <p class="text-xs text-gray-500">Completa más ejercicios para recibir retroalimentación personalizada</p>
             </div>
@@ -551,7 +611,9 @@
         
         <!-- Título con el icono del libro feliz de Leo Perfecto -->
         <div class="flex items-center gap-4 mb-6">
-          <div class="text-6xl">📚</div>
+          <div class="bg-gradient-to-br from-purple-400 to-pink-500 rounded-full p-4 shadow-xl">
+            <img src="@/assets/icons/libro-sin-fondo-feliz.png" alt="Leo Feliz" class="w-14 h-14" />
+          </div>
           <div>
             <h2 class="text-3xl font-extrabold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
               Asistente IA Leo Perfecto
@@ -573,8 +635,11 @@
             <!-- Mensaje de bienvenida de la IA -->
             <div class="flex-1">
               <div class="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-2xl p-5 border-2 border-indigo-100 shadow-md">
-                <p class="text-base text-gray-800 font-medium leading-relaxed mb-3">
-                  👋 ¡Hola <span class="font-bold text-indigo-600">{{ playerName }}</span>! 
+                <p class="text-base text-gray-800 font-medium leading-relaxed mb-3 flex items-start gap-2">
+                  <svg class="w-6 h-6 text-indigo-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M10 8a3 3 0 100-6 3 3 0 000 6zM3.465 14.493a1.23 1.23 0 00.41 1.412A9.957 9.957 0 0010 18c2.31 0 4.438-.784 6.131-2.1.43-.333.604-.903.408-1.41a7.002 7.002 0 00-13.074.003z" />
+                  </svg>
+                  <span>¡Hola <span class="font-bold text-indigo-600">{{ playerName }}</span>!</span>
                 </p>
                 <p class="text-sm text-gray-700 leading-relaxed">
                   Soy tu asistente de IA personalizado. Analizo tu progreso y te doy consejos específicos para mejorar tu comprensión lectora. ¿Qué te gustaría saber?
@@ -583,9 +648,24 @@
               
               <!-- Etiquetas informativas (características de la IA) -->
               <div class="flex gap-2 mt-3 flex-wrap">
-                <span class="bg-indigo-100 text-indigo-700 text-xs px-3 py-1 rounded-full font-bold">🧠 Análisis inteligente</span>
-                <span class="bg-purple-100 text-purple-700 text-xs px-3 py-1 rounded-full font-bold">📊 Personalizado</span>
-                <span class="bg-pink-100 text-pink-700 text-xs px-3 py-1 rounded-full font-bold">⚡ Instantáneo</span>
+                <span class="bg-indigo-100 text-indigo-700 text-xs px-3 py-1 rounded-full font-bold flex items-center gap-1">
+                  <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M10 9a3 3 0 100-6 3 3 0 000 6zM6 8a2 2 0 11-4 0 2 2 0 014 0zM1.49 15.326a.78.78 0 01-.358-.442 3 3 0 014.308-3.516 6.484 6.484 0 00-1.905 3.959c-.023.222-.014.442.025.654a4.97 4.97 0 01-2.07-.655zM16.44 15.98a4.97 4.97 0 002.07-.654.78.78 0 00.357-.442 3 3 0 00-4.308-3.517 6.484 6.484 0 011.907 3.96 2.32 2.32 0 01-.026.654zM18 8a2 2 0 11-4 0 2 2 0 014 0zM5.304 16.19a.844.844 0 01-.277-.71 5 5 0 019.947 0 .843.843 0 01-.277.71A6.975 6.975 0 0110 18a6.974 6.974 0 01-4.696-1.81z" />
+                  </svg>
+                  <span>Análisis inteligente</span>
+                </span>
+                <span class="bg-purple-100 text-purple-700 text-xs px-3 py-1 rounded-full font-bold flex items-center gap-1">
+                  <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm5 6a1 1 0 10-2 0v3.586l-1.293-1.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V8z" clip-rule="evenodd" />
+                  </svg>
+                  <span>Personalizado</span>
+                </span>
+                <span class="bg-pink-100 text-pink-700 text-xs px-3 py-1 rounded-full font-bold flex items-center gap-1">
+                  <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M14.5 10a4.5 4.5 0 004.284-5.882c-.105-.324-.51-.391-.752-.15L15.34 6.66a.454.454 0 01-.493.11 3.01 3.01 0 01-1.618-1.616.455.455 0 01.11-.494l2.694-2.692c.24-.241.174-.647-.15-.752a4.5 4.5 0 00-5.873 4.575c.055.873-.128 1.808-.8 2.368l-7.23 6.024a2.724 2.724 0 103.837 3.837l6.024-7.23c.56-.672 1.495-.855 2.368-.8.096.007.193.01.291.01zM5 16a1 1 0 11-2 0 1 1 0 012 0z" clip-rule="evenodd" />
+                  </svg>
+                  <span>Instantáneo</span>
+                </span>
               </div>
             </div>
           </div>
@@ -597,7 +677,11 @@
           <button @click="handleIAAction('consejo')" 
             class="group bg-white hover:bg-gradient-to-br hover:from-emerald-50 hover:to-green-50 border-2 border-emerald-300 hover:border-emerald-400 py-3 px-4 rounded-xl transition-all shadow-md hover:shadow-lg transform hover:scale-102">
             <div class="flex items-center gap-3">
-              <span class="text-3xl group-hover:scale-110 transition-transform">💡</span>
+              <div class="bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full p-2 group-hover:scale-110 transition-transform shadow-lg">
+                <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M11 3a1 1 0 10-2 0v1a1 1 0 102 0V3zM15.657 5.757a1 1 0 00-1.414-1.414l-.707.707a1 1 0 001.414 1.414l.707-.707zM18 10a1 1 0 01-1 1h-1a1 1 0 110-2h1a1 1 0 011 1zM5.05 6.464A1 1 0 106.464 5.05l-.707-.707a1 1 0 00-1.414 1.414l.707.707zM5 10a1 1 0 01-1 1H3a1 1 0 110-2h1a1 1 0 011 1zM8 16v-1h4v1a2 2 0 11-4 0zM12 14c.015-.34.208-.646.477-.859a4 4 0 10-4.954 0c.27.213.462.519.476.859h4.002z" />
+                </svg>
+              </div>
               <div class="text-left flex-1">
                 <p class="text-sm font-extrabold text-gray-800">Consejo Personalizado</p>
                 <p class="text-xs text-gray-600">Mejora tu rendimiento</p>
@@ -621,7 +705,11 @@
           <button @click="handleIAAction('pregunta')" 
             class="group bg-white hover:bg-gradient-to-br hover:from-purple-50 hover:to-pink-50 border-2 border-purple-300 hover:border-purple-400 py-3 px-4 rounded-xl transition-all shadow-md hover:shadow-lg transform hover:scale-102">
             <div class="flex items-center gap-3">
-              <span class="text-3xl group-hover:scale-110 transition-transform">❓</span>
+              <div class="bg-gradient-to-br from-purple-500 to-pink-600 rounded-full p-2 group-hover:scale-110 transition-transform shadow-lg">
+                <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" />
+                </svg>
+              </div>
               <div class="text-left flex-1">
                 <p class="text-sm font-extrabold text-gray-800">Pregunta Práctica</p>
                 <p class="text-xs text-gray-600">Refuerza lo aprendido</p>
@@ -644,38 +732,17 @@
           </h2>
         </div>
         
-        <div class="bg-gradient-to-br from-amber-50 via-yellow-50 to-orange-50 rounded-xl p-6 border-2 border-amber-300 shadow-md">
-          <p class="text-center text-base text-gray-600 mb-6 font-medium">
-            🚀 Próximamente con sistema backend
-          </p>
-          
-          <div class="grid grid-cols-3 gap-4 mb-6">
-            <!-- Oro -->
-            <div class="bg-gradient-to-br from-amber-400 to-yellow-500 rounded-xl p-5 shadow-xl border-2 border-amber-500 transform hover:scale-105 transition-all">
-              <div class="text-5xl mb-3 text-center">🥇</div>
-              <p class="text-center text-sm font-bold text-amber-900">Primer Lugar</p>
-              <p class="text-center text-xs text-amber-800 mt-1">---</p>
+        <div class="bg-gradient-to-br from-amber-50 via-yellow-50 to-orange-50 rounded-xl p-8 border-2 border-amber-300 shadow-md">
+          <div class="flex flex-col items-center justify-center gap-4">
+            <div class="bg-yellow-200 rounded-full p-4 shadow-lg">
+              <svg class="w-12 h-12 text-yellow-600" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 1a4.5 4.5 0 00-4.5 4.5V9H5a2 2 0 00-2 2v6a2 2 0 002 2h10a2 2 0 002-2v-6a2 2 0 00-2-2h-.5V5.5A4.5 4.5 0 0010 1zm3 8V5.5a3 3 0 10-6 0V9h6z" clip-rule="evenodd" />
+              </svg>
             </div>
-            
-            <!-- Plata -->
-            <div class="bg-gradient-to-br from-slate-300 to-gray-400 rounded-xl p-5 shadow-xl border-2 border-slate-400 transform hover:scale-105 transition-all">
-              <div class="text-5xl mb-3 text-center">🥈</div>
-              <p class="text-center text-sm font-bold text-slate-800">Segundo Lugar</p>
-              <p class="text-center text-xs text-slate-700 mt-1">---</p>
+            <div class="text-center">
+              <p class="text-xl font-bold text-amber-800 mb-2">Próximamente</p>
+              <p class="text-sm text-gray-600">Función en desarrollo</p>
             </div>
-            
-            <!-- Bronce -->
-            <div class="bg-gradient-to-br from-orange-400 to-amber-600 rounded-xl p-5 shadow-xl border-2 border-orange-500 transform hover:scale-105 transition-all">
-              <div class="text-5xl mb-3 text-center">🥉</div>
-              <p class="text-center text-sm font-bold text-orange-900">Tercer Lugar</p>
-              <p class="text-center text-xs text-orange-800 mt-1">---</p>
-            </div>
-          </div>
-
-          <div class="bg-white rounded-lg p-4 border-2 border-amber-200">
-            <p class="text-sm text-gray-600 text-center">
-              Completa más ejercicios para subir en el ranking cuando esté disponible
-            </p>
           </div>
         </div>
       </div>
@@ -735,7 +802,7 @@ export default {
   computed: {
     // Calcular nivel del jugador basado en juegos completados y efectividad
     nivel() {
-      const puntosTotales = (this.juegosCompletados * 10) + (this.efectividad / 10);
+      const puntosTotales = (this.juegosCompletados * 10) + (this.efectividadSegura / 10);
       if (puntosTotales >= 50) return 5;
       if (puntosTotales >= 35) return 4;
       if (puntosTotales >= 20) return 3;
@@ -755,10 +822,32 @@ export default {
       return niveles[this.nivel] || '🌱 Aprendiz';
     },
     
-    // Calcular progreso total del curso (considerando 6 textos totales en el curso)
+    // Calcular progreso total del curso (32 juegos en total: 12 texto + 10 drag + 10 comprensión)
     progresoTotal() {
-      const textosTotales = 6; // 4 textos en módulo 1 + 2 en módulo 2 (ajustar según tu curso)
-      return Math.min(Math.round((this.juegosCompletados / textosTotales) * 100), 100);
+      const TOTAL_JUEGOS_CURSO = 32 // 12 textos + 10 drag & drop + 10 comprensión
+      const porcentaje = Math.min(
+        Math.round((this.juegosCompletados / TOTAL_JUEGOS_CURSO) * 100), 
+        100
+      )
+      return porcentaje
+    },
+    
+    // Emoji motivacional según rendimiento
+    emojiMotivacional() {
+      if (this.efectividadSegura >= 95) return '🌟'
+      if (this.efectividadSegura >= 85) return '⭐'
+      if (this.efectividadSegura >= 75) return '💪'
+      if (this.efectividadSegura >= 60) return '👍'
+      if (this.juegosCompletados > 0) return '🚀'
+      return '👋'
+    },
+    
+    // Efectividad segura (nunca muestra Infinity o NaN)
+    efectividadSegura() {
+      if (!Number.isFinite(this.efectividad)) return 0
+      if (this.efectividad < 0) return 0
+      if (this.efectividad > 100) return 100
+      return Math.round(this.efectividad)
     },
     
     // Mensaje motivacional dinámico según el progreso
@@ -804,45 +893,94 @@ export default {
   methods: {
     /**
      * Carga todos los datos del jugador desde localStorage
+     * OPTIMIZADO: Usa el mejor puntaje de cada juego, no el promedio de intentos
      */
     loadPlayerData() {
       try {
         if (!this.gameManager) {
           console.warn('⚠️ GameManager no inicializado')
+          this.resetearEstadisticas()
           return
         }
 
-        // Obtener estadísticas del GameManager
+        // Obtener estadísticas mejoradas del GameManager
         const stats = this.gameManager.getEstadisticas()
         
-        // Actualizar estado del componente
-        this.juegosCompletados = stats.juegosCompletados
-        this.efectividad = stats.promedioGeneral
-        this.juegosPerfectos = stats.totalIntentos // Ajustar según necesidad
+        // Validar y actualizar estado con valores seguros
+        this.juegosCompletados = Number.isFinite(stats.juegosCompletados) ? stats.juegosCompletados : 0
+        this.efectividad = Number.isFinite(stats.efectividad) ? stats.efectividad : 0
+        this.juegosPerfectos = Number.isFinite(stats.juegosPerfectos) ? stats.juegosPerfectos : 0
         
         // Calcular racha (días únicos con actividad)
         const progreso = this.gameManager.loadProgress()
-        const fechasUnicas = new Set(progreso.map(p => {
-          const fecha = new Date(p.date)
-          return `${fecha.getFullYear()}-${fecha.getMonth()}-${fecha.getDate()}`
-        }))
-        this.rachaActual = fechasUnicas.size
+        this.rachaActual = this.calcularRachaDias(progreso)
 
-        // Calcular fortalezas y debilidades
+        // Calcular fortalezas y debilidades con análisis mejorado
         this.calcularFortalezasYDebilidades(progreso)
         
-        console.log('✅ Datos del jugador cargados:', {
+        console.log('✅ Datos del jugador cargados (optimizados):', {
           juegosCompletados: this.juegosCompletados,
           efectividad: this.efectividad,
-          nivel: this.nivel
+          juegosPerfectos: this.juegosPerfectos,
+          nivel: this.nivel,
+          racha: this.rachaActual
         })
       } catch (error) {
         console.error('❌ Error al cargar datos del jugador:', error)
-        // Valores por defecto en caso de error
-        this.juegosCompletados = 0
-        this.efectividad = 0
-        this.rachaActual = 0
+        this.resetearEstadisticas()
       }
+    },
+
+    /**
+     * Resetea todas las estadísticas a valores por defecto
+     */
+    resetearEstadisticas() {
+      this.juegosCompletados = 0
+      this.efectividad = 0
+      this.rachaActual = 0
+      this.juegosPerfectos = 0
+      this.fortalezas = []
+      this.debilidades = []
+    },
+
+    /**
+     * Calcula la racha de días consecutivos
+     * @param {Array} progressArray - Array de progreso
+     * @returns {number} - Días de racha actual
+     */
+    calcularRachaDias(progressArray) {
+      if (progressArray.length === 0) return 0
+
+      // Obtener fechas únicas (sin hora) y ordenarlas
+      const fechasUnicas = [...new Set(progressArray.map(p => {
+        const fecha = new Date(p.date)
+        return `${fecha.getFullYear()}-${String(fecha.getMonth() + 1).padStart(2, '0')}-${String(fecha.getDate()).padStart(2, '0')}`
+      }))].sort().reverse()
+
+      // Calcular racha consecutiva desde hoy
+      let racha = 0
+      const hoy = new Date()
+      const hoyStr = `${hoy.getFullYear()}-${String(hoy.getMonth() + 1).padStart(2, '0')}-${String(hoy.getDate()).padStart(2, '0')}`
+      
+      // Si jugó hoy, empieza racha
+      if (fechasUnicas[0] === hoyStr) {
+        racha = 1
+        
+        // Contar días consecutivos hacia atrás
+        for (let i = 1; i < fechasUnicas.length; i++) {
+          const fechaActual = new Date(fechasUnicas[i - 1])
+          const fechaSiguiente = new Date(fechasUnicas[i])
+          const diferenciaDias = Math.floor((fechaActual - fechaSiguiente) / (1000 * 60 * 60 * 24))
+          
+          if (diferenciaDias === 1) {
+            racha++
+          } else {
+            break // Racha rota
+          }
+        }
+      }
+      
+      return racha
     },
 
     calcularFortalezasYDebilidades(progressArray) {
@@ -1018,12 +1156,6 @@ export default {
       try {
         this.playSound('click')
 
-        // Verificar que la unidad esté disponible
-        if (unidadId !== 1) {
-          alert('🚧 Esta unidad estará disponible próximamente')
-          return
-        }
-
         // Verificar GameManager
         if (!this.gameManager) {
           console.error('❌ GameManager no disponible')
@@ -1059,6 +1191,12 @@ export default {
           } else if (juegoSeleccionado.gameId === 2) {
             // Juego 2 - Clasificar palabras
             this.$emit('start-game2', {
+              esRepeticion: juegoSeleccionado.esRepeticion
+            })
+          } else if (juegoSeleccionado.gameId === 3) {
+            // Juego 3 - Comprensión lectora
+            this.$emit('start-game3', {
+              textId: juegoSeleccionado.textId,
               esRepeticion: juegoSeleccionado.esRepeticion
             })
           }

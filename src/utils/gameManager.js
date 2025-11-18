@@ -11,42 +11,61 @@ import { getTextById } from '../data/game1_texts'
 
 /**
  * Configuración de juegos disponibles por unidad
+ * IMPORTANTE: Mantener sincronizado con los textos disponibles
  */
 export const UNIDADES_CONFIG = {
   1: {
     nombre: 'Fundamentos Básicos',
+    descripcion: 'Identifica palabras clave y clasifica términos gramaticales',
     juegos: [
-      { 
-        gameId: 1, 
-        textId: 'text1', 
-        nombre: 'Palabras Clave - Harry Potter',
-        tipo: 'keywords'
-      },
-      { 
-        gameId: 1, 
-        textId: 'text2', 
-        nombre: 'Palabras Clave - Frodo',
-        tipo: 'keywords'
-      },
-      { 
-        gameId: 2, 
-        textId: 'drag1', 
-        nombre: 'Clasificar Palabras',
-        tipo: 'dragdrop'
-      }
+      // === JUEGO 1: Palabras Clave (12 textos) ===
+      { gameId: 1, textId: 'text1', nombre: 'Palabras Clave - Harry Potter', tipo: 'keywords' },
+      { gameId: 1, textId: 'text2', nombre: 'Palabras Clave - Frodo', tipo: 'keywords' },
+      { gameId: 1, textId: 'text3', nombre: 'Palabras Clave - Neo (Matrix)', tipo: 'keywords' },
+      { gameId: 1, textId: 'text4', nombre: 'Palabras Clave - Seinfeld', tipo: 'keywords' },
+      { gameId: 1, textId: 'text5', nombre: 'Palabras Clave - Andy (Cadena Perpetua)', tipo: 'keywords' },
+      { gameId: 1, textId: 'text6', nombre: 'Palabras Clave - Los Vengadores', tipo: 'keywords' },
+      { gameId: 1, textId: 'text7', nombre: 'Palabras Clave - Gatsby', tipo: 'keywords' },
+      { gameId: 1, textId: 'text8', nombre: 'Palabras Clave - Batman', tipo: 'keywords' },
+      { gameId: 1, textId: 'text9', nombre: 'Palabras Clave - Star Trek', tipo: 'keywords' },
+      { gameId: 1, textId: 'text10', nombre: 'Palabras Clave - El Hobbit', tipo: 'keywords' },
+      { gameId: 1, textId: 'text11', nombre: 'Palabras Clave - Lost', tipo: 'keywords' },
+      { gameId: 1, textId: 'text12', nombre: 'Palabras Clave - La Casa de Papel', tipo: 'keywords' },
+      
+      // === JUEGO 2: Clasificar Palabras (10 textos) ===
+      { gameId: 2, textId: 'drag1', nombre: 'Clasificar - Harry Potter', tipo: 'dragdrop' },
+      { gameId: 2, textId: 'drag2', nombre: 'Clasificar - El Señor de los Anillos', tipo: 'dragdrop' },
+      { gameId: 2, textId: 'drag3', nombre: 'Clasificar - Juego de Tronos', tipo: 'dragdrop' },
+      { gameId: 2, textId: 'drag4', nombre: 'Clasificar - Los Simpson', tipo: 'dragdrop' },
+      { gameId: 2, textId: 'drag5', nombre: 'Clasificar - Star Wars', tipo: 'dragdrop' },
+      { gameId: 2, textId: 'drag6', nombre: 'Clasificar - The Matrix', tipo: 'dragdrop' },
+      { gameId: 2, textId: 'drag7', nombre: 'Clasificar - Titanic', tipo: 'dragdrop' },
+      { gameId: 2, textId: 'drag8', nombre: 'Clasificar - Friends', tipo: 'dragdrop' },
+      { gameId: 2, textId: 'drag9', nombre: 'Clasificar - Breaking Bad', tipo: 'dragdrop' },
+      { gameId: 2, textId: 'drag10', nombre: 'Clasificar - The Mandalorian', tipo: 'dragdrop' }
     ]
   },
   2: {
-    nombre: 'Comprensión Intermedia',
+    nombre: 'Comprensión Lectora',
+    descripcion: 'Comprensión, inferencia y análisis de textos',
     juegos: [
-      // Agregar juegos futuros aquí
+      // === JUEGO 3: Comprensión Rápida (10 textos) ===
+      { gameId: 3, textId: 'comp1', nombre: 'Comprensión - El Androide 759', tipo: 'comprension' },
+      { gameId: 3, textId: 'comp2', nombre: 'Comprensión - El Anillo Único', tipo: 'comprension' },
+      { gameId: 3, textId: 'comp3', nombre: 'Comprensión - El Hechicero', tipo: 'comprension' },
+      { gameId: 3, textId: 'comp4', nombre: 'Comprensión - El Titán', tipo: 'comprension' },
+      { gameId: 3, textId: 'comp5', nombre: 'Comprensión - La Alianza Rebelde', tipo: 'comprension' },
+      { gameId: 3, textId: 'comp6', nombre: 'Comprensión - El Detective', tipo: 'comprension' },
+      { gameId: 3, textId: 'comp7', nombre: 'Comprensión - El Portal Dimensional', tipo: 'comprension' },
+      { gameId: 3, textId: 'comp8', nombre: 'Comprensión - La Chica Telequinética', tipo: 'comprension' },
+      { gameId: 3, textId: 'comp9', nombre: 'Comprensión - El Arqueólogo', tipo: 'comprension' },
+      { gameId: 3, textId: 'comp10', nombre: 'Comprensión - El Maestro de Artes Marciales', tipo: 'comprension' }
     ]
   },
   3: {
     nombre: 'Análisis Avanzado',
-    juegos: [
-      // Agregar juegos futuros aquí
-    ]
+    descripcion: 'Estrategias avanzadas y reflexión (Próximamente)',
+    juegos: []
   }
 }
 
@@ -106,93 +125,130 @@ export class GameManager {
   }
 
   /**
-   * Obtiene juegos NO completados de una unidad
+   * Obtiene juegos NO jugados O con menos del 100% de una unidad
+   * Un juego es "disponible" si:
+   * 1. Nunca se ha jugado
+   * 2. Se jugó pero no obtuvo 100% (puede mejorar)
    * @param {number} unidadId - ID de la unidad
-   * @returns {Array} Array de juegos no completados
+   * @returns {Array} Array de juegos disponibles
    */
-  getJuegosNoCompletados(unidadId) {
+  getJuegosDisponibles(unidadId) {
     try {
       const todosJuegos = this.getJuegosUnidad(unidadId)
       const progreso = this.loadProgress()
 
       return todosJuegos.filter(juego => {
-        // Verificar si este juego está completado
-        const completado = progreso.some(p => 
-          p.textId === juego.textId && p.completed
+        // Buscar el mejor intento para este juego
+        const intentos = progreso.filter(p => 
+          p.textId === juego.textId && p.gameId === juego.gameId
         )
-        return !completado
+        
+        // Si nunca se ha jugado, está disponible
+        if (intentos.length === 0) return true
+        
+        // Si se jugó pero no obtuvo 100%, está disponible para mejorar
+        const mejorIntento = intentos.reduce((mejor, actual) => 
+          (actual.score > mejor.score) ? actual : mejor
+        )
+        
+        return mejorIntento.score < 100
       })
     } catch (error) {
-      console.error('❌ Error al filtrar juegos no completados:', error)
+      console.error('❌ Error al filtrar juegos disponibles:', error)
       return []
     }
   }
 
   /**
-   * Obtiene juegos completados de una unidad
+   * Obtiene juegos completados al 100% de una unidad
    * @param {number} unidadId - ID de la unidad
-   * @returns {Array} Array de juegos completados con su mejor puntaje
+   * @returns {Array} Array de juegos con 100%
    */
-  getJuegosCompletados(unidadId) {
+  getJuegosPerfectos(unidadId) {
     try {
       const todosJuegos = this.getJuegosUnidad(unidadId)
       const progreso = this.loadProgress()
 
       return todosJuegos
         .map(juego => {
-          // Buscar el mejor puntaje para este juego
-          const intentos = progreso.filter(p => p.textId === juego.textId)
+          const intentos = progreso.filter(p => 
+            p.textId === juego.textId && p.gameId === juego.gameId
+          )
+          
           if (intentos.length === 0) return null
 
           const mejorIntento = intentos.reduce((mejor, actual) => 
             (actual.score > mejor.score) ? actual : mejor
           )
-
-          return {
-            ...juego,
-            mejorPuntaje: mejorIntento.score,
-            intentos: intentos.length,
-            ultimoIntento: mejorIntento.date
+          
+          // Solo devolver si tiene 100%
+          if (mejorIntento.score === 100) {
+            return {
+              ...juego,
+              mejorPuntaje: mejorIntento.score,
+              intentos: intentos.length,
+              ultimoIntento: mejorIntento.date
+            }
           }
+          
+          return null
         })
         .filter(j => j !== null)
     } catch (error) {
-      console.error('❌ Error al obtener juegos completados:', error)
+      console.error('❌ Error al obtener juegos perfectos:', error)
       return []
     }
   }
 
   /**
    * Selecciona el mejor juego para mostrar al jugador
-   * Prioridad: 1) Juegos no completados, 2) Juegos completados para mejorar
+   * Prioridad: 
+   * 1) Juegos no jugados o con menos del 100%
+   * 2) Si todos están al 100%, permitir repetir cualquiera
    * @param {number} unidadId - ID de la unidad
    * @returns {Object|null} Juego seleccionado o null
    */
   seleccionarJuegoInteligente(unidadId) {
     try {
-      // 1. Verificar si hay juegos no completados
-      const noCompletados = this.getJuegosNoCompletados(unidadId)
+      // 1. Verificar si hay juegos disponibles (no jugados o <100%)
+      const disponibles = this.getJuegosDisponibles(unidadId)
       
-      if (noCompletados.length > 0) {
-        // Seleccionar aleatoriamente entre los no completados
-        const indice = Math.floor(Math.random() * noCompletados.length)
+      if (disponibles.length > 0) {
+        // Seleccionar aleatoriamente entre los disponibles
+        const indice = Math.floor(Math.random() * disponibles.length)
+        const juegoSeleccionado = disponibles[indice]
+        
+        // Obtener el mejor puntaje previo si existe
+        const progreso = this.loadProgress()
+        const intentosPrevios = progreso.filter(p => 
+          p.textId === juegoSeleccionado.textId && p.gameId === juegoSeleccionado.gameId
+        )
+        
+        const mejorPrevio = intentosPrevios.length > 0 
+          ? Math.max(...intentosPrevios.map(i => i.score))
+          : 0
+        
         return {
-          ...noCompletados[indice],
-          esRepeticion: false,
-          mensaje: '🎮 ¡Nuevo desafío! Completa este juego.'
+          ...juegoSeleccionado,
+          esRepeticion: intentosPrevios.length > 0,
+          mejorPrevio: mejorPrevio,
+          mensaje: intentosPrevios.length > 0 
+            ? `🔄 ¡Mejora tu puntaje! Tu mejor: ${mejorPrevio}%`
+            : '🎮 ¡Nuevo desafío!'
         }
       }
 
-      // 2. Si todos están completados, permitir repetir
-      const completados = this.getJuegosCompletados(unidadId)
+      // 2. Si todos están al 100%, permitir repetir
+      const perfectos = this.getJuegosPerfectos(unidadId)
       
-      if (completados.length > 0) {
+      if (perfectos.length > 0) {
         // Seleccionar aleatoriamente para repetir
-        const indice = Math.floor(Math.random() * completados.length)
+        const indice = Math.floor(Math.random() * perfectos.length)
         return {
-          ...completados[indice],
+          ...perfectos[indice],
           esRepeticion: true,
-          mensaje: `🔄 ¡Repite este juego! Tu mejor puntaje: ${completados[indice].mejorPuntaje}%`
+          mejorPrevio: 100,
+          mensaje: `✨ ¡Ya tienes 100%! ¿Quieres repetir?`
         }
       }
 
@@ -217,7 +273,8 @@ export class GameManager {
         correctAnswers,
         totalQuestions,
         score,
-        timeSpent = null
+        timeSpent = null,
+        errores = [] // Array de errores específicos
       } = intentoData
 
       const progreso = this.loadProgress()
@@ -232,12 +289,15 @@ export class GameManager {
         totalQuestions,
         score,
         timeSpent,
+        errores: errores, // Guardar errores específicos
         completed: true,
         date: new Date().toISOString()
       }
 
       // Buscar intentos previos
-      const intentosPrevios = progreso.filter(p => p.textId === textId)
+      const intentosPrevios = progreso.filter(p => 
+        p.textId === textId && p.gameId === gameId
+      )
       const mejorPrevio = intentosPrevios.length > 0 
         ? Math.max(...intentosPrevios.map(p => p.score))
         : 0
@@ -260,6 +320,7 @@ export class GameManager {
         mejorPrevio,
         nuevoScore: score,
         diferencia: score - mejorPrevio,
+        esPerfecto: score === 100,
         mensaje: this.generarMensajeResultado(score, mejoro, empeoro, mejorPrevio)
       }
     } catch (error) {
@@ -319,6 +380,7 @@ export class GameManager {
 
   /**
    * Calcula el progreso de una unidad en porcentaje
+   * Considera juegos con al menos 60% como "completados"
    * @param {number} unidadId - ID de la unidad
    * @returns {number} Porcentaje de progreso (0-100)
    */
@@ -327,8 +389,24 @@ export class GameManager {
       const todosJuegos = this.getJuegosUnidad(unidadId)
       if (todosJuegos.length === 0) return 0
 
-      const completados = this.getJuegosCompletados(unidadId)
-      return Math.round((completados.length / todosJuegos.length) * 100)
+      const progreso = this.loadProgress()
+      
+      // Contar cuántos juegos tienen al menos un intento con 60%+
+      let juegosCompletados = 0
+      
+      todosJuegos.forEach(juego => {
+        const intentos = progreso.filter(p => 
+          p.textId === juego.textId && p.gameId === juego.gameId
+        )
+        
+        // Si hay al menos un intento con 60%+, cuenta como completado
+        const tieneIntentoBueno = intentos.some(i => i.score >= 60)
+        if (tieneIntentoBueno) {
+          juegosCompletados++
+        }
+      })
+      
+      return Math.round((juegosCompletados / todosJuegos.length) * 100)
     } catch (error) {
       console.error('❌ Error al calcular progreso:', error)
       return 0
@@ -337,46 +415,108 @@ export class GameManager {
 
   /**
    * Obtiene estadísticas generales del jugador
-   * @returns {Object} Estadísticas completas
+   * @returns {Object} Estadísticas completas y precisas
    */
   getEstadisticas() {
     try {
       const progreso = this.loadProgress()
       
-      if (progreso.length === 0) {
+      // Valores por defecto si no hay progreso
+      if (!progreso || progreso.length === 0) {
         return {
           totalJuegos: 0,
           juegosCompletados: 0,
+          juegosPerfectos: 0,
           promedioGeneral: 0,
           mejorPuntaje: 0,
-          totalIntentos: 0
+          totalIntentos: 0,
+          efectividad: 0
         }
       }
 
-      // Obtener juegos únicos completados
-      const juegosUnicos = [...new Set(progreso.map(p => p.textId))]
+      // Obtener juegos únicos jugados (combinación de textId + gameId)
+      const juegosUnicos = new Set()
+      const juegosPerfectos = new Set()
       
-      // Calcular promedio general
-      const promedioGeneral = progreso.reduce((sum, p) => sum + p.score, 0) / progreso.length
-
-      // Mejor puntaje
-      const mejorPuntaje = Math.max(...progreso.map(p => p.score))
-
-      return {
-        totalJuegos: juegosUnicos.length,
-        juegosCompletados: juegosUnicos.length,
-        promedioGeneral: Math.round(promedioGeneral),
-        mejorPuntaje,
-        totalIntentos: progreso.length
+      progreso.forEach(p => {
+        // Validar que tenga los campos necesarios
+        if (p && p.gameId && p.textId && typeof p.score === 'number') {
+          const key = `${p.gameId}-${p.textId}`
+          juegosUnicos.add(key)
+          
+          // Contar perfectos (100%)
+          if (p.score === 100) {
+            juegosPerfectos.add(key)
+          }
+        }
+      })
+      
+      // Si no hay juegos válidos después del filtrado
+      if (juegosUnicos.size === 0) {
+        return {
+          totalJuegos: 0,
+          juegosCompletados: 0,
+          juegosPerfectos: 0,
+          promedioGeneral: 0,
+          mejorPuntaje: 0,
+          totalIntentos: progreso.length,
+          efectividad: 0
+        }
       }
+      
+      // Calcular promedio usando el MEJOR intento de cada juego único
+      const mejoresPuntajes = []
+      juegosUnicos.forEach(key => {
+        const [gameId, textId] = key.split('-')
+        const intentosJuego = progreso.filter(p => 
+          p.gameId === parseInt(gameId) && p.textId === textId && typeof p.score === 'number'
+        )
+        
+        if (intentosJuego.length > 0) {
+          const puntajes = intentosJuego.map(i => i.score).filter(s => Number.isFinite(s))
+          if (puntajes.length > 0) {
+            const mejorPuntaje = Math.max(...puntajes)
+            mejoresPuntajes.push(mejorPuntaje)
+          }
+        }
+      })
+      
+      // Calcular promedio solo si hay puntajes válidos
+      const promedioGeneral = mejoresPuntajes.length > 0
+        ? mejoresPuntajes.reduce((sum, score) => sum + score, 0) / mejoresPuntajes.length
+        : 0
+
+      // Mejor puntaje global (con validación segura)
+      const todosLosPuntajes = progreso
+        .map(p => p.score)
+        .filter(s => typeof s === 'number' && Number.isFinite(s))
+      
+      const mejorPuntaje = todosLosPuntajes.length > 0 
+        ? Math.max(...todosLosPuntajes)
+        : 0
+
+      // Asegurar que todos los valores son finitos
+      const stats = {
+        totalJuegos: juegosUnicos.size || 0,
+        juegosCompletados: juegosUnicos.size || 0,
+        juegosPerfectos: juegosPerfectos.size || 0,
+        promedioGeneral: Number.isFinite(promedioGeneral) ? Math.round(promedioGeneral) : 0,
+        mejorPuntaje: Number.isFinite(mejorPuntaje) ? mejorPuntaje : 0,
+        totalIntentos: progreso.length || 0,
+        efectividad: Number.isFinite(promedioGeneral) ? Math.round(promedioGeneral) : 0
+      }
+
+      return stats
     } catch (error) {
       console.error('❌ Error al calcular estadísticas:', error)
       return {
         totalJuegos: 0,
         juegosCompletados: 0,
+        juegosPerfectos: 0,
         promedioGeneral: 0,
         mejorPuntaje: 0,
-        totalIntentos: 0
+        totalIntentos: 0,
+        efectividad: 0
       }
     }
   }

@@ -112,8 +112,18 @@
 
           <!-- Botones de acción después del juego -->
           <div class="flex flex-col gap-4 mt-8">
-            <!-- Botón principal: Ir a Mi Progreso -->
+            <!-- Botón para siguiente texto si existe -->
             <button 
+              v-if="hasNextText"
+              @click="irASiguienteTexto"
+              class="bg-gradient-to-r from-green-500 to-blue-600 text-white px-8 py-4 rounded-xl font-bold text-lg transition-all hover:shadow-lg hover:scale-105"
+            >
+              📖 Siguiente Texto
+            </button>
+            
+            <!-- Botón para ver progreso si no hay más textos -->
+            <button 
+              v-else
               @click="goToProgreso"
               class="bg-gradient-to-r from-green-500 to-blue-600 text-white px-8 py-4 rounded-xl font-bold text-lg transition-all hover:shadow-lg hover:scale-105"
             >
@@ -139,7 +149,7 @@
 // IMPORTACIONES
 // ============================================
 import { emitter } from '../utils/eventBus'
-import { getTextById, getNextText } from '../data/game1_texts'
+import { getTextById } from '../data/game1_texts'
 import { getQuestionsByTextId } from '../data/quest_game_keyword'
 import { createGameManager } from '../utils/gameManager'
 
@@ -176,7 +186,10 @@ export default {
       correctAnswers: 0,             // Contador de respuestas correctas
       answeredQuestions: 0,          // Total de preguntas respondidas
       gameCompleted: false,          // Si el juego fue completado
-      audioContext: null             // Contexto para reproducir sonidos
+      audioContext: null,            // Contexto para reproducir sonidos
+      erroresJuego: [],              // Array de errores cometidos
+      hasNextText: false,            // Si hay siguiente texto disponible
+      nextTextId: null               // ID del siguiente texto
     }
   },
   
@@ -225,11 +238,6 @@ export default {
     score() {
       if (!this.hasValidQuestions || this.questions.length === 0) return 0
       return Math.round((this.correctAnswers / this.questions.length) * 100)
-    },
-    
-    // Verifica si hay siguiente texto disponible
-    hasNextText() {
-      return getNextText(this.textId) !== null
     }
   },
   
@@ -279,6 +287,16 @@ export default {
       } else {
         this.playSound('incorrect');
         const explicacion = tipoExplicacion[answer] || 'Revisa la definición de este tipo de palabra.';
+        
+        // Guardar error específico
+        this.erroresJuego.push({
+          pregunta: this.currentQuestion.question,
+          palabra: this.currentQuestion.word,
+          respuestaCorrecta: this.currentQuestion.correct,
+          respuestaUsuario: answer,
+          explicacion: explicacion
+        });
+        
         emitter.emit('answer-selected', {
           correct: false,
           explanation: explicacion
@@ -330,6 +348,32 @@ export default {
       this.$emit('go-to-progreso');
     },
     
+    // Ir al siguiente texto disponible
+    irASiguienteTexto() {
+      if (this.nextTextId) {
+        this.$emit('try-next-text', this.nextTextId);
+      }
+    },
+    
+    // Verificar si hay un siguiente texto no completado
+    checkNextText() {
+      const gameManager = createGameManager(this.playerName || 'anonimo');
+      const disponibles = gameManager.getJuegosDisponibles(1); // Unidad 1
+      
+      // Filtrar solo juegos del tipo 1 (palabras clave)
+      const textosDisponibles = disponibles.filter(j => j.gameId === 1);
+      
+      // Buscar el siguiente texto diferente al actual
+      const siguiente = textosDisponibles.find(t => t.textId !== this.textId);
+      
+      if (siguiente) {
+        this.hasNextText = true;
+        this.nextTextId = siguiente.textId;
+      } else {
+        this.hasNextText = false;
+      }
+    },
+    
     // ============================================
     // GUARDAR PROGRESO CON GAME MANAGER
     // ============================================
@@ -346,7 +390,8 @@ export default {
           gameId: 1, // Juego 1: Palabras clave
           correctAnswers: this.correctAnswers,
           totalQuestions: this.questions.length,
-          score: this.score
+          score: this.score,
+          errores: this.erroresJuego // Agregar errores específicos
         })
 
         if (resultado.success) {
@@ -359,6 +404,9 @@ export default {
           } else if (resultado.empeoro) {
             console.log(`📚 Tu mejor puntaje sigue siendo ${resultado.mejorPrevio}%`)
           }
+          
+          // Verificar si hay siguiente texto disponible
+          this.checkNextText()
         } else {
           console.error('❌ Error al guardar progreso:', resultado.error)
         }

@@ -38,6 +38,116 @@ export const game1Texts = [
       Sabían que el final estaba cerca, y aunque el miedo los acompañaba, también lo hacía la esperanza de liberar a la Tierra Media del mal.
     `,
     keywords: ['oscuros', 'Anillo', 'Sam', 'pero', 'sintiendo']
+  },
+  {
+    id: 'text3',
+    title: 'El Viaje de Neo (The Matrix)',
+    difficulty: 'medio',
+    content: `
+      Neo, aturdido por la verdad, regresó <strong>rápidamente</strong> a la Matrix para buscar a Morfeo. 
+      La <strong>Resistencia</strong> <strong>necesitaba</strong> desesperadamente que él fuera el Elegido. 
+      Ahora, Neo debía aprender a controlar sus poderes recién <strong>descubiertos</strong>, <strong>aunque</strong> el Agente Smith lo perseguía constantemente.
+    `,
+    keywords: ['rápidamente', 'Resistencia', 'necesitaba', 'aunque', 'descubiertos']
+  },
+  {
+    id: 'text4',
+    title: 'La Cena de Seinfeld',
+    difficulty: 'facil',
+    content: `
+      Jerry, George y Elaine intentaban sentarse <strong>cómodamente</strong> en su restaurante habitual. 
+      George <strong>discutía</strong> acaloradamente con Jerry sobre un <strong>boleto</strong> de cine perdido. 
+      Los tres se quejaban de problemas absurdos, <strong>sin embargo</strong>, amaban profundamente su amistad <strong>disfuncional</strong>.
+    `,
+    keywords: ['cómodamente', 'discutía', 'boleto', 'sin embargo', 'disfuncional']
+  },
+  {
+    id: 'text5',
+    title: 'La Fuga de Andy (Cadena Perpetua)',
+    difficulty: 'medio',
+    content: `
+      Andy Dufresne escapó <strong>lentamente</strong> de Shawshank, arrastrándose a través de un <strong>túnel</strong> maloliente. 
+      Él <strong>llevaba</strong> consigo el dinero <strong>robado</strong> por el alcaide corrupto. 
+      La libertad significaba que por fin podría dedicarse a vivir <strong>tranquilamente</strong>.
+    `,
+    keywords: ['lentamente', 'túnel', 'llevaba', 'robado', 'tranquilamente']
+  },
+  {
+    id: 'text6',
+    title: 'La Batalla de los Vengadores (Marvel)',
+    difficulty: 'medio',
+    content: `
+      Los Vengadores <strong>lucharon</strong> <strong>ferozmente</strong> contra el ejército de Thanos para salvar la <strong>Tierra</strong>, que estaba en peligro inminente. 
+      Capitán América demostró que era <strong>valiente</strong> y fuerte. 
+      Al final, Iron Man se sacrificó, <strong>pues</strong> sabía que no había otra forma de ganar.
+    `,
+    keywords: ['ferozmente', 'Tierra', 'lucharon', 'valiente', 'pues']
+  },
+  {
+    id: 'text7',
+    title: 'La Fiesta de Gatsby (El Gran Gatsby)',
+    difficulty: 'medio',
+    content: `
+      Jay Gatsby organizaba grandiosas fiestas <strong>semanalmente</strong> en su <strong>mansión</strong> lujosa, <strong>pero</strong> él <strong>buscaba</strong> <strong>únicamente</strong> impresionar a Daisy. 
+      Los invitados llegaban alegremente para beber y bailar. 
+      La tristeza de Gatsby crecía inmensamente, aunque nadie lo notaba.
+    `,
+    keywords: ['semanalmente', 'mansión', 'buscaba', 'únicamente', 'pero']
+  },
+  {
+    id: 'text8',
+    title: 'La Ciudad de Gotham (Batman)',
+    difficulty: 'medio',
+    content: `
+      Batman vigilaba <strong>silenciosamente</strong> la peligrosa ciudad de Gotham. 
+      El Comisionado Gordon <strong>creía</strong> firmemente que el Caballero Oscuro era necesario para impartir <strong>justicia</strong>, <strong>ya que</strong> las pandillas criminales dominaban las calles. 
+      El Joker esperaba <strong>pacientemente</strong> su oportunidad.
+    `,
+    keywords: ['silenciosamente', 'justicia', 'creía', 'pacientemente', 'ya que']
+  },
+  {
+    id: 'text9',
+    title: 'El Viaje de la Enterprise (Star Trek)',
+    difficulty: 'medio',
+    content: `
+      La <strong>nave</strong> Enterprise viajaba <strong>constantemente</strong> a velocidades sorprendentes hacia regiones desconocidas. 
+      El Capitán Kirk <strong>exploraba</strong> <strong>valientemente</strong> nuevos mundos y civilizaciones extrañas. 
+      Spock analizaba lógicamente las amenazas, <strong>por lo tanto</strong>, la misión progresaba exitosamente.
+    `,
+    keywords: ['constantemente', 'nave', 'exploraba', 'valientemente', 'por lo tanto']
+  },
+  {
+    id: 'text10',
+    title: 'La Caza de Sauron (El Hobbit)',
+    difficulty: 'medio',
+    content: `
+      Bilbo Bolsón regresó <strong>secretamente</strong> a la Comarca después de haber completado su peligrosa <strong>aventura</strong>. 
+      Él <strong>guardó</strong> <strong>celosamente</strong> el Anillo Único durante muchos años. 
+      El mago Gandalf siempre sospechó que el objeto era malvado y que traería consecuencias <strong>desastrosas</strong>.
+    `,
+    keywords: ['secretamente', 'aventura', 'guardó', 'celosamente', 'desastrosas']
+  },
+  {
+    id: 'text11',
+    title: 'La Isla de los Perdidos (Lost)',
+    difficulty: 'medio',
+    content: `
+      Los sobrevivientes del vuelo 815 <strong>luchaban</strong> <strong>diariamente</strong> por sobrevivir en una isla <strong>misteriosa</strong>. 
+      Jack Shephard, el líder, intentó cohesionar al grupo rápidamente, <strong>aunque</strong> el miedo y los secretos los dividían. 
+      Locke creía <strong>profundamente</strong> en el poder de la isla.
+    `,
+    keywords: ['diariamente', 'luchaban', 'misteriosa', 'aunque', 'profundamente']
+  },
+  {
+    id: 'text12',
+    title: 'La Casa de Papel (Money Heist)',
+    difficulty: 'medio',
+    content: `
+      Un grupo de <strong>criminales</strong> altamente calificados planificó <strong>meticulosamente</strong> el asalto a la Fábrica de Moneda. 
+      El Profesor <strong>dirigía</strong> cuidadosamente la operación desde fuera. 
+      Ellos querían demostrar que eran <strong>astutos</strong> e imparables, <strong>además de</strong> conseguir el dinero.
+    `,
+    keywords: ['meticulosamente', 'criminales', 'dirigía', 'astutos', 'además de']
   }
 ]
 

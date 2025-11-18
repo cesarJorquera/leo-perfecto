@@ -12,6 +12,7 @@
         :is-returning-user="isReturningUser"
         @start-game1="handleStartGame1"
         @start-game2="handleStartGame2"
+        @start-game3="handleStartGame3"
       />
     </div>
     <div v-else class="container mx-auto px-4 py-6 max-w-4xl" style="margin-top: 150px;">
@@ -89,15 +90,26 @@
 
       <pant_reglas_game2
         v-if="currentScreen === 'dragdropRules'"
+        :text-id="currentGame2TextId"
         @continue="goToDragDrop"
       />
 
       <pant_game_2
         v-if="currentScreen === 'dragdrop'"
+        :key="currentGame2TextId"
         :current-screen="currentScreen"
         :player-name="playerName"
+        :text-id="currentGame2TextId"
         @continue="goToProgreso"
         @restart-game2="goToDragDropRules"
+        @try-next-text="handleTryNextGame2Text"
+      />
+
+      <pant_game_3
+        v-if="currentScreen === 'game3'"
+        :key="currentGame3TextId"
+        :player-name="playerName"
+        @volver-menu="goToProgreso"
       />
 
       <mascota 
@@ -115,6 +127,7 @@ import pant_bienvenida from './components/pant_bienvenida.vue'
 import pant_reglas_game1 from './components/pant_reglas_game1.vue'
 import pant_game_1 from './components/pant_game_1.vue'
 import pant_game_2 from './components/pant_game_2.vue'
+import pant_game_3 from './components/pant_game_3.vue'
 import pant_reglas_game2 from './components/pant_reglas_game2.vue'
 import mascota from './components/mascota.vue'
 import { getAllTextIds, getNextText } from './data/game1_texts'
@@ -128,6 +141,7 @@ export default {
     pant_reglas_game1,
     pant_game_1,
     pant_game_2,
+    pant_game_3,
     pant_reglas_game2,
     mascota
   },
@@ -136,6 +150,8 @@ export default {
       currentScreen: 'intro',
       playerName: '',
       currentTextId: 'text1', // ID del texto actual en juego 1
+      currentGame2TextId: 'drag1', // ID del texto actual en juego 2
+      currentGame3TextId: 'comp1', // ID del texto actual en juego 3
       completedTexts: [], // IDs de textos completados
       showProgreso: false,
       userProgress: null, // Progreso cargado desde localStorage
@@ -309,10 +325,62 @@ export default {
       this.currentTextId = gameInfo.textId;
       this.currentScreen = 'instructions'; // Ir a las reglas del juego 1
     },
-    handleStartGame2() {
+    handleStartGame2(gameInfo) {
       // Cerrar el progreso y ir al juego 2
       this.showProgreso = false;
+      
+      // Si se especifica un textId, usarlo; si no, obtener el siguiente no completado
+      if (gameInfo && gameInfo.textId) {
+        this.currentGame2TextId = gameInfo.textId;
+      } else {
+        // Obtener el primer texto no completado del juego 2
+        this.currentGame2TextId = this.getNextGame2Text();
+      }
+      
       this.currentScreen = 'dragdropRules'; // Ir a las reglas del juego 2
+    },
+    getNextGame2Text() {
+      // Obtener progreso del jugador para juego 2
+      const playerName = this.playerName || localStorage.getItem('leo-perfecto-player') || 'anonimo';
+      const progressKey = `leo-perfecto-progress-${playerName}`;
+      const savedProgress = localStorage.getItem(progressKey);
+      
+      // IDs disponibles del juego 2
+      const availableGame2Texts = ['drag1', 'drag2', 'drag3'];
+      
+      if (savedProgress) {
+        try {
+          const progress = JSON.parse(savedProgress);
+          // Filtrar solo progreso del juego 2
+          const game2Progress = progress.filter(p => p.gameId === 2);
+          const completedTexts = game2Progress.map(p => p.textId);
+          
+          // Buscar el primer texto no completado
+          const nextText = availableGame2Texts.find(textId => !completedTexts.includes(textId));
+          return nextText || 'drag1'; // Si todos están completados, volver al primero
+        } catch (error) {
+          console.error('Error al obtener progreso:', error);
+        }
+      }
+      
+      return 'drag1'; // Por defecto, el primer texto
+    },
+    handleTryNextGame2Text(nextTextId) {
+      // Cambiar al siguiente texto y volver a las reglas
+      this.currentGame2TextId = nextTextId;
+      this.goToDragDropRules();
+    },
+    handleStartGame3(gameInfo) {
+      // Cerrar el progreso y ir al juego 3
+      this.showProgreso = false;
+      
+      // El juego 3 maneja su propia selección de textos internamente
+      // pero podemos establecer un textId inicial si se proporciona
+      if (gameInfo && gameInfo.textId) {
+        this.currentGame3TextId = gameInfo.textId;
+      }
+      
+      this.currentScreen = 'game3'; // Ir directamente al juego 3 (sin pantalla de reglas)
     }
   }
 }

@@ -208,7 +208,7 @@ netlify deploy --prod
 
 ## � Contacto
 
-- **Desarrollador:** CJ_29
+- **Desarrollador:** Cesar
 - **Proyecto:** Aplicación educativa Leo Perfecto
 - **Fecha límite MVP:** Fin de noviembre 2025
 

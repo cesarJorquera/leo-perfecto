@@ -5,6 +5,13 @@
         ¡Segundo Desafío!
       </h2>
 
+      <!-- Mostrar título del texto actual -->
+      <div class="mb-6 text-center">
+        <p class="text-lg font-semibold text-purple-600">
+          📖 {{ currentTextTitle }}
+        </p>
+      </div>
+
       <div class="bg-green-50 p-6 rounded-xl text-lg leading-relaxed text-gray-700 mb-8">
         <div class="mb-6">
           <p class="mb-4">
@@ -94,7 +101,21 @@
 </template>
 
 <script>
+import { getGame2TextById } from '../data/game2_texts'
+
 export default {
-  name: 'ReglasGame2'
+  name: 'ReglasGame2',
+  props: {
+    textId: {
+      type: String,
+      default: 'drag1'
+    }
+  },
+  computed: {
+    currentTextTitle() {
+      const text = getGame2TextById(this.textId)
+      return text ? text.title : 'Texto no encontrado'
+    }
+  }
 }
 </script>
