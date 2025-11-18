@@ -837,9 +837,9 @@ export default {
       if (this.efectividadSegura >= 95) return '🌟'
       if (this.efectividadSegura >= 85) return '⭐'
       if (this.efectividadSegura >= 75) return '💪'
-      if (this.efectividadSegura >= 60) return '👍'
+      if (this.efectividadSegura >= 60) return '✨'
       if (this.juegosCompletados > 0) return '🚀'
-      return '👋'
+      return '📖'
     },
     
     // Efectividad segura (nunca muestra Infinity o NaN)
@@ -861,7 +861,7 @@ export default {
       } else if (this.juegosCompletados > 0) {
         return '🚀 ¡Buen comienzo! La práctica constante te ayudará a mejorar.';
       } else {
-        return '👋 ¡Bienvenido! Comienza tu aventura de lectura y alcanza nuevos niveles.';
+        return '¡Bienvenido! Comienza tu aventura de lectura y alcanza nuevos niveles.';
       }
     }
   },
