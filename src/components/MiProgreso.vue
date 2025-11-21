@@ -51,7 +51,7 @@
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
           <!-- Unidad 1 - Fundamentos y Conceptos Básicos -->
           <div class="group bg-gradient-to-br from-blue-100 to-blue-50 rounded-2xl p-6 border-2 border-blue-300 shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-2">
-            <div class="flex flex-col items-center text-center">
+            <div class="flex flex-col items-center text-center h-full">
               <!-- Icono Grande -->
               <div class="bg-gradient-to-br from-blue-500 to-indigo-600 text-white rounded-2xl p-5 mb-4 shadow-xl">
                 <svg class="w-14 h-14" fill="currentColor" viewBox="0 0 24 24">
@@ -100,7 +100,7 @@
               <button 
                 @click="iniciarUnidad(1)"
                 @mouseenter="playSound('hover')"
-                class="w-full bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white py-3 px-6 rounded-xl font-bold text-lg transition-all shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center justify-center gap-2">
+                class="mt-auto w-full bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white py-3 px-6 rounded-xl font-bold text-lg transition-all shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center justify-center gap-2">
                 <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" />
                 </svg>
@@ -111,7 +111,7 @@
 
           <!-- Unidad 2 - Comprensión Inferencial y Analítica -->
           <div class="group bg-green-100 rounded-2xl p-6 border-2 border-green-300 shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-2">
-            <div class="flex flex-col items-center text-center">
+            <div class="flex flex-col items-center text-center h-full">
               <!-- Icono Grande -->
               <div class="bg-green-500 text-white rounded-2xl p-5 mb-4 shadow-xl">
                 <svg class="w-14 h-14" fill="currentColor" viewBox="0 0 24 24">
@@ -166,17 +166,17 @@
               <button 
                 @click="iniciarUnidad(2)"
                 @mouseenter="playSound('hover')"
-                class="w-full bg-green-600 hover:bg-green-700 text-white py-3 px-6 rounded-xl font-bold text-lg transition-all hover:shadow-2xl hover:scale-105 transform flex items-center justify-center gap-2">
+                class="mt-auto w-full bg-green-600 hover:bg-green-700 text-white py-3 px-6 rounded-xl font-bold text-lg transition-all hover:shadow-2xl hover:scale-105 transform flex items-center justify-center gap-2">
                 <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
                   <path d="M10 2a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0v-1.5A.75.75 0 0110 2zM10 15a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0v-1.5A.75.75 0 0110 15zM10 7a3 3 0 100 6 3 3 0 000-6zM15.657 5.404a.75.75 0 10-1.06-1.06l-1.061 1.06a.75.75 0 001.06 1.06l1.06-1.06zM6.464 14.596a.75.75 0 10-1.06-1.06l-1.06 1.06a.75.75 0 001.06 1.06l1.06-1.06zM18 10a.75.75 0 01-.75.75h-1.5a.75.75 0 010-1.5h1.5A.75.75 0 0118 10zM5 10a.75.75 0 01-.75.75h-1.5a.75.75 0 010-1.5h1.5A.75.75 0 015 10zM14.596 15.657a.75.75 0 001.06-1.06l-1.06-1.061a.75.75 0 10-1.06 1.06l1.06 1.06zM5.404 6.464a.75.75 0 001.06-1.06l-1.06-1.06a.75.75 0 10-1.061 1.06l1.06 1.06z" />
                 </svg>
-                <span>Empezar Unidad</span>
+                <span>Jugar</span>
               </button>
             </div>
           </div>
           <!-- Unidad 3 - Aplicación y Metacognición -->
           <div class="group bg-red-100 rounded-2xl p-6 border-2 border-red-300 shadow-lg opacity-90">
-            <div class="flex flex-col items-center text-center">
+            <div class="flex flex-col items-center text-center h-full">
               <!-- Icono Grande -->
               <div class="bg-gradient-to-br from-red-500 to-rose-600 text-white rounded-2xl p-5 mb-4 shadow-xl">
                 <svg class="w-14 h-14" fill="currentColor" viewBox="0 0 24 24">
@@ -214,7 +214,7 @@
               <!-- Botón -->
               <button 
                 disabled
-                class="w-full bg-gray-300 text-gray-600 py-3 px-6 rounded-xl font-bold text-lg cursor-not-allowed opacity-70 shadow-md flex items-center justify-center gap-2">
+                class="mt-auto w-full bg-gray-300 text-gray-600 py-3 px-6 rounded-xl font-bold text-lg cursor-not-allowed opacity-70 shadow-md flex items-center justify-center gap-2">
                 <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M10 1a4.5 4.5 0 00-4.5 4.5V9H5a2 2 0 00-2 2v6a2 2 0 002 2h10a2 2 0 002-2v-6a2 2 0 00-2-2h-.5V5.5A4.5 4.5 0 0010 1zm3 8V5.5a3 3 0 10-6 0V9h6z" clip-rule="evenodd" />
                 </svg>
@@ -253,10 +253,12 @@
         </div>
 
         <!-- Mensaje Motivacional -->
-        <div class="bg-gradient-to-r from-purple-100 to-pink-100 rounded-2xl p-5 mb-6 border-2 border-purple-300 shadow-lg">
-          <div class="flex items-center justify-center gap-3">
-            <span class="text-3xl">{{ emojiMotivacional }}</span>
-            <p class="text-center text-lg font-bold text-gray-800">
+        <div class="bg-gradient-to-r from-purple-100 to-pink-100 rounded-2xl p-6 mb-6 border-2 border-purple-300 shadow-lg">
+          <div class="flex items-center justify-center gap-4">
+            <div class="flex-shrink-0 w-12 h-12 flex items-center justify-center bg-white rounded-xl shadow-md">
+              <span class="text-3xl">{{ emojiMotivacional }}</span>
+            </div>
+            <p class="text-center text-base font-semibold text-gray-800 leading-relaxed">
               {{ mensajeMotivacional }}
             </p>
           </div>
@@ -323,16 +325,11 @@
         <!-- Sistema de Logros/Insignias MEJORADO -->
         <div class="bg-white rounded-2xl p-6 shadow-lg border-2 border-purple-200 mb-6">
           <div class="flex items-center gap-3 mb-5">
-            <div class="bg-gradient-to-br from-yellow-400 to-orange-500 rounded-xl p-3 shadow-md">
-              <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
-                <path fill-rule="evenodd" d="M5.166 2.621v.858c-1.035.148-2.059.33-3.071.543a.75.75 0 00-.584.859 6.753 6.753 0 006.138 5.6 6.73 6.73 0 002.743 1.346A6.707 6.707 0 019.279 15H8.54c-1.036 0-1.875.84-1.875 1.875V19.5h-.75a2.25 2.25 0 00-2.25 2.25c0 .414.336.75.75.75h15a.75.75 0 00.75-.75 2.25 2.25 0 00-2.25-2.25h-.75v-2.625c0-1.036-.84-1.875-1.875-1.875h-.739a6.706 6.706 0 01-1.112-3.173 6.73 6.73 0 002.743-1.347 6.753 6.753 0 006.139-5.6.75.75 0 00-.585-.858 47.077 47.077 0 00-3.07-.543V2.62a.75.75 0 00-.658-.744 49.22 49.22 0 00-6.093-.377c-2.063 0-4.096.128-6.093.377a.75.75 0 00-.657.744zm0 2.629c0 1.196.312 2.32.857 3.294A5.266 5.266 0 013.16 5.337a45.6 45.6 0 012.006-.343v.256zm13.5 0v-.256c.674.1 1.343.214 2.006.343a5.265 5.265 0 01-2.863 3.207 6.72 6.72 0 00.857-3.294z" clip-rule="evenodd" />
-              </svg>
+            <div class="bg-yellow-500 rounded-xl p-3 shadow-md">
+              <span class="text-4xl">🏆</span>
             </div>
-            <h3 class="text-2xl font-bold text-gray-800 flex items-center gap-2">
-              <svg class="w-7 h-7 text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M5.166 2.621v.858c-1.035.148-2.059.33-3.071.543a.75.75 0 00-.584.859 6.753 6.753 0 006.138 5.6 6.73 6.73 0 002.743 1.346A6.707 6.707 0 019.279 15H8.54c-1.036 0-1.875.84-1.875 1.875V19.5h-.75a2.25 2.25 0 00-2.25 2.25c0 .414.336.75.75.75h15a.75.75 0 00.75-.75 2.25 2.25 0 00-2.25-2.25h-.75v-2.625c0-1.036-.84-1.875-1.875-1.875h-.739a6.706 6.706 0 01-1.112-3.173 6.73 6.73 0 002.743-1.347 6.753 6.753 0 006.139-5.6.75.75 0 00-.585-.858 47.077 47.077 0 00-3.07-.543V2.62a.75.75 0 00-.658-.744 49.22 49.22 0 00-6.093-.377c-2.063 0-4.096.128-6.093.377a.75.75 0 00-.657.744zm0 2.629c0 1.196.312 2.32.857 3.294A5.266 5.266 0 013.16 5.337a45.6 45.6 0 012.006-.343v.256zm13.5 0v-.256c.674.1 1.343.214 2.006.343a5.265 5.265 0 01-2.863 3.207 6.72 6.72 0 00.857-3.294z" clip-rule="evenodd" />
-              </svg>
-              <span>Logros Desbloqueados</span>
+            <h3 class="text-2xl font-bold text-gray-800">
+              Logros Desbloqueados
             </h3>
           </div>
           
@@ -526,21 +523,21 @@
                 <div class="flex items-start gap-3">
                   <span class="text-2xl">{{ fortaleza.emoji }}</span>
                   <div class="flex-1">
-                    <p class="text-sm font-bold text-emerald-800 mb-1">{{ fortaleza.titulo }}</p>
+                    <p class="text-sm font-bold text-green-800 mb-1">{{ fortaleza.titulo }}</p>
                     <p class="text-xs text-gray-700 leading-relaxed">{{ fortaleza.descripcion }}</p>
                     <div class="mt-2 flex items-center gap-2">
-                      <div class="bg-emerald-100 rounded-full px-3 py-1">
-                        <p class="text-xs font-bold text-emerald-700">{{ fortaleza.porcentaje }}%</p>
+                      <div class="bg-green-100 rounded-full px-3 py-1">
+                        <p class="text-xs font-bold text-green-700">{{ fortaleza.porcentaje }}%</p>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
-            <div v-else class="bg-white rounded-xl p-8 border-2 border-emerald-200 text-center shadow-md">
+            <div v-else class="bg-white rounded-xl p-8 border-2 border-green-200 text-center shadow-md">
               <div class="flex justify-center mb-3">
-                <svg class="w-16 h-16 text-emerald-500" fill="currentColor" viewBox="0 0 20 20">
-                  <path fill-rule="evenodd" d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.007 5.404.433c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.433 2.082-5.006z" clip-rule="evenodd" />
+                <svg class="w-20 h-20 text-green-400" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.007 5.404.433c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.433 2.082-5.006z" />
                 </svg>
               </div>
               <p class="text-sm font-semibold text-gray-700 mb-2">¡Empieza a descubrir tus fortalezas!</p>
@@ -549,31 +546,31 @@
           </div>
 
           <!-- Áreas de Mejora -->
-          <div class="bg-gradient-to-br from-rose-100 via-pink-50 to-orange-100 rounded-2xl p-6 border-3 border-rose-400 shadow-xl">
+          <div class="bg-gradient-to-br from-red-100 via-rose-50 to-pink-100 rounded-2xl p-6 border-3 border-red-200 shadow-xl">
             <div class="flex items-center gap-3 mb-5">
-              <div class="bg-gradient-to-br from-rose-600 to-pink-700 rounded-xl p-3 shadow-lg">
-                <svg class="w-7 h-7 text-yellow-200 drop-shadow-md" fill="currentColor" viewBox="0 0 24 24">
-                  <path fill-rule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zM12.75 9a.75.75 0 00-1.5 0v2.25H9a.75.75 0 000 1.5h2.25V15a.75.75 0 001.5 0v-2.25H15a.75.75 0 000-1.5h-2.25V9z" clip-rule="evenodd" />
+              <div class="bg-gradient-to-br from-red-500 to-rose-600 rounded-xl p-3 shadow-lg">
+                <svg class="w-8 h-8 text-white drop-shadow-lg" fill="currentColor" viewBox="0 0 24 24">
+                  <path fill-rule="evenodd" d="M11.484 2.17a.75.75 0 011.032 0 11.209 11.209 0 007.877 3.08.75.75 0 01.722.515 12.74 12.74 0 01.635 3.985c0 5.942-4.064 10.933-9.563 12.348a.749.749 0 01-.374 0C6.314 20.683 2.25 15.692 2.25 9.75c0-1.39.223-2.73.635-3.985a.75.75 0 01.722-.516l.143.001c2.996 0 5.718-1.17 7.734-3.08zM12 8.25a.75.75 0 01.75.75v3.75a.75.75 0 01-1.5 0V9a.75.75 0 01.75-.75zM12 15a.75.75 0 00-.75.75v.008c0 .414.336.75.75.75h.008a.75.75 0 00.75-.75v-.008a.75.75 0 00-.75-.75H12z" clip-rule="evenodd" />
                 </svg>
               </div>
-              <h3 class="text-xl font-extrabold text-rose-800 flex items-center gap-2">
-                <svg class="w-6 h-6 text-rose-700" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M10 2a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0v-1.5A.75.75 0 0110 2zM10 15a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0v-1.5A.75.75 0 0110 15zM10 7a3 3 0 100 6 3 3 0 000-6zM15.657 5.404a.75.75 0 10-1.06-1.06l-1.061 1.06a.75.75 0 001.06 1.06l1.06-1.06zM6.464 14.596a.75.75 0 10-1.06-1.06l-1.06 1.06a.75.75 0 001.06 1.06l1.06-1.06zM18 10a.75.75 0 01-.75.75h-1.5a.75.75 0 010-1.5h1.5A.75.75 0 0118 10zM5 10a.75.75 0 01-.75.75h-1.5a.75.75 0 010-1.5h1.5A.75.75 0 015 10zM14.596 15.657a.75.75 0 001.06-1.06l-1.06-1.061a.75.75 0 10-1.06 1.06l1.06 1.06zM5.404 6.464a.75.75 0 001.06-1.06l-1.06-1.06a.75.75 0 10-1.061 1.06l1.06 1.06z" />
+              <h3 class="text-xl font-extrabold text-red-800 flex items-center gap-2">
+                <svg class="w-7 h-7 text-red-700" fill="currentColor" viewBox="0 0 24 24">
+                  <path fill-rule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zm-1.72 6.97a.75.75 0 10-1.06 1.06L10.94 12l-1.72 1.72a.75.75 0 101.06 1.06L12 13.06l1.72 1.72a.75.75 0 101.06-1.06L13.06 12l1.72-1.72a.75.75 0 10-1.06-1.06L12 10.94l-1.72-1.72z" clip-rule="evenodd" />
                 </svg>
                 <span>Áreas de Mejora</span>
               </h3>
             </div>
             <div v-if="debilidades.length > 0" class="space-y-3">
               <div v-for="(debilidad, index) in debilidades" :key="index" 
-                class="bg-white rounded-xl p-4 border-2 border-rose-300 shadow-md hover:shadow-lg transition-all transform hover:scale-102">
+                class="bg-white rounded-xl p-4 border-2 border-red-200 shadow-md hover:shadow-lg transition-all transform hover:scale-102">
                 <div class="flex items-start gap-3">
                   <span class="text-2xl">{{ debilidad.emoji }}</span>
                   <div class="flex-1">
-                    <p class="text-sm font-bold text-rose-800 mb-1">{{ debilidad.titulo }}</p>
+                    <p class="text-sm font-bold text-red-800 mb-1">{{ debilidad.titulo }}</p>
                     <p class="text-xs text-gray-700 leading-relaxed">{{ debilidad.descripcion }}</p>
                     <div class="mt-2 flex items-center gap-2">
-                      <div class="bg-rose-100 rounded-full px-3 py-1">
-                        <p class="text-xs font-bold text-rose-700">{{ debilidad.porcentaje }}%</p>
+                      <div class="bg-red-100 rounded-full px-3 py-1">
+                        <p class="text-xs font-bold text-red-700">{{ debilidad.porcentaje }}%</p>
                       </div>
                       <div class="bg-blue-100 rounded-full px-3 py-1 flex items-center gap-1">
                         <svg class="w-3 h-3 text-blue-700" fill="currentColor" viewBox="0 0 20 20">
@@ -601,123 +598,9 @@
 
 
       <!-- ========================================= -->
-      <!-- SECCIÓN: Asistente de IA Personalizado -->
+      <!-- SECCIÓN: Asistente IA con Gemini -->
       <!-- ========================================= -->
-      <!-- Esta sección ofrece 3 funciones de IA:
-           1. Consejo Personalizado: Analiza el progreso del estudiante y da recomendaciones específicas
-           2. Explicación Clara: Explica conceptos de comprensión lectora de forma simple
-           3. Pregunta Práctica: Genera ejercicios personalizados para reforzar el aprendizaje -->
-      <div class="bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 rounded-3xl shadow-2xl p-8 border-4 border-indigo-200 mb-8">
-        
-        <!-- Título con el icono del libro feliz de Leo Perfecto -->
-        <div class="flex items-center gap-4 mb-6">
-          <div class="bg-gradient-to-br from-purple-400 to-pink-500 rounded-full p-4 shadow-xl">
-            <img src="@/assets/icons/libro-sin-fondo-feliz.png" alt="Leo Feliz" class="w-14 h-14" />
-          </div>
-          <div>
-            <h2 class="text-3xl font-extrabold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-              Asistente IA Leo Perfecto
-            </h2>
-            <p class="text-sm text-gray-600 font-medium mt-1">Tu compañero inteligente de aprendizaje</p>
-          </div>
-        </div>
-        
-        <!-- Interfaz estilo chat -->
-        <div class="bg-white rounded-2xl p-6 shadow-xl border-2 border-indigo-200 mb-6">
-          <div class="flex items-start gap-4">
-            <!-- Avatar circular de IA -->
-            <div class="bg-gradient-to-br from-indigo-400 to-purple-500 rounded-full p-3 shadow-lg flex-shrink-0">
-              <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
-                <path fill-rule="evenodd" d="M4.848 2.771A49.144 49.144 0 0112 2.25c2.43 0 4.817.178 7.152.52 1.978.292 3.348 2.024 3.348 3.97v6.02c0 1.946-1.37 3.678-3.348 3.97a48.901 48.901 0 01-3.476.383.39.39 0 00-.297.17l-2.755 4.133a.75.75 0 01-1.248 0l-2.755-4.133a.39.39 0 00-.297-.17 48.9 48.9 0 01-3.476-.384c-1.978-.29-3.348-2.024-3.348-3.97V6.741c0-1.946 1.37-3.68 3.348-3.97z" clip-rule="evenodd" />
-              </svg>
-            </div>
-            
-            <!-- Mensaje de bienvenida de la IA -->
-            <div class="flex-1">
-              <div class="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-2xl p-5 border-2 border-indigo-100 shadow-md">
-                <p class="text-base text-gray-800 font-medium leading-relaxed mb-3 flex items-start gap-2">
-                  <svg class="w-6 h-6 text-indigo-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M10 8a3 3 0 100-6 3 3 0 000 6zM3.465 14.493a1.23 1.23 0 00.41 1.412A9.957 9.957 0 0010 18c2.31 0 4.438-.784 6.131-2.1.43-.333.604-.903.408-1.41a7.002 7.002 0 00-13.074.003z" />
-                  </svg>
-                  <span>¡Hola <span class="font-bold text-indigo-600">{{ playerName }}</span>!</span>
-                </p>
-                <p class="text-sm text-gray-700 leading-relaxed">
-                  Soy tu asistente de IA personalizado. Analizo tu progreso y te doy consejos específicos para mejorar tu comprensión lectora. ¿Qué te gustaría saber?
-                </p>
-              </div>
-              
-              <!-- Etiquetas informativas (características de la IA) -->
-              <div class="flex gap-2 mt-3 flex-wrap">
-                <span class="bg-indigo-100 text-indigo-700 text-xs px-3 py-1 rounded-full font-bold flex items-center gap-1">
-                  <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M10 9a3 3 0 100-6 3 3 0 000 6zM6 8a2 2 0 11-4 0 2 2 0 014 0zM1.49 15.326a.78.78 0 01-.358-.442 3 3 0 014.308-3.516 6.484 6.484 0 00-1.905 3.959c-.023.222-.014.442.025.654a4.97 4.97 0 01-2.07-.655zM16.44 15.98a4.97 4.97 0 002.07-.654.78.78 0 00.357-.442 3 3 0 00-4.308-3.517 6.484 6.484 0 011.907 3.96 2.32 2.32 0 01-.026.654zM18 8a2 2 0 11-4 0 2 2 0 014 0zM5.304 16.19a.844.844 0 01-.277-.71 5 5 0 019.947 0 .843.843 0 01-.277.71A6.975 6.975 0 0110 18a6.974 6.974 0 01-4.696-1.81z" />
-                  </svg>
-                  <span>Análisis inteligente</span>
-                </span>
-                <span class="bg-purple-100 text-purple-700 text-xs px-3 py-1 rounded-full font-bold flex items-center gap-1">
-                  <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm5 6a1 1 0 10-2 0v3.586l-1.293-1.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V8z" clip-rule="evenodd" />
-                  </svg>
-                  <span>Personalizado</span>
-                </span>
-                <span class="bg-pink-100 text-pink-700 text-xs px-3 py-1 rounded-full font-bold flex items-center gap-1">
-                  <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M14.5 10a4.5 4.5 0 004.284-5.882c-.105-.324-.51-.391-.752-.15L15.34 6.66a.454.454 0 01-.493.11 3.01 3.01 0 01-1.618-1.616.455.455 0 01.11-.494l2.694-2.692c.24-.241.174-.647-.15-.752a4.5 4.5 0 00-5.873 4.575c.055.873-.128 1.808-.8 2.368l-7.23 6.024a2.724 2.724 0 103.837 3.837l6.024-7.23c.56-.672 1.495-.855 2.368-.8.096.007.193.01.291.01zM5 16a1 1 0 11-2 0 1 1 0 012 0z" clip-rule="evenodd" />
-                  </svg>
-                  <span>Instantáneo</span>
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        <!-- Botones de acción rediseñados (más compactos y suaves) -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-          <!-- Botón: Consejo Personalizado -->
-          <button @click="handleIAAction('consejo')" 
-            class="group bg-white hover:bg-gradient-to-br hover:from-emerald-50 hover:to-green-50 border-2 border-emerald-300 hover:border-emerald-400 py-3 px-4 rounded-xl transition-all shadow-md hover:shadow-lg transform hover:scale-102">
-            <div class="flex items-center gap-3">
-              <div class="bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full p-2 group-hover:scale-110 transition-transform shadow-lg">
-                <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M11 3a1 1 0 10-2 0v1a1 1 0 102 0V3zM15.657 5.757a1 1 0 00-1.414-1.414l-.707.707a1 1 0 001.414 1.414l.707-.707zM18 10a1 1 0 01-1 1h-1a1 1 0 110-2h1a1 1 0 011 1zM5.05 6.464A1 1 0 106.464 5.05l-.707-.707a1 1 0 00-1.414 1.414l.707.707zM5 10a1 1 0 01-1 1H3a1 1 0 110-2h1a1 1 0 011 1zM8 16v-1h4v1a2 2 0 11-4 0zM12 14c.015-.34.208-.646.477-.859a4 4 0 10-4.954 0c.27.213.462.519.476.859h4.002z" />
-                </svg>
-              </div>
-              <div class="text-left flex-1">
-                <p class="text-sm font-extrabold text-gray-800">Consejo Personalizado</p>
-                <p class="text-xs text-gray-600">Mejora tu rendimiento</p>
-              </div>
-            </div>
-          </button>
-          
-          <!-- Botón: Explicación Clara -->
-          <button @click="handleIAAction('explicacion')" 
-            class="group bg-white hover:bg-gradient-to-br hover:from-blue-50 hover:to-indigo-50 border-2 border-blue-300 hover:border-blue-400 py-3 px-4 rounded-xl transition-all shadow-md hover:shadow-lg transform hover:scale-102">
-            <div class="flex items-center gap-3">
-              <span class="text-3xl group-hover:scale-110 transition-transform">�</span>
-              <div class="text-left flex-1">
-                <p class="text-sm font-extrabold text-gray-800">Explicación Clara</p>
-                <p class="text-xs text-gray-600">Aprende conceptos</p>
-              </div>
-            </div>
-          </button>
-          
-          <!-- Botón: Pregunta Práctica -->
-          <button @click="handleIAAction('pregunta')" 
-            class="group bg-white hover:bg-gradient-to-br hover:from-purple-50 hover:to-pink-50 border-2 border-purple-300 hover:border-purple-400 py-3 px-4 rounded-xl transition-all shadow-md hover:shadow-lg transform hover:scale-102">
-            <div class="flex items-center gap-3">
-              <div class="bg-gradient-to-br from-purple-500 to-pink-600 rounded-full p-2 group-hover:scale-110 transition-transform shadow-lg">
-                <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
-                  <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" />
-                </svg>
-              </div>
-              <div class="text-left flex-1">
-                <p class="text-sm font-extrabold text-gray-800">Pregunta Práctica</p>
-                <p class="text-xs text-gray-600">Refuerza lo aprendido</p>
-              </div>
-            </div>
-          </button>
-        </div>
-      </div>
+      <AsistenteIA/>
 
       <!-- Ranking Global - Diseño Atractivo -->
       <div class="bg-white rounded-2xl shadow-xl p-6 md:p-8 border-2 border-amber-200">
@@ -756,9 +639,14 @@
 // IMPORTACIONES
 // ============================================
 import { createGameManager } from '../utils/gameManager'
+import AsistenteIA from './AsistenteIA.vue'
 
 export default {
   name: 'MiProgreso',
+  
+  components: {
+    AsistenteIA
+  },
   
   // ============================================
   // PROPS
@@ -832,13 +720,15 @@ export default {
       return porcentaje
     },
     
-    // Emoji motivacional según rendimiento
+    // Emoji motivacional según rendimiento REAL (efectividad + ejercicios)
     emojiMotivacional() {
-      if (this.efectividadSegura >= 95) return '🌟'
-      if (this.efectividadSegura >= 85) return '⭐'
-      if (this.efectividadSegura >= 75) return '💪'
-      if (this.efectividadSegura >= 60) return '✨'
-      if (this.juegosCompletados > 0) return '🚀'
+      if (this.efectividadSegura >= 95 && this.juegosCompletados >= 15) return '🏆'
+      if (this.efectividadSegura >= 90 && this.juegosCompletados >= 10) return '🌟'
+      if (this.efectividadSegura >= 85 && this.juegosCompletados >= 8) return '⭐'
+      if (this.efectividadSegura >= 75 && this.juegosCompletados >= 5) return '💪'
+      if (this.efectividadSegura >= 60 && this.juegosCompletados >= 3) return '👍'
+      if (this.juegosCompletados >= 3) return '📚'
+      if (this.juegosCompletados >= 1) return '🌱'
       return '📖'
     },
     
@@ -850,18 +740,27 @@ export default {
       return Math.round(this.efectividad)
     },
     
-    // Mensaje motivacional dinámico según el progreso
+    // Mensaje motivacional dinámico según el progreso REAL
     mensajeMotivacional() {
-      if (this.efectividad >= 95) {
-        return '🌟 ¡Increíble! Tu comprensión lectora es excepcional. ¡Sigue así!';
-      } else if (this.efectividad >= 80) {
-        return '⭐ ¡Excelente trabajo! Estás dominando la lectura comprensiva.';
-      } else if (this.efectividad >= 60) {
-        return '💪 ¡Vas muy bien! Sigue practicando para mejorar aún más.';
-      } else if (this.juegosCompletados > 0) {
-        return '🚀 ¡Buen comienzo! La práctica constante te ayudará a mejorar.';
+      // Mensajes basados en efectividad Y cantidad de juegos
+      if (this.efectividad >= 95 && this.juegosCompletados >= 15) {
+        return '¡Excelente dominio! Tu comprensión lectora es sobresaliente.';
+      } else if (this.efectividad >= 90 && this.juegosCompletados >= 10) {
+        return 'Muy buen nivel. Mantienes consistencia en tu desempeño.';
+      } else if (this.efectividad >= 80 && this.juegosCompletados >= 8) {
+        return 'Buen progreso. Estás desarrollando habilidades sólidas.';
+      } else if (this.efectividad >= 70 && this.juegosCompletados >= 5) {
+        return 'Vas por buen camino. Sigue practicando regularmente.';
+      } else if (this.efectividad >= 60 && this.juegosCompletados >= 3) {
+        return 'Progreso visible. La constancia te ayudará a mejorar.';
+      } else if (this.juegosCompletados >= 5) {
+        return 'Has practicado varios ejercicios. Revisa tus errores para mejorar.';
+      } else if (this.juegosCompletados >= 2) {
+        return 'Primeros pasos completados. Continúa practicando para avanzar.';
+      } else if (this.juegosCompletados === 1) {
+        return 'Primer ejercicio completado. Sigue practicando para mejorar.';
       } else {
-        return '¡Bienvenido! Comienza tu aventura de lectura y alcanza nuevos niveles.';
+        return 'Comienza tu práctica y desarrolla tus habilidades de lectura.';
       }
     }
   },

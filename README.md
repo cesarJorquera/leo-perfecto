@@ -1,4 +1,4 @@
-# 📚 Leo Perfecto - Aplicación Educativa de Comprensión Lectora
+# 📚 Leo Perfecto - Plataforma Educativa de Comprensión Lectora
 
 <div align="center">
 
@@ -7,6 +7,9 @@
 [![Vue.js](https://img.shields.io/badge/Vue.js-3.2.13-brightgreen.svg)](https://vuejs.org/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind-2.2.17-blue.svg)](https://tailwindcss.com/)
 [![Netlify Status](https://img.shields.io/badge/Deployed%20on-Netlify-00c7b7.svg)](https://netlify.com/)
+[![License](https://img.shields.io/badge/License-Academic-blue.svg)](LICENSE)
+
+[Demo en Vivo](https://leo-perfecto.netlify.app) | [Documentación](./docs/README.md) | [Reportar Bug](https://github.com/cesarJorquera/leo-perfecto/issues)
 
 </div>
 
@@ -14,35 +17,41 @@
 
 ## 🎯 ¿Qué es Leo Perfecto?
 
-Leo Perfecto es una aplicación educativa diseñada para mejorar la **comprensión lectora** mediante **tres juegos interactivos progresivos**:
+Leo Perfecto es una **plataforma educativa moderna** diseñada para mejorar la **comprensión lectora** de estudiantes mediante **tres juegos interactivos progresivos** con sistema de progreso inteligente:
 
-### 🎮 Los 3 Juegos
+### 🎮 Los 3 Juegos Progresivos
 
-1. **Juego 1 - Identificación de Palabras Clave**
-   - Preguntas de opción múltiple sobre sustantivos, verbos, adjetivos y conectores
-   - Feedback inmediato con explicaciones educativas
-   - 12 textos literarios únicos
+#### 1️⃣ Juego 1 - Identificación de Palabras Clave
+- Preguntas de opción múltiple sobre sustantivos, verbos, adjetivos y conectores
+- Feedback inmediato con explicaciones educativas detalladas
+- **12 textos literarios** de dificultad progresiva
 
-2. **Juego 2 - Clasificación y Contexto**
-   - Drag & drop para completar textos con palabras categorizadas
-   - Sistema de vidas (3 intentos por palabra)
-   - 10 ejercicios con validación exacta
+#### 2️⃣ Juego 2 - Clasificación y Contexto
+- Drag & drop para completar textos con palabras categorizadas
+- Sistema de vidas (2 errores máximo) y sistema de pistas
+- **10 ejercicios** con validación exacta y feedback visual
 
-3. **Juego 3 - Comprensión Lectora Integral** ✨ *NUEVO*
-   - 30 textos con preguntas de comprensión profunda
-   - 5 habilidades: Idea Principal, Causa-Efecto, Inferencias, Detalles Específicos, Propósito/Intención
-   - Modos Práctica (sin tiempo) y Desafío (1:30 min con timer visual)
-   - Pantalla de instrucciones interactiva con Leo
+#### 3️⃣ Juego 3 - Comprensión Lectora Integral ✨ **NUEVO**
+- **30 textos** con preguntas de comprensión profunda
+- **5 habilidades cognitivas:** Idea Principal, Causa-Efecto, Inferencias, Detalles Específicos, Propósito del Autor
+- **2 modos de juego:**
+  - 🎓 **Práctica:** Sin límite de tiempo, ideal para aprender
+  - ⚡ **Desafío:** 1:30 min por pregunta con timer visual
+- Pantalla de instrucciones interactiva con Leo
+- Explicaciones detalladas por cada respuesta
 
 ### ✨ Características Principales
 
-- 🎮 Sistema de progreso inteligente con análisis por juego
-- 🤖 Mascota interactiva "Leo" con feedback contextual
-- 📊 Dashboard completo con métricas, logros y análisis de fortalezas/debilidades
-- 🎯 Sistema de niveles y rachas de práctica
-- 🎨 Diseño minimalista y profesional con Tailwind CSS
-- 🔊 Feedback auditivo con Web Audio API
-- 📱 100% Responsive (móvil, tablet, desktop)
+- 🧠 **Sistema de progreso inteligente** - Selección automática de juegos según rendimiento
+- 🤖 **Mascota interactiva "Leo"** - Feedback contextual y sistema de ayuda progresiva
+- 📊 **Dashboard avanzado** - Métricas en tiempo real, 10 logros desbloqueables
+- 📈 **Análisis personalizado** - Fortalezas, debilidades y consejos específicos
+- 🎯 **Sistema de niveles** - De Aprendiz a Maestro de la Lectura
+- 🔥 **Rachas de práctica** - Motivación mediante streaks diarios
+- 🎨 **Diseño profesional** - UI minimalista y moderna con Tailwind CSS
+- 🔊 **Feedback auditivo** - Sonidos con Web Audio API (sin librerías)
+- 📱 **100% Responsive** - Optimizado para móvil, tablet y desktop
+- 💾 **Persistencia local** - localStorage (preparado para migración a backend)
 
 ---
 

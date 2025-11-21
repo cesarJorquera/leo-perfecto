@@ -29,12 +29,12 @@
               ¡Hola! Para comenzar, escribe tu nombre:
             </div>
             
-            <div class="flex justify-center items-center space-x-3">
+            <div class="flex flex-col sm:flex-row justify-center items-stretch sm:items-center gap-3 w-full px-4">
               <input 
                 v-model="playerName" 
                 type="text" 
                 placeholder="Escribe tu nombre aquí..."
-                class="flex-1 max-w-md px-4 py-3 text-lg border-2 border-gray-200 rounded-xl focus:border-blue-400 focus:outline-none transition-colors"
+                class="w-full sm:flex-1 sm:max-w-md px-4 py-3 text-base sm:text-lg border-2 border-gray-200 rounded-xl focus:border-blue-400 focus:outline-none transition-colors"
                 @keyup.enter="goToWelcome"
                 @input="checkPlayerStatus"
               >
@@ -42,7 +42,7 @@
               <button 
                 @click="goToWelcome"
                 :disabled="!playerName.trim()"
-                class="bg-gradient-to-r from-green-500 to-blue-600 text-white px-8 py-3 rounded-xl font-semibold text-lg transition-all hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed hover:scale-105"
+                class="w-full sm:w-auto bg-gradient-to-r from-green-500 to-blue-600 text-white px-8 py-3 rounded-xl font-semibold text-base sm:text-lg transition-all hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed hover:scale-105"
               >
                 Comenzar
               </button>

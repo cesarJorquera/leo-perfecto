@@ -481,7 +481,7 @@ export default {
         
         const resultado = gameManager.registrarIntento({
           textId: this.textoActual.id,
-          gameId: 'game3',
+          gameId: 3,
           score: this.respuestaCorrecta ? 100 : 0,
           correctAnswers: this.respuestaCorrecta ? 1 : 0,
           totalQuestions: 1,
