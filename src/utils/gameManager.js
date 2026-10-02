@@ -16,7 +16,7 @@ import { getTextById } from '../data/game1_texts'
 export const UNIDADES_CONFIG = {
   1: {
     nombre: 'Fundamentos Básicos',
-    descripcion: 'Identifica palabras clave y clasifica términos gramaticales',
+    descripcion: 'Identifica palabras clave, clasifica términos y domina conceptos fundamentales',
     juegos: [
       // === JUEGO 1: Palabras Clave (12 textos) ===
       { gameId: 1, textId: 'text1', nombre: 'Palabras Clave - Harry Potter', tipo: 'keywords' },
@@ -42,7 +42,10 @@ export const UNIDADES_CONFIG = {
       { gameId: 2, textId: 'drag7', nombre: 'Clasificar - Titanic', tipo: 'dragdrop' },
       { gameId: 2, textId: 'drag8', nombre: 'Clasificar - Friends', tipo: 'dragdrop' },
       { gameId: 2, textId: 'drag9', nombre: 'Clasificar - Breaking Bad', tipo: 'dragdrop' },
-      { gameId: 2, textId: 'drag10', nombre: 'Clasificar - The Mandalorian', tipo: 'dragdrop' }
+      { gameId: 2, textId: 'drag10', nombre: 'Clasificar - The Mandalorian', tipo: 'dragdrop' },
+      
+      // === JUEGO 4: Trivia de Fundamentos (20 preguntas) ===
+      { gameId: 4, textId: 'trivia1', nombre: 'Trivia - Fundamentos de Comprensión Lectora', tipo: 'trivia' }
     ]
   },
   2: {

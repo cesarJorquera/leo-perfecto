@@ -17,7 +17,7 @@
 
 ## 🎯 ¿Qué es Leo Perfecto?
 
-Leo Perfecto es una **plataforma educativa moderna** diseñada para mejorar la **comprensión lectora** de estudiantes mediante **tres juegos interactivos progresivos** con sistema de progreso inteligente:
+Leo Perfecto es una **plataforma educativa moderna** diseñada para mejorar la **comprensión lectora** de estudiantes mediante *** juegos interactivos progresivos** con sistema de progreso inteligente:
 
 ### 🎮 Los 3 Juegos Progresivos
 
@@ -177,14 +177,13 @@ leo-perfecto/
 
 ### 🚧 En Desarrollo (v2.0 - Próximamente)
 
-- **Integración IA:** Recomendaciones personalizadas con API OpenAI/Gemini
 - **Backend REST:** Node.js + Express + PostgreSQL
   - Autenticación JWT
   - Sistema multi-usuario
   - Rankings globales
 - **Vue Router:** Navegación SPA profesional con rutas protegidas
 - **Pinia Store:** Gestión centralizada de estado
-- **Testing:** Vitest + Cypress para tests unitarios y E2E
+- **Testing:** 
 - **Unidad 3:** Textos extensos, síntesis, análisis crítico y metacognición
 
 ---
@@ -244,40 +243,10 @@ leo-perfecto/
 - `refactor:` Refactorización sin cambio funcional
 - `test:` Agregar o modificar tests
 - `chore:` Tareas de mantenimiento
-
----
-
-## 📋 Roadmap 2025
-
-### Q1 2025 (Enero - Marzo)
-- [ ] Integración con API de OpenAI/Gemini para análisis de texto
-- [ ] Backend REST con Node.js + Express
-- [ ] Base de datos PostgreSQL
-- [ ] Sistema de autenticación JWT
-
-### Q2 2025 (Abril - Junio)
-- [ ] Vue Router con rutas protegidas
-- [ ] Pinia Store (gestión de estado centralizada)
-- [ ] Sistema multi-usuario con perfiles
-- [ ] Rankings globales en tiempo real
-
-### Q3 2025 (Julio - Septiembre)
-- [ ] Testing completo (Vitest + Cypress)
-- [ ] PWA (Progressive Web App)
-- [ ] Modo offline
-- [ ] Notificaciones push
-
-### Q4 2025 (Octubre - Diciembre)
-- [ ] Unidad 3: Textos extensos y metacognición
-- [ ] Sistema de recompensas avanzado
-- [ ] Integración con plataformas educativas (Google Classroom)
-- [ ] App móvil nativa (React Native/Flutter)
-
 ---
 
 ## 📞 Contacto y Soporte
 
-- **Desarrollador Principal:** César Jorquera
 - **Email:** ces.jorquera@duocuc.cl
 - **Repositorio:** [github.com/cesarJorquera/leo-perfecto](https://github.com/cesarJorquera/leo-perfecto)
 - **Demo en vivo:** [Netlify Deploy](https://leo-perfecto.netlify.app) *(actualizar URL)*

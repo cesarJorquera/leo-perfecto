@@ -120,41 +120,37 @@ function limpiarJSON(respuesta) {
  */
 export async function generarDiagnosticoPersonalizado(resultados) {
   const { correctas, incorrectas, habilidadesEvaluadas } = resultados;
-  const total = correctas + incorrectas;
-  const porcentaje = Math.round((correctas / total) * 100);
+  const porcentaje = Math.round((correctas / (correctas + incorrectas)) * 100);
   
   // Construir resumen de habilidades
   const resumenHabilidades = habilidadesEvaluadas.map(h => 
     `- ${h.nombre}: ${h.correcta ? 'CORRECTA ✓' : 'INCORRECTA ✗'}`
   ).join('\n');
   
-  const prompt = `Eres un experto pedagogo en comprensión lectora especializado en diagnósticos precisos. Analiza estos resultados de un test diagnóstico avanzado de 10 preguntas:
+  const prompt = `Eres un experto en comprension lectora. Analiza estos resultados de un test diagnostico de un estudiante adolescente:
 
-RESULTADOS DEL ESTUDIANTE:
-- Preguntas correctas: ${correctas}/${total}
+RESULTADOS:
+- Preguntas correctas: ${correctas}/5
 - Porcentaje de acierto: ${porcentaje}%
-- Análisis por habilidad:
+- Habilidades evaluadas:
 ${resumenHabilidades}
 
-GENERA un diagnóstico completo, honesto y motivador en formato JSON:
+Genera un diagnostico personalizado en formato JSON:
 {
-  "nivel": "basico/intermedio/avanzado/experto",
-  "mensaje_motivacional": "Mensaje realista que reconozca el nivel actual y motive a seguir mejorando (máximo 2 líneas)",
-  "fortalezas": ["2-3 fortalezas específicas detectadas basadas en respuestas correctas"],
-  "areas_mejorar": ["2-3 áreas concretas donde debe enfocarse basadas en errores"],
-  "recomendacion_inicio": "Estrategia específica: con qué unidad empezar y por qué",
-  "consejo_principal": "Consejo práctico y accionable para mejorar la comprensión lectora"
+  "nivel": "basico/intermedio/avanzado",
+  "mensaje_motivacional": "Mensaje corto y positivo",
+  "fortalezas": ["Lista de 1-2 fortalezas detectadas"],
+  "areas_mejorar": ["Lista de 1-2 areas a mejorar"],
+  "recomendacion_inicio": "Unidad recomendada para empezar (Unidad 1 o 2)",
+  "consejo_principal": "Consejo practico y motivador"
 }
 
-CRITERIOS DE EVALUACIÓN ESTRICTOS:
-- BÁSICO: 0-40% (4 o menos correctas) - Necesita refuerzo en habilidades fundamentales
-- INTERMEDIO: 41-65% (5-6 correctas) - Comprensión general pero áreas específicas a fortalecer
-- AVANZADO: 66-85% (7-8 correctas) - Buen nivel, pulir habilidades complejas
-- EXPERTO: 86-100% (9-10 correctas) - Dominio sólido de comprensión lectora
+Criterios de nivel:
+- basico: 0-40% de acierto
+- intermedio: 41-75% de acierto
+- avanzado: 76-100% de acierto
 
-SÉ HONESTO: Si el estudiante tiene nivel básico, dilo claramente pero con motivación. Si es experto, reconócelo pero sugiere desafíos mayores.
-
-Responde SOLO con el JSON válido, sin texto adicional ni markdown.`;
+Responde solo con el JSON, sin texto extra.`;
   
   try {
     const respuesta = await consultarIA(prompt);

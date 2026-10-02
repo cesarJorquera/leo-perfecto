@@ -13,6 +13,7 @@
         @start-game1="handleStartGame1"
         @start-game2="handleStartGame2"
         @start-game3="handleStartGame3"
+        @start-game4="handleStartGame4"
       />
     </div>
     <div v-else class="container mx-auto px-4 py-6 max-w-4xl" style="margin-top: 150px;">
@@ -112,6 +113,20 @@
         @volver-menu="goToProgreso"
       />
 
+      <!-- Juego 4: Trivia -->
+      <pant_reglas_game4
+        v-if="currentScreen === 'instructions_game4'"
+        @start-game="currentScreen = 'game4'"
+        @volver-menu="goToProgreso"
+      />
+
+      <pant_game_4
+        v-if="currentScreen === 'game4'"
+        :player-name="playerName"
+        @volver-menu="goToProgreso"
+        @reintentar="currentScreen = 'instructions_game4'"
+      />
+
       <mascota 
         v-if="currentScreen === 'questions'"
         :current-screen="currentScreen"
@@ -129,6 +144,8 @@ import pant_game_1 from './components/pant_game_1.vue'
 import pant_game_2 from './components/pant_game_2.vue'
 import pant_game_3 from './components/pant_game_3.vue'
 import pant_reglas_game2 from './components/pant_reglas_game2.vue'
+import pant_reglas_game4 from './components/pant_reglas_game4.vue'
+import pant_game_4 from './components/pant_game_4.vue'
 import mascota from './components/mascota.vue'
 import { getAllTextIds, getNextText } from './data/game1_texts'
 
@@ -143,6 +160,8 @@ export default {
     pant_game_2,
     pant_game_3,
     pant_reglas_game2,
+    pant_reglas_game4,
+    pant_game_4,
     mascota
   },
   data() {
@@ -381,6 +400,13 @@ export default {
       }
       
       this.currentScreen = 'game3'; // Ir directamente al juego 3 (sin pantalla de reglas)
+    },
+    
+    // eslint-disable-next-line no-unused-vars
+    handleStartGame4(gameInfo) {
+      // Cerrar el progreso y ir al juego 4 (Trivia)
+      this.showProgreso = false;
+      this.currentScreen = 'instructions_game4'; // Ir a las reglas del juego 4
     }
   }
 }
