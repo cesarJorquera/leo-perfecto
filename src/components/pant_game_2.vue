@@ -18,7 +18,7 @@
     </div>
 
     <!-- Juego normal cuando hay datos válidos -->
-    <div v-else class="bg-white rounded-3xl shadow-xl p-8 md:p-12">
+    <div v-else class="bg-white rounded-3xl shadow-xl p-4 md:p-12">
       <h2 class="text-2xl md:text-3xl font-bold text-gray-800 mb-6 text-center">
         Clasifica las palabras
       </h2>
@@ -49,10 +49,10 @@
       />
 
       <!-- Contenedores de palabras -->
-      <div class="grid grid-cols-2 gap-4 mb-8">
-        <div class="border-4 border-red-300 rounded-xl p-4">
-          <h3 class="text-lg font-bold text-red-400 mb-2">Verbos</h3>
-          <div class="flex flex-wrap gap-2">
+      <div class="sticky top-0 z-10 bg-white py-2 grid grid-cols-2 gap-2 md:gap-4 mb-4 md:mb-8 shadow-md md:shadow-none">
+        <div class="border-2 md:border-4 border-red-300 rounded-xl p-2 md:p-4">
+          <h3 class="text-lg font-bold text-red-400 mb-1 md:mb-2">Verbos</h3>
+          <div class="flex flex-wrap gap-1 md:gap-2">
             <span
               v-for="palabra in palabrasPorTipo.verbos"
               :key="palabra.id"
@@ -66,9 +66,9 @@
           </div>
         </div>
 
-        <div class="border-4 border-blue-400 rounded-xl p-4">
-          <h3 class="text-lg font-bold text-blue-600 mb-2">Sustantivos</h3>
-          <div class="flex flex-wrap gap-2">
+        <div class="border-2 md:border-4 border-blue-400 rounded-xl p-2 md:p-4">
+          <h3 class="text-lg font-bold text-blue-600 mb-1 md:mb-2">Sustantivos</h3>
+          <div class="flex flex-wrap gap-1 md:gap-2">
             <span
               v-for="palabra in palabrasPorTipo.sustantivos"
               :key="palabra.id"
@@ -82,9 +82,9 @@
           </div>
         </div>
 
-        <div class="border-4 border-purple-400 rounded-xl p-4">
-          <h3 class="text-lg font-bold text-purple-600 mb-2">Conectores</h3>
-          <div class="flex flex-wrap gap-2">
+        <div class="border-2 md:border-4 border-purple-400 rounded-xl p-2 md:p-4">
+          <h3 class="text-lg font-bold text-purple-600 mb-1 md:mb-2">Conectores</h3>
+          <div class="flex flex-wrap gap-1 md:gap-2">
             <span
               v-for="palabra in palabrasPorTipo.conectores"
               :key="palabra.id"
@@ -98,9 +98,9 @@
           </div>
         </div>
 
-        <div class="border-4 border-green-400 rounded-xl p-4">
-          <h3 class="text-lg font-bold text-green-600 mb-2">Adjetivos</h3>
-          <div class="flex flex-wrap gap-2">
+        <div class="border-2 md:border-4 border-green-400 rounded-xl p-2 md:p-4">
+          <h3 class="text-lg font-bold text-green-600 mb-1 md:mb-2">Adjetivos</h3>
+          <div class="flex flex-wrap gap-1 md:gap-2">
             <span
               v-for="palabra in palabrasPorTipo.adjetivos"
               :key="palabra.id"
@@ -116,7 +116,7 @@
       </div>
 
       <!-- Texto con espacios para completar -->
-      <div class="bg-green-50 p-6 rounded-xl text-lg leading-relaxed text-gray-700 mb-8">
+      <div class="bg-green-50 p-3 md:p-6 rounded-xl text-lg leading-relaxed text-gray-700 mb-8">
         <p class="space-x-2 flex flex-wrap">
           <template v-for="(espacio, index) in espaciosTexto" :key="index">
             <template v-if="espacio.tipo === 'texto'">
