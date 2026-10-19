@@ -20,7 +20,7 @@
         @start-game4="handleStartGame4"
       />
     </div>
-    <div v-else class="container mx-auto px-4 py-6 max-w-4xl" style="margin-top: 150px;">
+    <div v-else class="container mx-auto px-4 py-6 max-w-4xl md:mt-36">
       <!-- Mientras se revisa si hay una sesión guardada (evita mostrar el login un instante) -->
       <div v-if="currentScreen === 'cargando'" class="text-center text-gray-500 py-20 animate-pulse">
         Cargando…
