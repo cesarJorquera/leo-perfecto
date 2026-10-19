@@ -191,6 +191,18 @@ export default {
       return getNextText(this.currentTextId) !== null
     }
   },
+  watch: {
+    currentScreen() {
+      this.$nextTick(() => {
+        window.scrollTo(0, 0)
+      })
+    },
+    showProgreso() {
+      this.$nextTick(() => {
+        window.scrollTo(0, 0)
+      })
+    }
+  },
   mounted() {
     this.iniciarAutenticacion()
   },

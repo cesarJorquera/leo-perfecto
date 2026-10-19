@@ -240,6 +240,13 @@ export default {
       return Math.round((this.correctAnswers / this.questions.length) * 100)
     }
   },
+  watch: {
+    gameCompleted() {
+      this.$nextTick(() => {
+        window.scrollTo(0, 0)
+      })
+    }
+  },
   
   // ============================================
   // CICLO DE VIDA: MOUNTED

@@ -354,6 +354,18 @@ export default {
       return Math.round((this.respuestasCorrectas / this.textosProcesados) * 100);
     }
   },
+  watch: {
+    mostrarInstrucciones() {
+      this.$nextTick(() => {
+        window.scrollTo(0, 0);
+      });
+    },
+    juegoTerminado() {
+      this.$nextTick(() => {
+        window.scrollTo(0, 0);
+      });
+    }
+  },
   mounted() {
     // No cargar texto hasta que se elija el modo
   },
