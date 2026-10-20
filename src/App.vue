@@ -35,13 +35,35 @@
         @entrar-google="entrar"
       />
 
-      <!-- CU-04: la puerta del panel docente. El panel real es Sprint 2 (PA-01) -->
-      <div v-if="currentScreen === 'panelDocente' && esDocente" class="bg-white rounded-3xl shadow-xl p-8 text-center">
-        <h2 class="text-2xl font-bold text-gray-800 mb-2">📊 Panel docente</h2>
-        <p class="text-gray-600 mb-6">Próximamente: aquí verás el avance de tus estudiantes.</p>
-        <button class="bg-purple-600 hover:bg-purple-700 text-white font-semibold px-6 py-3 rounded-xl" @click="goToProgreso">
-          Volver
-        </button>
+      <!-- CU-04 / JU-08: Espacio docente (reemplaza el "Próximamente" de CU-04) -->
+      <ElegirEspacio
+        v-if="currentScreen === 'elegirEspacio' && esDocente"
+        :nombre-docente="playerName"
+        @elegir-aula="currentScreen = 'leoAula'"
+        @elegir-dash="currentScreen = 'leoDash'"
+        @volver="goToProgreso"
+      />
+
+      <LeoAula
+        v-if="currentScreen === 'leoAula' && esDocente"
+        @abrir-leo-ideas="abrirLeoIdeasProyector"
+        @volver="currentScreen = 'elegirEspacio'"
+      />
+
+      <LeoDash
+        v-if="currentScreen === 'leoDash' && esDocente"
+        @abrir-control-leo-ideas="abrirLeoIdeasControl"
+        @volver="currentScreen = 'elegirEspacio'"
+      />
+
+      <div v-if="currentScreen === 'leoIdeasProyector'" class="bg-white rounded-3xl p-8 text-center shadow-lg">
+        <p class="text-gray-600 mb-4">Cargando Proyector de Leo Ideas...</p>
+        <button class="bg-purple-600 text-white px-4 py-2 rounded-xl" @click="currentScreen = 'leoAula'">Volver</button>
+      </div>
+
+      <div v-if="currentScreen === 'leoIdeasControl'" class="bg-white rounded-3xl p-8 text-center shadow-lg">
+        <p class="text-gray-600 mb-4">Cargando Control de Leo Ideas...</p>
+        <button class="bg-purple-600 text-white px-4 py-2 rounded-xl" @click="currentScreen = 'leoDash'">Volver</button>
       </div>
 
       <pant_bienvenida 
@@ -129,6 +151,9 @@ import pant_reglas_game4 from './components/pant_reglas_game4.vue'
 import pant_game_4 from './components/pant_game_4.vue'
 import mascota from './components/mascota.vue'
 import pant_login from './components/pant_login.vue'
+import ElegirEspacio from './components/docente/ElegirEspacio.vue'
+import LeoAula from './components/docente/LeoAula.vue'
+import LeoDash from './components/docente/LeoDash.vue'
 import { supabaseConfigurado } from './utils/supabaseClient'
 import {
   entrarConGoogle,
@@ -155,7 +180,10 @@ export default {
     pant_reglas_game4,
     pant_game_4,
     mascota,
-    pant_login
+    pant_login,
+    ElegirEspacio,
+    LeoAula,
+    LeoDash
   },
   data() {
     return {
@@ -248,6 +276,11 @@ export default {
         console.warn('No se pudo guardar el nombre en localStorage:', error)
       }
       this.cargandoLogin = false
+      if (this.esDocente) {
+        this.showProgreso = false
+        this.currentScreen = 'elegirEspacio'
+        return
+      }
       this.currentScreen = 'welcome'
       this.goToWelcome() // mismo camino que antes tras "Comenzar": carga progreso y abre el menú
     },
@@ -273,7 +306,15 @@ export default {
     irAlPanelDocente() {
       if (!this.esDocente) return
       this.showProgreso = false
-      this.currentScreen = 'panelDocente'
+      this.currentScreen = 'elegirEspacio'
+    },
+    abrirLeoIdeasProyector() {
+      this.showProgreso = false
+      this.currentScreen = 'leoIdeasProyector'
+    },
+    abrirLeoIdeasControl() {
+      this.showProgreso = false
+      this.currentScreen = 'leoIdeasControl'
     },
     loadUserProgress(playerName) {
       // Cargar progreso del usuario desde localStorage
