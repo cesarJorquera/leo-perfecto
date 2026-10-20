@@ -1,6 +1,14 @@
 <template>
   <div class="bg-gradient-to-br from-blue-50 to-purple-50 min-h-screen">
-    <AppNavbar 
+    <!-- Proyector en pantalla grande para la sala (oculta la navbar común) -->
+    <LeoIdeasProyector
+      v-if="currentScreen === 'leoIdeasProyector' && esDocente"
+      :docente-id="usuario ? usuario.id : ''"
+      @salir="currentScreen = 'leoAula'"
+    />
+
+    <template v-else>
+      <AppNavbar 
       :show-progress-button="sesionIniciada && !showProgreso && currentScreen !== 'cargando'" 
       :sesion-iniciada="sesionIniciada"
       :mostrar-panel-docente="esDocente"
@@ -56,10 +64,6 @@
         @volver="currentScreen = 'elegirEspacio'"
       />
 
-      <div v-if="currentScreen === 'leoIdeasProyector'" class="bg-white rounded-3xl p-8 text-center shadow-lg">
-        <p class="text-gray-600 mb-4">Cargando Proyector de Leo Ideas...</p>
-        <button class="bg-purple-600 text-white px-4 py-2 rounded-xl" @click="currentScreen = 'leoAula'">Volver</button>
-      </div>
 
       <div v-if="currentScreen === 'leoIdeasControl'" class="bg-white rounded-3xl p-8 text-center shadow-lg">
         <p class="text-gray-600 mb-4">Cargando Control de Leo Ideas...</p>
@@ -135,6 +139,7 @@
         :current-screen="currentScreen"
       />
     </div>
+    </template>
   </div>
 </template>
 
@@ -154,6 +159,7 @@ import pant_login from './components/pant_login.vue'
 import ElegirEspacio from './components/docente/ElegirEspacio.vue'
 import LeoAula from './components/docente/LeoAula.vue'
 import LeoDash from './components/docente/LeoDash.vue'
+import LeoIdeasProyector from './components/leo_ideas/LeoIdeasProyector.vue'
 import { supabaseConfigurado } from './utils/supabaseClient'
 import {
   entrarConGoogle,
@@ -183,7 +189,8 @@ export default {
     pant_login,
     ElegirEspacio,
     LeoAula,
-    LeoDash
+    LeoDash,
+    LeoIdeasProyector
   },
   data() {
     return {
