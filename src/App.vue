@@ -7,6 +7,13 @@
       @salir="currentScreen = 'leoAula'"
     />
 
+    <!-- Alumno en modo sala (oculta la navbar común) -->
+    <LeoIdeasAlumno
+      v-else-if="currentScreen === 'leoIdeasAlumno'"
+      :codigo-sala-inicial="codigoSalaUrl"
+      @volver-inicio="volverAlInicioDesdeSala"
+    />
+
     <template v-else>
       <AppNavbar 
       :show-progress-button="sesionIniciada && !showProgreso && currentScreen !== 'cargando'" 
@@ -41,6 +48,7 @@
         :cargando="cargandoLogin"
         :error="errorLogin"
         @entrar-google="entrar"
+        @unirse-sala="handleUnirseSala"
       />
 
       <!-- CU-04 / JU-08: Espacio docente (reemplaza el "Próximamente" de CU-04) -->
@@ -65,10 +73,11 @@
       />
 
 
-      <div v-if="currentScreen === 'leoIdeasControl'" class="bg-white rounded-3xl p-8 text-center shadow-lg">
-        <p class="text-gray-600 mb-4">Cargando Control de Leo Ideas...</p>
-        <button class="bg-purple-600 text-white px-4 py-2 rounded-xl" @click="currentScreen = 'leoDash'">Volver</button>
-      </div>
+      <LeoIdeasControl
+        v-if="currentScreen === 'leoIdeasControl' && esDocente"
+        :docente-id="usuario ? usuario.id : ''"
+        @volver="currentScreen = 'leoDash'"
+      />
 
       <pant_bienvenida 
         v-if="currentScreen === 'welcome'"
@@ -160,6 +169,8 @@ import ElegirEspacio from './components/docente/ElegirEspacio.vue'
 import LeoAula from './components/docente/LeoAula.vue'
 import LeoDash from './components/docente/LeoDash.vue'
 import LeoIdeasProyector from './components/leo_ideas/LeoIdeasProyector.vue'
+import LeoIdeasControl from './components/leo_ideas/LeoIdeasControl.vue'
+import LeoIdeasAlumno from './components/leo_ideas/LeoIdeasAlumno.vue'
 import { supabaseConfigurado } from './utils/supabaseClient'
 import {
   entrarConGoogle,
@@ -190,11 +201,18 @@ export default {
     ElegirEspacio,
     LeoAula,
     LeoDash,
-    LeoIdeasProyector
+    LeoIdeasProyector,
+    LeoIdeasControl,
+    LeoIdeasAlumno
   },
   data() {
     return {
-      currentScreen: 'cargando', // 'cargando' → 'login' o directo al menú si hay sesión (CU-03)
+      codigoSalaUrl: (/^\d{6}$/.test((new URLSearchParams(window.location.search).get('sala') || '').trim()))
+        ? (new URLSearchParams(window.location.search).get('sala') || '').trim()
+        : '',
+      currentScreen: (/^\d{6}$/.test((new URLSearchParams(window.location.search).get('sala') || '').trim()))
+        ? 'leoIdeasAlumno'
+        : 'cargando',
       playerName: '', // Ahora viene del perfil de Google, ya no se escribe a mano
       currentTextId: 'text1', // ID del texto actual en juego 1
       currentGame2TextId: 'drag1', // ID del texto actual en juego 2
@@ -238,7 +256,7 @@ export default {
     // ============================================
     async iniciarAutenticacion() {
       if (!this.supabaseConfigurado) {
-        this.currentScreen = 'login' // la pantalla de login explica qué falta
+        if (!this.codigoSalaUrl) this.currentScreen = 'login' // la pantalla de login explica qué falta
         return
       }
       // 1) Escuchar entradas y salidas (login con Google, logout, otra pestaña)
@@ -250,10 +268,10 @@ export default {
       try {
         const sesion = await obtenerSesion()
         if (sesion) await this.entrarConSesion(sesion)
-        else if (!this.usuario) this.currentScreen = 'login'
+        else if (!this.usuario && !this.codigoSalaUrl) this.currentScreen = 'login'
       } catch (error) {
         console.error('No se pudo revisar la sesión:', error)
-        this.currentScreen = 'login'
+        if (!this.codigoSalaUrl) this.currentScreen = 'login'
       }
     },
     async entrar() {
@@ -283,6 +301,9 @@ export default {
         console.warn('No se pudo guardar el nombre en localStorage:', error)
       }
       this.cargandoLogin = false
+      if (this.codigoSalaUrl) {
+        return
+      }
       if (this.esDocente) {
         this.showProgreso = false
         this.currentScreen = 'elegirEspacio'
@@ -308,6 +329,9 @@ export default {
       this.isReturningUser = false
       this.showProgreso = false
       this.cargandoLogin = false
+      if (this.codigoSalaUrl) {
+        return
+      }
       this.currentScreen = 'login'
     },
     irAlPanelDocente() {
@@ -322,6 +346,30 @@ export default {
     abrirLeoIdeasControl() {
       this.showProgreso = false
       this.currentScreen = 'leoIdeasControl'
+    },
+    handleUnirseSala(codigo) {
+      const limpio = String(codigo || '').trim()
+      if (!/^\d{6}$/.test(limpio)) return
+      this.codigoSalaUrl = limpio
+      this.currentScreen = 'leoIdeasAlumno'
+    },
+    volverAlInicioDesdeSala() {
+      if (window.location.search.includes('sala')) {
+        const url = new URL(window.location.href)
+        url.searchParams.delete('sala')
+        const nuevaUrl = url.pathname + (url.search ? url.search : '')
+        window.history.replaceState({}, document.title, nuevaUrl)
+      }
+      this.codigoSalaUrl = ''
+      if (this.usuario) {
+        if (this.esDocente) {
+          this.currentScreen = 'elegirEspacio'
+        } else {
+          this.goToWelcome()
+        }
+      } else {
+        this.currentScreen = 'login'
+      }
     },
     loadUserProgress(playerName) {
       // Cargar progreso del usuario desde localStorage

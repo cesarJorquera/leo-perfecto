@@ -42,6 +42,36 @@
 
         <p v-if="!acepta" class="text-sm text-gray-500 mt-3">Marca la casilla para poder entrar.</p>
         <p v-if="error" class="text-sm text-red-600 mt-4" role="alert" data-test="error-login">{{ error }}</p>
+
+        <!-- Acceso directo con código de sesión para estudiantes sin cuenta -->
+        <div class="mt-6 pt-6 border-t border-gray-200 text-left">
+          <label for="codigo-sesion-login" class="block text-sm font-bold text-gray-700 mb-1">
+            ¿Tienes un código de clase?
+          </label>
+          <div class="flex gap-2">
+            <input
+              id="codigo-sesion-login"
+              v-model="codigoClase"
+              type="text"
+              inputmode="numeric"
+              maxlength="6"
+              placeholder="Código de 6 dígitos"
+              class="flex-1 text-center font-mono font-bold tracking-wider text-base p-2.5 border-2 border-gray-300 rounded-xl focus:border-purple-600 focus:outline-none"
+              @keydown.enter.prevent="intentarUnirse"
+            />
+            <button
+              type="button"
+              class="bg-purple-600 hover:bg-purple-700 text-white font-bold px-4 py-2.5 rounded-xl shadow transition-colors"
+              data-test="btn-unirse-codigo"
+              @click="intentarUnirse"
+            >
+              Entrar
+            </button>
+          </div>
+          <p v-if="errorCodigo" class="text-sm text-red-600 mt-2 font-semibold" role="alert" data-test="error-codigo-sala">
+            {{ errorCodigo }}
+          </p>
+        </div>
       </template>
     </div>
   </div>
@@ -55,9 +85,24 @@ export default {
     cargando: { type: Boolean, default: false },
     error: { type: String, default: '' }
   },
-  emits: ['entrar-google'],
+  emits: ['entrar-google', 'unirse-sala'],
   data() {
-    return { acepta: false }
+    return {
+      acepta: false,
+      codigoClase: '',
+      errorCodigo: ''
+    }
+  },
+  methods: {
+    intentarUnirse() {
+      this.errorCodigo = ''
+      const limpio = (this.codigoClase || '').trim()
+      if (!/^\d{6}$/.test(limpio)) {
+        this.errorCodigo = 'El código debe tener 6 números'
+        return
+      }
+      this.$emit('unirse-sala', limpio)
+    }
   }
 }
 </script>
