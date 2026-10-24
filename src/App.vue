@@ -25,6 +25,13 @@
         @start-game3="handleStartGame3"
         @start-game4="handleStartGame4"
       />
+
+      <!-- RUTA (4/5): entrada temporal a la ruta de aprendizaje (prototipo) -->
+      <button
+        type="button"
+        class="fixed bottom-4 right-4 z-50 px-5 py-3 rounded-full bg-indigo-600 text-white font-bold shadow-lg"
+        @click="irARuta"
+      >📘 Ruta (prototipo)</button>
     </div>
     <div v-else class="container mx-auto px-4 py-6 max-w-4xl" style="margin-top: 150px;">
       <!-- Mientras se revisa si hay una sesión guardada (evita mostrar el login un instante) -->
@@ -114,6 +121,12 @@
         @reintentar="currentScreen = 'instructions_game4'"
       />
 
+      <!-- RUTA (3/5): ruta de aprendizaje (prototipo, rama feature/ruta-unidad1) -->
+      <RutaAprendizaje
+        v-if="currentScreen === 'ruta'"
+        @salir="goToProgreso"
+      />
+
       <mascota 
         v-if="currentScreen === 'questions'"
         :current-screen="currentScreen"
@@ -135,6 +148,8 @@ import pant_reglas_game4 from './components/pant_reglas_game4.vue'
 import pant_game_4 from './components/pant_game_4.vue'
 import mascota from './components/mascota.vue'
 import pant_login from './components/pant_login.vue'
+// RUTA (1/5): componente de la ruta de aprendizaje
+import RutaAprendizaje from './components/ruta/RutaAprendizaje.vue'
 import { supabaseConfigurado } from './utils/supabaseClient'
 import {
   entrarConGoogle,
@@ -163,7 +178,8 @@ export default {
     pant_reglas_game4,
     pant_game_4,
     mascota,
-    pant_login
+    pant_login,
+    RutaAprendizaje // RUTA (2/5)
   },
   data() {
     return {
@@ -284,6 +300,11 @@ export default {
       if (!this.esDocente) return
       this.showProgreso = false
       this.currentScreen = 'panelDocente'
+    },
+    // RUTA (5/5): abre la ruta de aprendizaje (prototipo)
+    irARuta() {
+      this.showProgreso = false
+      this.currentScreen = 'ruta'
     },
     async loadUserProgress(playerName) {
       const progress = await cargarProgresoNube()
