@@ -8,15 +8,123 @@ export default {
   descripcion: 'Descubre qué hace cada palabra en una frase.',
 
   // El orden del array es el orden del camino.
+  // Bloquean al siguiente: aprende, practica y desafio. El opcional no bloquea.
   nodos: [
-    { id: 'u1-n1', tipo: 'aprende', titulo: '¿Quién es? Los sustantivos', tareaId: 'u1-sustantivos', pronto: true },
+    { id: 'u1-n1', tipo: 'aprende', titulo: '¿Quién es? Los sustantivos', tareaId: 'u1-sustantivos' },
     { id: 'u1-n2', tipo: 'aprende', titulo: '¿Qué hace? Los verbos', tareaId: 'u1-verbos' },
-    { id: 'u1-n3', tipo: 'practica', titulo: 'Practica lo aprendido', tareaId: 'u1-practica1', pronto: true },
-    { id: 'u1-n4', tipo: 'opcional', titulo: 'Refuerzo de verbos', tareaId: 'u1-refuerzo1', pronto: true },
-    { id: 'u1-n5', tipo: 'desafio', titulo: 'Desafío: Las palabras', tareaId: 'u1-desafio', pronto: true },
+    { id: 'u1-n3', tipo: 'practica', titulo: '¿Quién y qué hace?', tareaId: 'u1-practica1', pronto: true },
+    { id: 'u1-n4', tipo: 'aprende', titulo: '¿Cómo es? Los adjetivos', tareaId: 'u1-adjetivos', pronto: true },
+    { id: 'u1-n5', tipo: 'opcional', titulo: 'Detective de palabras', tareaId: 'u1-detective', pronto: true },
+    { id: 'u1-n6', tipo: 'aprende', titulo: 'Palabras que unen: y, pero, porque', tareaId: 'u1-conectores', pronto: true },
+    { id: 'u1-n7', tipo: 'practica', titulo: '¿Qué palabra falta?', tareaId: 'u1-practica2', pronto: true },
+    { id: 'u1-n8', tipo: 'desafio', titulo: 'Desafío: Las palabras', tareaId: 'u1-desafio', pronto: true },
   ],
 
   tareas: {
+    // ===================== SUSTANTIVOS =====================
+    'u1-sustantivos': {
+      id: 'u1-sustantivos',
+      titulo: '¿Quién es? Los sustantivos',
+      minutos: 4,
+      pasos: [
+        {
+          id: 'u1-sustantivos-p1',
+          tipo: 'explica',
+          ejercicio: {
+            texto: 'Un sustantivo es una palabra que sirve para nombrar: personas, animales, cosas y lugares. Por ejemplo: profesora, perro, celular, estadio. Los nombres propios, como Javiera o Melipilla, también son sustantivos.',
+          },
+        },
+        {
+          id: 'u1-sustantivos-p2',
+          tipo: 'explica',
+          ejercicio: {
+            texto: 'En esta oración hay tres sustantivos: una persona, una cosa y un lugar.',
+            palabras: ['Mi', 'amiga', 'dejó', 'la', 'mochila', 'en', 'el', 'casino', '.'],
+            evidencia: [1, 4, 7], // 'amiga', 'mochila', 'casino'
+          },
+        },
+        {
+          id: 'u1-sustantivos-p3',
+          tipo: 'tocar',
+          conAyuda: true,
+          ejercicio: {
+            enunciado: 'Toca los 2 sustantivos.',
+            palabras: ['Javiera', 'compró', 'audífonos', 'nuevos', '.'],
+            correctas: [0, 2], // 'Javiera', 'audífonos'
+            pista: 'Pregúntate: ¿quién compró? ¿Qué compró?',
+          },
+        },
+        {
+          id: 'u1-sustantivos-p4',
+          tipo: 'elegir',
+          conAyuda: true,
+          ejercicio: {
+            enunciado: '¿Cuál es el sustantivo en esta oración?',
+            palabras: ['Hoy', 'llueve', 'mucho', 'en', 'Melipilla', '.'],
+            opciones: ['llueve', 'mucho', 'Melipilla', 'Hoy'],
+            correcta: 2, // 'Melipilla' (índice en opciones)
+            evidencia: [4], // 'Melipilla' (índice en palabras)
+            pista: 'Busca la palabra que nombra un lugar.',
+          },
+        },
+        {
+          id: 'u1-sustantivos-p5',
+          tipo: 'vf',
+          conAyuda: true,
+          ejercicio: {
+            enunciado: '¿Verdadero o falso?',
+            afirmacion: '"Corre" es un sustantivo.',
+            correcta: false,
+            pista: '¿"Corre" nombra a alguien o algo, o dice lo que alguien hace?',
+          },
+        },
+        {
+          id: 'u1-sustantivos-p6',
+          tipo: 'clasificar',
+          conAyuda: true,
+          ejercicio: {
+            enunciado: '¿Cuáles de estas palabras son sustantivos?',
+            cajas: [
+              { id: 'sustantivo', titulo: 'Es sustantivo' },
+              { id: 'otro', titulo: 'No es sustantivo' },
+            ],
+            fichas: [
+              { texto: 'profesor', caja: 'sustantivo' },
+              { texto: 'escribe', caja: 'otro' },
+              { texto: 'computador', caja: 'sustantivo' },
+              { texto: 'feliz', caja: 'otro' },
+              { texto: 'Valparaíso', caja: 'sustantivo' },
+              { texto: 'nunca', caja: 'otro' },
+            ],
+            pista: 'Por cada palabra pregúntate: ¿nombra una persona, un animal, una cosa o un lugar?',
+          },
+        },
+        {
+          id: 'u1-sustantivos-p7',
+          tipo: 'escribir',
+          conAyuda: false,
+          ejercicio: {
+            enunciado: 'Escribe el sustantivo que nombra un LUGAR.',
+            palabras: ['Mañana', 'vamos', 'al', 'estadio', 'con', 'mi', 'primo', '.'],
+            correcta: 3, // 'estadio'
+            evidencia: [3],
+          },
+        },
+        {
+          id: 'u1-sustantivos-p8',
+          tipo: 'resumen',
+          ejercicio: {
+            puntos: [
+              'Los sustantivos nombran personas, animales, cosas y lugares.',
+              'Para encontrarlos, pregunta: ¿quién? o ¿qué?',
+              'Los nombres propios (Javiera, Melipilla) también son sustantivos y van con mayúscula.',
+            ],
+          },
+        },
+      ],
+    },
+
+    // ======================= VERBOS =======================
     'u1-verbos': {
       id: 'u1-verbos',
       titulo: '¿Qué hace? Los verbos',
@@ -38,16 +146,16 @@ export default {
           id: 'u1-verbos-p1',
           tipo: 'explica',
           ejercicio: {
-            texto: 'Un verbo es una palabra que dice lo que alguien HACE. Por ejemplo: correr, comer, saltar.',
+            texto: 'Un verbo es una palabra que dice lo que alguien HACE o lo que PASA. Por ejemplo: estudiar, comer, llegar, llover.',
           },
         },
         {
           id: 'u1-verbos-p2',
           tipo: 'explica',
           ejercicio: {
-            texto: 'Mira esta oración. La palabra resaltada dice lo que hace el gato.',
-            palabras: ['El', 'gato', 'come', 'pescado', '.'],
-            evidencia: [2], // 'come'
+            texto: 'Mira esta oración. La palabra resaltada dice lo que hace mi hermana.',
+            palabras: ['Mi', 'hermana', 'escucha', 'música', '.'],
+            evidencia: [2], // 'escucha'
           },
         },
         {
@@ -56,9 +164,9 @@ export default {
           conAyuda: true,
           ejercicio: {
             enunciado: 'Toca el verbo.',
-            palabras: ['El', 'perro', 'corre', 'en', 'el', 'parque', '.'],
-            correctas: [2], // 'corre'
-            pista: '¿Qué está haciendo el perro?',
+            palabras: ['El', 'bus', 'llega', 'a', 'las', 'ocho', '.'],
+            correctas: [2], // 'llega'
+            pista: '¿Qué hace el bus?',
           },
         },
         {
@@ -67,11 +175,11 @@ export default {
           conAyuda: true,
           ejercicio: {
             enunciado: '¿Cuál es el verbo en esta oración?',
-            palabras: ['La', 'niña', 'salta', 'la', 'cuerda', '.'],
-            opciones: ['niña', 'salta', 'cuerda', 'la'],
-            correcta: 1, // 'salta' (índice en opciones)
-            evidencia: [2], // 'salta' (índice en palabras)
-            pista: 'El verbo es lo que la niña HACE.',
+            palabras: ['Diego', 'juega', 'fútbol', 'los', 'sábados', '.'],
+            opciones: ['Diego', 'juega', 'fútbol', 'sábados'],
+            correcta: 1, // 'juega' (índice en opciones)
+            evidencia: [1], // 'juega' (índice en palabras)
+            pista: 'El verbo es lo que Diego HACE.',
           },
         },
         {
@@ -80,22 +188,11 @@ export default {
           conAyuda: true,
           ejercicio: {
             enunciado: '¿Cuál es el verbo en esta oración?',
-            palabras: ['Mi', 'abuela', 'lee', 'un', 'libro', '.'],
-            opciones: ['abuela', 'libro', 'lee', 'un'],
-            correcta: 2, // 'lee'
-            evidencia: [2],
-            pista: 'Pregúntate: ¿qué hace mi abuela?',
-          },
-        },
-        {
-          id: 'u1-verbos-p6',
-          tipo: 'escribir',
-          conAyuda: false,
-          ejercicio: {
-            enunciado: 'Escribe el verbo de esta oración.',
-            palabras: ['Mi', 'hermano', 'trabaja', 'en', 'un', 'taller', '.'],
-            correcta: 2, // 'trabaja' (índice en palabras)
-            evidencia: [2],
+            palabras: ['Camila', 'estudia', 'en', 'la', 'biblioteca', '.'],
+            opciones: ['Camila', 'biblioteca', 'estudia', 'en'],
+            correcta: 2, // 'estudia' (índice en opciones)
+            evidencia: [1], // 'estudia' (índice en palabras)
+            pista: 'Pregúntate: ¿qué hace Camila?',
           },
         },
         {
@@ -120,11 +217,22 @@ export default {
           },
         },
         {
+          id: 'u1-verbos-p6',
+          tipo: 'escribir',
+          conAyuda: false,
+          ejercicio: {
+            enunciado: 'Escribe el verbo de esta oración.',
+            palabras: ['Mi', 'hermano', 'trabaja', 'en', 'un', 'taller', '.'],
+            correcta: 2, // 'trabaja'
+            evidencia: [2],
+          },
+        },
+        {
           id: 'u1-verbos-p7',
           tipo: 'resumen',
           ejercicio: {
             puntos: [
-              'Los verbos dicen lo que alguien hace.',
+              'Los verbos dicen lo que alguien hace o lo que pasa.',
               'Para encontrarlo, pregunta: ¿qué hace?',
             ],
           },
