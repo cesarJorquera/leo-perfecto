@@ -23,6 +23,18 @@ export default {
       minutos: 4,
       pasos: [
         {
+          id: 'u1-verbos-recordemos',
+          tipo: 'vf',
+          recordemos: true,
+          conAyuda: true,
+          ejercicio: {
+            enunciado: 'Antes de empezar, repasemos los sustantivos.',
+            afirmacion: '"Celular" es un sustantivo.',
+            correcta: true,
+            pista: 'Un sustantivo nombra una persona, un animal, una cosa o un lugar. ¿El celular es una cosa?',
+          },
+        },
+        {
           id: 'u1-verbos-p1',
           tipo: 'explica',
           ejercicio: {
