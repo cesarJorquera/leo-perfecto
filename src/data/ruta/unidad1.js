@@ -472,5 +472,240 @@ export default {
         },
       ],
     },
+        // ============ DETECTIVE (PRÁCTICA OPCIONAL) ============
+    'u1-detective': {
+      id: 'u1-detective',
+      titulo: 'Detective de palabras',
+      minutos: 4,
+      pasos: [
+        {
+          id: 'u1-detective-recordemos',
+          tipo: 'vf',
+          recordemos: true,
+          conAyuda: true,
+          ejercicio: {
+            enunciado: 'Antes de empezar, repasemos los adjetivos.',
+            afirmacion: '"Cansado" es un adjetivo.',
+            correcta: true,
+            pista: '¿"Cansado" dice cómo está alguien?',
+          },
+        },
+        {
+          id: 'u1-detective-p1',
+          tipo: 'explica',
+          ejercicio: {
+            texto: 'Modo detective: en cada oración hay sustantivos, verbos y adjetivos escondidos. Usa tus tres preguntas: ¿quién o qué?, ¿qué hace?, ¿cómo es?',
+          },
+        },
+        {
+          id: 'u1-detective-p2',
+          tipo: 'clasificar',
+          conAyuda: true,
+          ejercicio: {
+            enunciado: 'Ordena las palabras en su caja.',
+            cajas: [
+              { id: 'sustantivo', titulo: 'Sustantivo (quién o qué)' },
+              { id: 'verbo', titulo: 'Verbo (qué hace)' },
+              { id: 'adjetivo', titulo: 'Adjetivo (cómo es)' },
+            ],
+            fichas: [
+              { texto: 'celular', caja: 'sustantivo' },
+              { texto: 'nuevo', caja: 'adjetivo' },
+              { texto: 'suena', caja: 'verbo' },
+              { texto: 'bus', caja: 'sustantivo' },
+              { texto: 'lento', caja: 'adjetivo' },
+              { texto: 'frena', caja: 'verbo' },
+            ],
+            pista: 'Usa las tres preguntas: ¿quién o qué?, ¿qué hace?, ¿cómo es?',
+          },
+        },
+        {
+          id: 'u1-detective-p3',
+          tipo: 'elegir',
+          conAyuda: true,
+          ejercicio: {
+            enunciado: '¿Qué tipo de palabra es "ordenada"?',
+            palabras: ['Mi', 'pieza', 'está', 'ordenada', '.'],
+            opciones: ['Sustantivo', 'Verbo', 'Adjetivo'],
+            correcta: 2, // 'Adjetivo'
+            evidencia: [3], // 'ordenada'
+            pista: '"Ordenada" dice cómo está la pieza.',
+          },
+        },
+        {
+          id: 'u1-detective-p4',
+          tipo: 'tocar',
+          conAyuda: true,
+          ejercicio: {
+            enunciado: 'Toca el verbo.',
+            palabras: ['Los', 'estudiantes', 'nuevos', 'llegaron', 'temprano', '.'],
+            correctas: [3], // 'llegaron'
+            pista: '¿Qué hicieron los estudiantes? Ojo: "nuevos" dice cómo son.',
+          },
+        },
+        {
+          id: 'u1-detective-p5',
+          tipo: 'vf',
+          conAyuda: true,
+          ejercicio: {
+            enunciado: '¿Verdadero o falso?',
+            afirmacion: 'En "La sopa está caliente", la palabra "caliente" es un verbo.',
+            correcta: false,
+            pista: '"Caliente" dice cómo está la sopa. ¿Qué tipo de palabra dice cómo es algo?',
+          },
+        },
+        {
+          id: 'u1-detective-p6',
+          tipo: 'elegir',
+          conAyuda: true,
+          ejercicio: {
+            enunciado: '¿Qué tipo de palabra es "Rancagua"?',
+            palabras: ['Viajamos', 'a', 'Rancagua', 'en', 'tren', '.'],
+            opciones: ['Sustantivo', 'Verbo', 'Adjetivo'],
+            correcta: 0, // 'Sustantivo'
+            evidencia: [2], // 'Rancagua'
+            pista: 'Es el nombre de un lugar.',
+          },
+        },
+        {
+          id: 'u1-detective-p7',
+          tipo: 'tocar',
+          conAyuda: false,
+          ejercicio: {
+            enunciado: 'Toca el adjetivo.',
+            palabras: ['Ese', 'gato', 'negro', 'duerme', 'en', 'el', 'sillón', '.'],
+            correctas: [2], // 'negro'
+          },
+        },
+        {
+          id: 'u1-detective-p8',
+          tipo: 'resumen',
+          ejercicio: {
+            puntos: [
+              '¿Quién o qué? → sustantivo. ¿Qué hace? → verbo. ¿Cómo es? → adjetivo.',
+              'Una misma oración suele tener los tres tipos de palabras.',
+            ],
+          },
+        },
+      ],
+    },
+
+    // ===================== CONECTORES =====================
+    'u1-conectores': {
+      id: 'u1-conectores',
+      titulo: 'Palabras que unen: y, pero, porque',
+      minutos: 5,
+      pasos: [
+        {
+          id: 'u1-conectores-recordemos',
+          tipo: 'elegir',
+          recordemos: true,
+          conAyuda: true,
+          ejercicio: {
+            enunciado: 'Antes de empezar, repasemos. ¿Cuál es el adjetivo?',
+            palabras: ['El', 'café', 'está', 'frío', '.'],
+            opciones: ['café', 'está', 'frío', 'El'],
+            correcta: 2, // 'frío' (índice en opciones)
+            evidencia: [3], // 'frío' (índice en palabras)
+            pista: 'Pregúntate: ¿cómo está el café?',
+          },
+        },
+        {
+          id: 'u1-conectores-p1',
+          tipo: 'explica',
+          ejercicio: {
+            texto: 'Los conectores son palabras que UNEN ideas. Hoy veremos tres: "y" suma ideas, "pero" muestra algo contrario o inesperado, y "porque" explica una causa.',
+          },
+        },
+        {
+          id: 'u1-conectores-p2',
+          tipo: 'explica',
+          ejercicio: {
+            texto: 'Mira cómo "pero" une dos ideas que chocan: quería salir, pero algo lo impidió.',
+            palabras: ['Quería', 'salir', ',', 'pero', 'estaba', 'lloviendo', '.'],
+            evidencia: [3], // 'pero'
+          },
+        },
+        {
+          id: 'u1-conectores-p3',
+          tipo: 'tocar',
+          conAyuda: true,
+          ejercicio: {
+            enunciado: 'Toca el conector.',
+            palabras: ['Llegué', 'tarde', 'porque', 'perdí', 'la', 'micro', '.'],
+            correctas: [2], // 'porque'
+            pista: 'Busca la palabra que une las dos ideas.',
+          },
+        },
+        {
+          id: 'u1-conectores-p4',
+          tipo: 'elegir',
+          conAyuda: true,
+          ejercicio: {
+            enunciado: '¿Qué conector completa la oración?',
+            palabras: ['Compré', 'pan', '___', 'queso', '.'],
+            opciones: ['y', 'pero', 'porque'],
+            correcta: 0, // 'y'
+            pista: 'Solo estás sumando cosas a la compra.',
+          },
+        },
+        {
+          id: 'u1-conectores-p5',
+          tipo: 'elegir',
+          conAyuda: true,
+          ejercicio: {
+            enunciado: '¿Qué conector completa la oración?',
+            palabras: ['Estudié', 'mucho', ',', '___', 'me', 'fue', 'mal', 'en', 'la', 'prueba', '.'],
+            opciones: ['y', 'pero', 'porque'],
+            correcta: 1, // 'pero'
+            pista: 'Estudiar mucho y que te vaya mal es algo inesperado.',
+          },
+        },
+        {
+          id: 'u1-conectores-p6',
+          tipo: 'elegir',
+          conAyuda: true,
+          ejercicio: {
+            enunciado: '¿Qué conector completa la oración?',
+            palabras: ['No', 'fui', 'a', 'clases', '___', 'estaba', 'enfermo', '.'],
+            opciones: ['y', 'pero', 'porque'],
+            correcta: 2, // 'porque'
+            pista: 'La segunda parte explica POR QUÉ no fue.',
+          },
+        },
+        {
+          id: 'u1-conectores-p7',
+          tipo: 'vf',
+          conAyuda: true,
+          ejercicio: {
+            enunciado: '¿Verdadero o falso?',
+            afirmacion: 'En "Corrí, pero igual perdí la micro", la palabra "pero" muestra algo contrario a lo esperado.',
+            correcta: true,
+            pista: 'Corrí para alcanzarla… ¿y qué pasó al final?',
+          },
+        },
+        {
+          id: 'u1-conectores-p8',
+          tipo: 'escribir',
+          conAyuda: false,
+          ejercicio: {
+            enunciado: 'Escribe el conector de esta oración.',
+            palabras: ['Me', 'quedé', 'en', 'casa', 'porque', 'hacía', 'frío', '.'],
+            correcta: 4, // 'porque'
+            evidencia: [4],
+          },
+        },
+        {
+          id: 'u1-conectores-p9',
+          tipo: 'resumen',
+          ejercicio: {
+            puntos: [
+              '"y" suma ideas. "pero" muestra algo contrario. "porque" explica una causa.',
+              'Ojo: "porque" (junto, sin tilde) explica. "¿Por qué?" (separado y con tilde) pregunta.',
+            ],
+          },
+        },
+      ],
+    },
   },
 }
