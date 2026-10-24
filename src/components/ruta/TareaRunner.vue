@@ -123,6 +123,7 @@ import MjTocar from './minijuegos/MjTocar.vue'
 import MjElegir from './minijuegos/MjElegir.vue'
 import MjVf from './minijuegos/MjVf.vue'
 import MjEscribir from './minijuegos/MjEscribir.vue'
+import MjClasificar from './minijuegos/MjClasificar.vue'
 
 // Tipo de paso → componente.
 // Agregar un minijuego = importarlo, registrarlo en components y sumar una línea aquí.
@@ -131,7 +132,8 @@ const MINIJUEGOS = {
   tocar: 'MjTocar',
   elegir: 'MjElegir',
   vf: 'MjVf',
-  escribir: 'MjEscribir'
+  escribir: 'MjEscribir',
+  clasificar: 'MjClasificar'
 }
 
 // Pasos que cuentan como pregunta (se guardan y suman al puntaje).
@@ -139,7 +141,7 @@ const TIPOS_EVALUABLES = ['tocar', 'elegir', 'vf', 'escribir', 'clasificar']
 
 export default {
   name: 'TareaRunner',
-  components: { RutaOracion, MjExplica, MjTocar, MjElegir, MjVf, MjEscribir },
+  components: { RutaOracion, MjExplica, MjTocar, MjElegir, MjVf, MjEscribir, MjClasificar },
   props: {
     tarea: { type: Object, required: true },
     // id de la ruta en la tabla games. Si es null, se juega sin guardar.
@@ -193,6 +195,11 @@ export default {
       if (this.paso.tipo === 'tocar') return e.correctas.map(i => e.palabras[i]).join(', ')
       if (this.paso.tipo === 'vf') return e.correcta ? 'Verdadero' : 'Falso'
       if (this.paso.tipo === 'escribir') return e.palabras[e.correcta]
+      if (this.paso.tipo === 'clasificar') {
+        return e.fichas
+          .map(f => f.texto + ': ' + e.cajas.find(c => c.id === f.caja).titulo)
+          .join(' · ')
+      }
       return ''
     }
   },

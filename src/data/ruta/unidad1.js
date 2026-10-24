@@ -99,6 +99,27 @@ export default {
           },
         },
         {
+          id: 'u1-verbos-clasificar',
+          tipo: 'clasificar',
+          conAyuda: true,
+          ejercicio: {
+            enunciado: '¿Cuáles de estas palabras son verbos?',
+            cajas: [
+              { id: 'verbo', titulo: 'Es verbo' },
+              { id: 'otro', titulo: 'No es verbo' },
+            ],
+            fichas: [
+              { texto: 'estudia', caja: 'verbo' },
+              { texto: 'micro', caja: 'otro' },
+              { texto: 'escucha', caja: 'verbo' },
+              { texto: 'rápido', caja: 'otro' },
+              { texto: 'trabaja', caja: 'verbo' },
+              { texto: 'celular', caja: 'otro' },
+            ],
+            pista: 'Pregúntate por cada palabra: ¿es algo que alguien hace?',
+          },
+        },
+        {
           id: 'u1-verbos-p7',
           tipo: 'resumen',
           ejercicio: {
