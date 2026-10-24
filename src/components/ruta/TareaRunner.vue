@@ -41,7 +41,6 @@
 
       <!-- Minijuego del paso actual -->
       <template v-else>
-        <!-- NUEVO: etiqueta del paso de repaso -->
         <p
           v-if="paso.recordemos"
           class="mb-4 inline-block px-3 py-1 rounded-full bg-indigo-100 text-indigo-700 text-sm font-bold"
@@ -76,6 +75,9 @@
         <p v-if="mostrarPista" class="text-gray-800">{{ paso.ejercicio.pista }}</p>
         <p v-if="mostrarSolucion" class="text-gray-800">
           La respuesta era: <strong>{{ solucion }}</strong>
+        </p>
+        <p v-if="ultimo.correcta && ultimo.ortografia" class="text-gray-800">
+          Ojo con la tilde: se escribe <strong>{{ solucion }}</strong>.
         </p>
 
         <template v-if="puedeVerTexto">
@@ -119,14 +121,17 @@ import RutaOracion from './RutaOracion.vue'
 import MjExplica from './minijuegos/MjExplica.vue'
 import MjTocar from './minijuegos/MjTocar.vue'
 import MjElegir from './minijuegos/MjElegir.vue'
-import MjVf from './minijuegos/MjVf.vue' // NUEVO
+import MjVf from './minijuegos/MjVf.vue'
+import MjEscribir from './minijuegos/MjEscribir.vue'
 
-// Tipo de paso → componente. Agregar un minijuego = una línea aquí.
+// Tipo de paso → componente.
+// Agregar un minijuego = importarlo, registrarlo en components y sumar una línea aquí.
 const MINIJUEGOS = {
   explica: 'MjExplica',
   tocar: 'MjTocar',
   elegir: 'MjElegir',
-  vf: 'MjVf' // NUEVO
+  vf: 'MjVf',
+  escribir: 'MjEscribir'
 }
 
 // Pasos que cuentan como pregunta (se guardan y suman al puntaje).
@@ -134,7 +139,7 @@ const TIPOS_EVALUABLES = ['tocar', 'elegir', 'vf', 'escribir', 'clasificar']
 
 export default {
   name: 'TareaRunner',
-  components: { RutaOracion, MjExplica, MjTocar, MjElegir, MjVf }, // NUEVO: MjVf
+  components: { RutaOracion, MjExplica, MjTocar, MjElegir, MjVf, MjEscribir },
   props: {
     tarea: { type: Object, required: true },
     // id de la ruta en la tabla games. Si es null, se juega sin guardar.
@@ -145,7 +150,7 @@ export default {
     return {
       indice: 0,
       fase: 'jugando', // 'jugando' | 'feedback'
-      ultimo: null, // { correcta, respuesta } de la última respuesta
+      ultimo: null, // { correcta, respuesta, ortografia? } de la última respuesta
       intentos: 1,
       claveMinijuego: 0, // al cambiarla, Vue recrea el minijuego vacío
       verTexto: false,
@@ -186,7 +191,8 @@ export default {
       const e = this.paso.ejercicio
       if (this.paso.tipo === 'elegir') return e.opciones[e.correcta]
       if (this.paso.tipo === 'tocar') return e.correctas.map(i => e.palabras[i]).join(', ')
-      if (this.paso.tipo === 'vf') return e.correcta ? 'Verdadero' : 'Falso' // NUEVO
+      if (this.paso.tipo === 'vf') return e.correcta ? 'Verdadero' : 'Falso'
+      if (this.paso.tipo === 'escribir') return e.palabras[e.correcta]
       return ''
     }
   },
@@ -224,7 +230,7 @@ export default {
         attemptNumber: this.intentos,
         assessmentType: 'basic_concept',
         assessmentCode: this.paso.tipo,
-        answer: { respuesta: resultado.respuesta }
+        answer: { respuesta: resultado.respuesta, ortografia: resultado.ortografia || null }
       }).catch(error => {
         // El guardado nunca debe interrumpir al estudiante.
         console.error('No se pudo guardar la respuesta de la ruta:', error)

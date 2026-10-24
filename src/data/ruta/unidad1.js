@@ -89,14 +89,13 @@ export default {
         },
         {
           id: 'u1-verbos-p6',
-          tipo: 'elegir',
+          tipo: 'escribir',
           conAyuda: false,
           ejercicio: {
-            enunciado: '¿Cuál es el verbo en esta oración?',
-            palabras: ['El', 'pájaro', 'azul', 'vuela', 'alto', '.'],
-            opciones: ['pájaro', 'azul', 'vuela', 'alto'],
-            correcta: 2, // 'vuela' (índice en opciones)
-            evidencia: [3], // 'vuela' (índice en palabras)
+            enunciado: 'Escribe el verbo de esta oración.',
+            palabras: ['Mi', 'hermano', 'trabaja', 'en', 'un', 'taller', '.'],
+            correcta: 2, // 'trabaja' (índice en palabras)
+            evidencia: [2],
           },
         },
         {
