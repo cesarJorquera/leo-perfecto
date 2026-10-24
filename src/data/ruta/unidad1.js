@@ -12,8 +12,8 @@ export default {
   nodos: [
     { id: 'u1-n1', tipo: 'aprende', titulo: '¿Quién es? Los sustantivos', tareaId: 'u1-sustantivos' },
     { id: 'u1-n2', tipo: 'aprende', titulo: '¿Qué hace? Los verbos', tareaId: 'u1-verbos' },
-    { id: 'u1-n3', tipo: 'practica', titulo: '¿Quién y qué hace?', tareaId: 'u1-practica1', pronto: true },
-    { id: 'u1-n4', tipo: 'aprende', titulo: '¿Cómo es? Los adjetivos', tareaId: 'u1-adjetivos', pronto: true },
+    { id: 'u1-n3', tipo: 'practica', titulo: '¿Quién y qué hace?', tareaId: 'u1-practica1' },
+    { id: 'u1-n4', tipo: 'aprende', titulo: '¿Cómo es? Los adjetivos', tareaId: 'u1-adjetivos' },
     { id: 'u1-n5', tipo: 'opcional', titulo: 'Detective de palabras', tareaId: 'u1-detective', pronto: true },
     { id: 'u1-n6', tipo: 'aprende', titulo: 'Palabras que unen: y, pero, porque', tareaId: 'u1-conectores', pronto: true },
     { id: 'u1-n7', tipo: 'practica', titulo: '¿Qué palabra falta?', tareaId: 'u1-practica2', pronto: true },
@@ -234,6 +234,239 @@ export default {
             puntos: [
               'Los verbos dicen lo que alguien hace o lo que pasa.',
               'Para encontrarlo, pregunta: ¿qué hace?',
+            ],
+          },
+        },
+      ],
+    },
+        // ================== PRÁCTICA 1 ==================
+    'u1-practica1': {
+      id: 'u1-practica1',
+      titulo: '¿Quién y qué hace?',
+      minutos: 4,
+      pasos: [
+        {
+          id: 'u1-practica1-recordemos',
+          tipo: 'vf',
+          recordemos: true,
+          conAyuda: true,
+          ejercicio: {
+            enunciado: 'Antes de empezar, repasemos los verbos.',
+            afirmacion: '"Llueve" es un verbo.',
+            correcta: true,
+            pista: 'Un verbo dice lo que alguien hace o lo que pasa. ¿Llover es algo que pasa?',
+          },
+        },
+        {
+          id: 'u1-practica1-p1',
+          tipo: 'explica',
+          ejercicio: {
+            texto: 'En una oración, el sustantivo dice QUIÉN y el verbo dice QUÉ HACE. Ahora vas a practicar los dos juntos.',
+            palabras: ['Benjamín', 'maneja', 'un', 'camión', '.'],
+            evidencia: [0, 1], // 'Benjamín' (quién), 'maneja' (qué hace)
+          },
+        },
+        {
+          id: 'u1-practica1-p2',
+          tipo: 'tocar',
+          conAyuda: true,
+          ejercicio: {
+            enunciado: 'Toca el sustantivo que dice QUIÉN hace la acción.',
+            palabras: ['La', 'enfermera', 'atiende', 'a', 'los', 'pacientes', '.'],
+            correctas: [1], // 'enfermera'
+            pista: 'Pregúntate: ¿quién atiende?',
+          },
+        },
+        {
+          id: 'u1-practica1-p3',
+          tipo: 'tocar',
+          conAyuda: true,
+          ejercicio: {
+            enunciado: 'Ahora toca el verbo.',
+            palabras: ['Los', 'vecinos', 'arreglaron', 'la', 'plaza', '.'],
+            correctas: [2], // 'arreglaron'
+            pista: 'Pregúntate: ¿qué hicieron los vecinos?',
+          },
+        },
+        {
+          id: 'u1-practica1-p4',
+          tipo: 'clasificar',
+          conAyuda: true,
+          ejercicio: {
+            enunciado: 'Ordena las palabras: ¿sustantivo o verbo?',
+            cajas: [
+              { id: 'sustantivo', titulo: 'Sustantivo (quién o qué)' },
+              { id: 'verbo', titulo: 'Verbo (qué hace)' },
+            ],
+            fichas: [
+              { texto: 'guitarra', caja: 'sustantivo' },
+              { texto: 'canta', caja: 'verbo' },
+              { texto: 'Antofagasta', caja: 'sustantivo' },
+              { texto: 'lava', caja: 'verbo' },
+              { texto: 'perro', caja: 'sustantivo' },
+              { texto: 'duerme', caja: 'verbo' },
+            ],
+            pista: 'Si nombra a alguien o algo, es sustantivo. Si dice lo que alguien hace, es verbo.',
+          },
+        },
+        {
+          id: 'u1-practica1-p5',
+          tipo: 'elegir',
+          conAyuda: true,
+          ejercicio: {
+            enunciado: '¿Qué hace Martina?',
+            palabras: ['Martina', 'vende', 'empanadas', 'en', 'la', 'feria', '.'],
+            opciones: ['vende', 'empanadas', 'feria', 'Martina'],
+            correcta: 0, // 'vende' (índice en opciones)
+            evidencia: [1], // 'vende' (índice en palabras)
+            pista: 'La pregunta es "¿qué hace?": busca el verbo.',
+          },
+        },
+        {
+          id: 'u1-practica1-p6',
+          tipo: 'vf',
+          conAyuda: true,
+          ejercicio: {
+            enunciado: '¿Verdadero o falso?',
+            afirmacion: 'En "El profesor explica la materia", la palabra "explica" es un sustantivo.',
+            correcta: false,
+            pista: '"Explica" dice lo que hace el profesor. ¿Eso es un sustantivo o un verbo?',
+          },
+        },
+        {
+          id: 'u1-practica1-p7',
+          tipo: 'escribir',
+          conAyuda: false,
+          ejercicio: {
+            enunciado: 'Escribe el sustantivo que dice QUIÉN hace la acción.',
+            palabras: ['El', 'mecánico', 'revisó', 'los', 'frenos', '.'],
+            correcta: 1, // 'mecánico'
+            evidencia: [1],
+          },
+        },
+        {
+          id: 'u1-practica1-p8',
+          tipo: 'resumen',
+          ejercicio: {
+            puntos: [
+              'El sustantivo dice QUIÉN (o qué). El verbo dice QUÉ HACE.',
+              'Una oración puede tener varios sustantivos: pregúntate cuál hace la acción.',
+            ],
+          },
+        },
+      ],
+    },
+
+    // ===================== ADJETIVOS =====================
+    'u1-adjetivos': {
+      id: 'u1-adjetivos',
+      titulo: '¿Cómo es? Los adjetivos',
+      minutos: 4,
+      pasos: [
+        {
+          id: 'u1-adjetivos-recordemos',
+          tipo: 'vf',
+          recordemos: true,
+          conAyuda: true,
+          ejercicio: {
+            enunciado: 'Antes de empezar, repasemos.',
+            afirmacion: 'En "Mi tío arregla autos", la palabra "tío" es un sustantivo.',
+            correcta: true,
+            pista: '¿"Tío" nombra a una persona?',
+          },
+        },
+        {
+          id: 'u1-adjetivos-p1',
+          tipo: 'explica',
+          ejercicio: {
+            texto: 'Un adjetivo es una palabra que dice CÓMO ES algo o alguien: su color, tamaño, forma o manera de ser. Por ejemplo: rojo, grande, redondo, simpático.',
+          },
+        },
+        {
+          id: 'u1-adjetivos-p2',
+          tipo: 'explica',
+          ejercicio: {
+            texto: 'La palabra resaltada dice cómo es la chaqueta.',
+            palabras: ['Me', 'compré', 'una', 'chaqueta', 'negra', '.'],
+            evidencia: [4], // 'negra'
+          },
+        },
+        {
+          id: 'u1-adjetivos-p3',
+          tipo: 'tocar',
+          conAyuda: true,
+          ejercicio: {
+            enunciado: 'Toca el adjetivo.',
+            palabras: ['El', 'examen', 'fue', 'difícil', '.'],
+            correctas: [3], // 'difícil'
+            pista: 'Pregúntate: ¿cómo fue el examen?',
+          },
+        },
+        {
+          id: 'u1-adjetivos-p4',
+          tipo: 'elegir',
+          conAyuda: true,
+          ejercicio: {
+            enunciado: '¿Cuál es el adjetivo en esta oración?',
+            palabras: ['Tengo', 'un', 'perro', 'muy', 'juguetón', '.'],
+            opciones: ['perro', 'juguetón', 'Tengo', 'muy'],
+            correcta: 1, // 'juguetón' (índice en opciones)
+            evidencia: [4], // 'juguetón' (índice en palabras)
+            pista: 'Pregúntate: ¿cómo es el perro?',
+          },
+        },
+        {
+          id: 'u1-adjetivos-p5',
+          tipo: 'tocar',
+          conAyuda: true,
+          ejercicio: {
+            enunciado: 'Toca los 2 adjetivos.',
+            palabras: ['La', 'pieza', 'es', 'pequeña', 'pero', 'luminosa', '.'],
+            correctas: [3, 5], // 'pequeña', 'luminosa'
+            pista: 'Busca las dos palabras que dicen cómo es la pieza.',
+          },
+        },
+        {
+          id: 'u1-adjetivos-p6',
+          tipo: 'clasificar',
+          conAyuda: true,
+          ejercicio: {
+            enunciado: 'Ordena las palabras en su caja.',
+            cajas: [
+              { id: 'sustantivo', titulo: 'Sustantivo (quién o qué)' },
+              { id: 'verbo', titulo: 'Verbo (qué hace)' },
+              { id: 'adjetivo', titulo: 'Adjetivo (cómo es)' },
+            ],
+            fichas: [
+              { texto: 'zapatillas', caja: 'sustantivo' },
+              { texto: 'cómodas', caja: 'adjetivo' },
+              { texto: 'corre', caja: 'verbo' },
+              { texto: 'alto', caja: 'adjetivo' },
+              { texto: 'ciudad', caja: 'sustantivo' },
+              { texto: 'escribe', caja: 'verbo' },
+            ],
+            pista: 'Usa las tres preguntas: ¿quién o qué?, ¿qué hace?, ¿cómo es?',
+          },
+        },
+        {
+          id: 'u1-adjetivos-p7',
+          tipo: 'escribir',
+          conAyuda: false,
+          ejercicio: {
+            enunciado: 'Escribe el adjetivo de esta oración.',
+            palabras: ['La', 'micro', 'venía', 'llena', '.'],
+            correcta: 3, // 'llena'
+            evidencia: [3],
+          },
+        },
+        {
+          id: 'u1-adjetivos-p8',
+          tipo: 'resumen',
+          ejercicio: {
+            puntos: [
+              'Los adjetivos dicen cómo es algo o alguien.',
+              'Para encontrarlo, pregunta: ¿cómo es?',
+              'Casi siempre acompañan a un sustantivo: chaqueta negra, examen difícil.',
             ],
           },
         },
