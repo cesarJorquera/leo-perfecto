@@ -2,6 +2,14 @@
 // Unidad 1 de la ruta "Lector Experto": Las palabras.
 // Solo datos (sin imports ni funciones). Los ids NO se cambian una vez que haya progreso guardado en Supabase.
 
+// Texto del desafío: se usa en varios pasos, por eso va una sola vez aquí.
+const TEXTO_DESAFIO = [
+  'Camila', 'trabaja', 'en', 'una', 'panadería', '.', //  0-5
+  'Todos', 'los', 'días', 'llega', 'temprano', 'y', 'prepara', 'el', 'pan', '.', //  6-15
+  'El', 'horno', 'es', 'grande', 'y', 'muy', 'caliente', '.', // 16-23
+  'Hoy', 'está', 'cansada', ',', 'pero', 'contenta', ',', 'porque', 'vendió', 'todo', '.', // 24-34
+]
+
 export default {
   id: 'u1',
   titulo: 'Las palabras',
@@ -16,8 +24,8 @@ export default {
     { id: 'u1-n4', tipo: 'aprende', titulo: '¿Cómo es? Los adjetivos', tareaId: 'u1-adjetivos' },
     { id: 'u1-n5', tipo: 'opcional', titulo: 'Detective de palabras', tareaId: 'u1-detective' },
     { id: 'u1-n6', tipo: 'aprende', titulo: 'Palabras que unen: y, pero, porque', tareaId: 'u1-conectores' },
-    { id: 'u1-n7', tipo: 'practica', titulo: '¿Qué palabra falta?', tareaId: 'u1-practica2', pronto: true },
-    { id: 'u1-n8', tipo: 'desafio', titulo: 'Desafío: Las palabras', tareaId: 'u1-desafio', pronto: true },
+    { id: 'u1-n7', tipo: 'practica', titulo: '¿Qué palabra falta?', tareaId: 'u1-practica2' },
+    { id: 'u1-n8', tipo: 'desafio', titulo: 'Desafío: Las palabras', tareaId: 'u1-desafio' },
   ],
 
   tareas: {
@@ -702,6 +710,250 @@ export default {
             puntos: [
               '"y" suma ideas. "pero" muestra algo contrario. "porque" explica una causa.',
               'Ojo: "porque" (junto, sin tilde) explica. "¿Por qué?" (separado y con tilde) pregunta.',
+            ],
+          },
+        },
+      ],
+    },
+        // ================== PRÁCTICA 2 ==================
+    'u1-practica2': {
+      id: 'u1-practica2',
+      titulo: '¿Qué palabra falta?',
+      minutos: 4,
+      pasos: [
+        {
+          id: 'u1-practica2-recordemos',
+          tipo: 'vf',
+          recordemos: true,
+          conAyuda: true,
+          ejercicio: {
+            enunciado: 'Antes de empezar, repasemos los conectores.',
+            afirmacion: 'En "No salí porque llovía", la palabra "porque" explica una causa.',
+            correcta: true,
+            pista: '¿La segunda parte explica POR QUÉ no salí?',
+          },
+        },
+        {
+          id: 'u1-practica2-p1',
+          tipo: 'explica',
+          ejercicio: {
+            texto: 'Cuando falta una palabra, el resto de la oración te da pistas. Aquí falta algo que HACE el perro toda la noche: un verbo, como "ladra".',
+            palabras: ['El', 'perro', '___', 'toda', 'la', 'noche', '.'],
+          },
+        },
+        {
+          id: 'u1-practica2-p2',
+          tipo: 'elegir',
+          conAyuda: true,
+          ejercicio: {
+            enunciado: '¿Qué palabra completa la oración?',
+            palabras: ['Mi', 'hermana', '___', 'en', 'un', 'supermercado', '.'],
+            opciones: ['trabaja', 'rápida', 'mesa', 'pero'],
+            correcta: 0, // 'trabaja'
+            pista: 'Falta lo que hace mi hermana: un verbo.',
+          },
+        },
+        {
+          id: 'u1-practica2-p3',
+          tipo: 'elegir',
+          conAyuda: true,
+          ejercicio: {
+            enunciado: '¿Qué palabra completa la oración?',
+            palabras: ['Me', 'compré', 'unas', 'zapatillas', '___', '.'],
+            opciones: ['corren', 'blancas', 'Temuco', 'porque'],
+            correcta: 1, // 'blancas'
+            pista: 'Falta cómo son las zapatillas: un adjetivo.',
+          },
+        },
+        {
+          id: 'u1-practica2-p4',
+          tipo: 'elegir',
+          conAyuda: true,
+          ejercicio: {
+            enunciado: '¿Qué palabra completa la oración?',
+            palabras: ['El', '___', 'llegó', 'lleno', 'y', 'no', 'pude', 'subir', '.'],
+            opciones: ['bus', 'rápido', 'camina', 'pero'],
+            correcta: 0, // 'bus'
+            pista: '¿Quién o qué llegó lleno? Falta un sustantivo.',
+          },
+        },
+        {
+          id: 'u1-practica2-p5',
+          tipo: 'elegir',
+          conAyuda: true,
+          ejercicio: {
+            enunciado: '¿Qué palabra completa la oración?',
+            palabras: ['Quería', 'ir', 'al', 'concierto', '___', 'no', 'tenía', 'plata', '.'],
+            opciones: ['y', 'pero', 'porque', 'feliz'],
+            correcta: 1, // 'pero'
+            pista: 'Quería ir… y algo lo impidió. ¿Qué conector muestra algo contrario?',
+          },
+        },
+        {
+          id: 'u1-practica2-p6',
+          tipo: 'vf',
+          conAyuda: true,
+          ejercicio: {
+            enunciado: '¿Verdadero o falso?',
+            afirmacion: 'En "Tengo hambre ___ no almorcé", la palabra que falta es "porque".',
+            correcta: true,
+            pista: '"No almorcé" explica por qué tengo hambre.',
+          },
+        },
+        {
+          id: 'u1-practica2-p7',
+          tipo: 'elegir',
+          conAyuda: false,
+          ejercicio: {
+            enunciado: '¿Qué palabra completa la oración?',
+            palabras: ['Los', 'jugadores', '___', 'muy', 'cansados', 'después', 'del', 'partido', '.'],
+            opciones: ['terminaron', 'cancha', 'alegre', 'porque'],
+            correcta: 0, // 'terminaron'
+          },
+        },
+        {
+          id: 'u1-practica2-p8',
+          tipo: 'resumen',
+          ejercicio: {
+            puntos: [
+              'Para saber qué palabra falta, mira lo que viene antes y después.',
+              'Pregúntate qué tipo de palabra necesita la oración: ¿quién?, ¿qué hace?, ¿cómo es? o ¿qué une?',
+            ],
+          },
+        },
+      ],
+    },
+
+    // ===================== DESAFÍO =====================
+    'u1-desafio': {
+      id: 'u1-desafio',
+      titulo: 'Desafío: Las palabras',
+      minutos: 5,
+      pasos: [
+        {
+          id: 'u1-desafio-recordemos',
+          tipo: 'elegir',
+          recordemos: true,
+          conAyuda: true,
+          ejercicio: {
+            enunciado: 'Antes de empezar, repasemos. ¿Qué palabra completa la oración?',
+            palabras: ['Me', 'abrigué', '___', 'hacía', 'frío', '.'],
+            opciones: ['y', 'pero', 'porque'],
+            correcta: 2, // 'porque'
+            pista: '"Hacía frío" explica por qué me abrigué.',
+          },
+        },
+        {
+          id: 'u1-desafio-p1',
+          tipo: 'explica',
+          ejercicio: {
+            texto: '¡Llegaste al desafío! Ahora vas a leer un texto más largo y usar todo lo que aprendiste. Léelo con calma: lo vas a ver en cada pregunta.',
+            palabras: TEXTO_DESAFIO,
+          },
+        },
+        {
+          id: 'u1-desafio-p2',
+          tipo: 'tocar',
+          conAyuda: true,
+          ejercicio: {
+            enunciado: 'Toca los 2 sustantivos de la PRIMERA oración.',
+            palabras: TEXTO_DESAFIO,
+            correctas: [0, 4], // 'Camila', 'panadería'
+            pista: '¿Quién trabaja? ¿Dónde trabaja?',
+          },
+        },
+        {
+          id: 'u1-desafio-p3',
+          tipo: 'tocar',
+          conAyuda: true,
+          ejercicio: {
+            enunciado: 'Toca los 2 verbos de la SEGUNDA oración.',
+            palabras: TEXTO_DESAFIO,
+            correctas: [9, 12], // 'llega', 'prepara'
+            pista: '¿Qué hace Camila todos los días?',
+          },
+        },
+        {
+          id: 'u1-desafio-p4',
+          tipo: 'elegir',
+          conAyuda: true,
+          ejercicio: {
+            enunciado: 'Según el texto, ¿cómo es el horno?',
+            palabras: TEXTO_DESAFIO,
+            opciones: ['grande y caliente', 'temprano y cansado', 'pan y panadería', 'llega y prepara'],
+            correcta: 0,
+            evidencia: [19, 22], // 'grande', 'caliente'
+            pista: 'Busca la tercera oración: dice cómo es el horno.',
+          },
+        },
+        {
+          id: 'u1-desafio-p5',
+          tipo: 'clasificar',
+          conAyuda: true,
+          ejercicio: {
+            enunciado: 'Ordena estas palabras del texto en su caja.',
+            cajas: [
+              { id: 'sustantivo', titulo: 'Sustantivo' },
+              { id: 'verbo', titulo: 'Verbo' },
+              { id: 'adjetivo', titulo: 'Adjetivo' },
+              { id: 'conector', titulo: 'Conector' },
+            ],
+            fichas: [
+              { texto: 'Camila', caja: 'sustantivo' },
+              { texto: 'trabaja', caja: 'verbo' },
+              { texto: 'grande', caja: 'adjetivo' },
+              { texto: 'pero', caja: 'conector' },
+              { texto: 'horno', caja: 'sustantivo' },
+              { texto: 'vendió', caja: 'verbo' },
+              { texto: 'cansada', caja: 'adjetivo' },
+              { texto: 'porque', caja: 'conector' },
+            ],
+            pista: 'Las cuatro preguntas: ¿quién o qué?, ¿qué hace?, ¿cómo es?, ¿qué une?',
+          },
+        },
+        {
+          id: 'u1-desafio-p6',
+          tipo: 'vf',
+          conAyuda: true,
+          ejercicio: {
+            enunciado: '¿Verdadero o falso?',
+            palabras: TEXTO_DESAFIO,
+            afirmacion: 'Según el texto, Camila está contenta porque vendió todo.',
+            correcta: true,
+            pista: 'Lee la última oración: ¿qué viene después de "porque"?',
+          },
+        },
+        {
+          id: 'u1-desafio-p7',
+          tipo: 'elegir',
+          conAyuda: false,
+          ejercicio: {
+            enunciado: '¿Qué palabra del texto explica la CAUSA de que Camila esté contenta?',
+            palabras: TEXTO_DESAFIO,
+            opciones: ['y', 'pero', 'porque', 'muy'],
+            correcta: 2, // 'porque'
+            evidencia: [31],
+          },
+        },
+        {
+          id: 'u1-desafio-p8',
+          tipo: 'escribir',
+          conAyuda: false,
+          ejercicio: {
+            enunciado: 'Escribe la palabra que dice cómo está Camila hoy, ANTES del "pero".',
+            palabras: TEXTO_DESAFIO,
+            correcta: 26, // 'cansada'
+            evidencia: [26],
+          },
+        },
+        {
+          id: 'u1-desafio-p9',
+          tipo: 'resumen',
+          ejercicio: {
+            puntos: [
+              '¡Completaste la Unidad 1! Ya reconoces sustantivos, verbos, adjetivos y conectores.',
+              'Usar estas cuatro preguntas te ayuda a entender cualquier texto: ¿quién o qué?, ¿qué hace?, ¿cómo es?, ¿qué une?',
+              'En la Unidad 2 vas a juntar estas palabras para entender oraciones completas.',
             ],
           },
         },
