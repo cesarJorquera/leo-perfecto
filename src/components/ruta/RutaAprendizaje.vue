@@ -10,12 +10,12 @@
     />
 
     <template v-else>
-      <p
-        v-if="ultimoResultado"
-        class="max-w-xl mx-auto mx-4 mt-4 p-3 rounded-xl bg-green-100 text-green-800"
-      >
-        ¡Bien! Respondiste {{ ultimoResultado.aciertos }} de {{ ultimoResultado.total }} preguntas.
-      </p>
+      <div class="max-w-xl mx-auto px-4 pt-4">
+        <LeoMascota
+          :estado="ultimoResultado ? 'feliz' : 'saludando'"
+          :mensaje="mensajeLeo"
+        />
+      </div>
 
       <RutaUnidad
         :unidad="unidad"
@@ -37,6 +37,7 @@
 <script>
 import TareaRunner from './TareaRunner.vue'
 import RutaUnidad from './RutaUnidad.vue'
+import LeoMascota from './LeoMascota.vue'
 import { estadoDeNodos } from './progresoRuta'
 import unidad1 from '../../data/ruta/unidad1'
 
@@ -46,7 +47,7 @@ const RUTA_GAME_ID = null
 
 export default {
   name: 'RutaAprendizaje',
-  components: { TareaRunner, RutaUnidad },
+  components: { TareaRunner, RutaUnidad, LeoMascota },
   emits: ['salir'],
   data() {
     return {
@@ -62,6 +63,13 @@ export default {
   computed: {
     nodosConEstado() {
       return estadoDeNodos(this.unidad.nodos, this.completadas)
+    },
+    mensajeLeo() {
+      if (this.ultimoResultado) {
+        const { aciertos, total } = this.ultimoResultado
+        return '¡Bien hecho! Respondiste ' + aciertos + ' de ' + total + '. Sigue con el próximo paso cuando quieras.'
+      }
+      return '¡Hola! Avanza en tu ruta un paso a la vez.'
     }
   },
   methods: {

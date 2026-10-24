@@ -14,7 +14,9 @@
         ></div>
       </div>
     </header>
-
+    <div class="w-full max-w-xl mx-auto px-4">
+      <LeoMascota :estado="estadoLeo" tamano="sm" />
+    </div>
     <main
       class="flex-1 w-full max-w-xl mx-auto p-4"
       :class="fase === 'feedback' ? 'pointer-events-none opacity-75' : ''"
@@ -124,6 +126,7 @@ import MjElegir from './minijuegos/MjElegir.vue'
 import MjVf from './minijuegos/MjVf.vue'
 import MjEscribir from './minijuegos/MjEscribir.vue'
 import MjClasificar from './minijuegos/MjClasificar.vue'
+import LeoMascota from './LeoMascota.vue'
 
 // Tipo de paso → componente.
 // Agregar un minijuego = importarlo, registrarlo en components y sumar una línea aquí.
@@ -141,7 +144,7 @@ const TIPOS_EVALUABLES = ['tocar', 'elegir', 'vf', 'escribir', 'clasificar']
 
 export default {
   name: 'TareaRunner',
-  components: { RutaOracion, MjExplica, MjTocar, MjElegir, MjVf, MjEscribir, MjClasificar },
+  components: { LeoMascota, RutaOracion, MjExplica, MjTocar, MjElegir, MjVf, MjEscribir, MjClasificar },
   props: {
     tarea: { type: Object, required: true },
     // id de la ruta en la tabla games. Si es null, se juega sin guardar.
@@ -164,6 +167,12 @@ export default {
   computed: {
     paso() {
       return this.tarea.pasos[this.indice]
+    },
+    estadoLeo() {
+      if (this.paso.tipo === 'resumen') return 'celebrando'
+      if (this.fase === 'feedback') return this.ultimo.correcta ? 'feliz' : 'yaCasi'
+      if (this.paso.tipo === 'explica') return 'explicando'
+      return 'pensando'
     },
     componente() {
       return MINIJUEGOS[this.paso.tipo] || null
