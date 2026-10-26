@@ -5,6 +5,7 @@
       :key="tareaActual.id"
       :tarea="tareaActual"
       :game-id="gameId"
+      :modo-demo="modoDemo"
       @terminar="alTerminar"
       @salir="tareaActual = null"
     />
@@ -23,7 +24,27 @@
         @abrir="abrirTarea"
       />
 
-      <div class="max-w-xl mx-auto px-4 pb-8">
+      <div class="max-w-xl mx-auto px-4 pb-8 space-y-4">
+        <!-- Herramientas de demo: solo existen con npm run serve, nunca en producción -->
+        <div
+          v-if="modoDemo"
+          class="p-3 rounded-xl border-2 border-dashed border-gray-300 space-y-2"
+        >
+          <p class="text-xs font-bold uppercase tracking-wide text-gray-500">Modo demo (solo en desarrollo)</p>
+          <div class="flex gap-2">
+            <button
+              type="button"
+              class="flex-1 py-2 rounded-lg bg-gray-800 text-white text-sm font-bold"
+              @click="desbloquearTodo"
+            >Desbloquear todo</button>
+            <button
+              type="button"
+              class="flex-1 py-2 rounded-lg border-2 border-gray-800 text-gray-800 text-sm font-bold"
+              @click="reiniciar"
+            >Reiniciar</button>
+          </div>
+        </div>
+
         <button
           type="button"
           class="w-full py-3 rounded-xl border-2 border-gray-300 text-gray-700 font-bold"
@@ -56,8 +77,10 @@ export default {
       gameId: RUTA_GAME_ID,
       ultimoResultado: null,
       // ids de las tareas completadas.
-      // Por ahora en memoria; en el bloque 5 se cargará desde Supabase.
-      completadas: []
+      // Por ahora en memoria; después se cargará desde Supabase.
+      completadas: [],
+      // true solo con `npm run serve`. En el build de producción es false.
+      modoDemo: process.env.NODE_ENV === 'development'
     }
   },
   computed: {
@@ -88,6 +111,15 @@ export default {
       }
       this.ultimoResultado = resultado
       this.tareaActual = null
+    },
+    desbloquearTodo() {
+      this.completadas = this.unidad.nodos
+        .filter(nodo => !nodo.pronto)
+        .map(nodo => nodo.tareaId)
+    },
+    reiniciar() {
+      this.completadas = []
+      this.ultimoResultado = null
     }
   }
 }
