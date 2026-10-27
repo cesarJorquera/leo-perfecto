@@ -245,8 +245,13 @@ export default {
         isCorrect: resultado.correcta,
         attemptNumber: this.intentos,
         assessmentType: 'basic_concept',
-        assessmentCode: this.paso.tipo,
-        answer: { respuesta: resultado.respuesta, ortografia: resultado.ortografia || null }
+        // Mismos códigos que los juegos (src/utils/assessment.js), para analizar todo junto.
+        assessmentCode: this.paso.codigo || this.tarea.codigo || 'language.word_classification',
+        answer: {
+          tipo: this.paso.tipo,
+          respuesta: resultado.respuesta,
+          ortografia: resultado.ortografia || null
+        }
       }).catch(error => {
         // El guardado nunca debe interrumpir al estudiante.
         console.error('No se pudo guardar la respuesta de la ruta:', error)

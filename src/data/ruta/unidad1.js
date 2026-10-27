@@ -12,6 +12,7 @@ const TEXTO_DESAFIO = [
 
 export default {
   id: 'u1',
+  gameId: 5, // fila en public.games (migración 004)
   titulo: 'Las palabras',
   descripcion: 'Descubre qué hace cada palabra en una frase.',
 
@@ -33,6 +34,7 @@ export default {
     'u1-sustantivos': {
       id: 'u1-sustantivos',
       titulo: '¿Quién es? Los sustantivos',
+      codigo: 'language.noun',
       minutos: 4,
       pasos: [
         {
@@ -136,6 +138,7 @@ export default {
     'u1-verbos': {
       id: 'u1-verbos',
       titulo: '¿Qué hace? Los verbos',
+      codigo: 'language.verb',
       minutos: 4,
       pasos: [
         {
@@ -251,6 +254,7 @@ export default {
     'u1-practica1': {
       id: 'u1-practica1',
       titulo: '¿Quién y qué hace?',
+      codigo: 'language.word_classification',
       minutos: 4,
       pasos: [
         {
@@ -369,6 +373,7 @@ export default {
     'u1-adjetivos': {
       id: 'u1-adjetivos',
       titulo: '¿Cómo es? Los adjetivos',
+      codigo: 'language.adjective',
       minutos: 4,
       pasos: [
         {
@@ -484,6 +489,7 @@ export default {
     'u1-detective': {
       id: 'u1-detective',
       titulo: 'Detective de palabras',
+      codigo: 'language.word_classification',
       minutos: 4,
       pasos: [
         {
@@ -602,6 +608,7 @@ export default {
     'u1-conectores': {
       id: 'u1-conectores',
       titulo: 'Palabras que unen: y, pero, porque',
+      codigo: 'language.connector',
       minutos: 5,
       pasos: [
         {
@@ -719,6 +726,7 @@ export default {
     'u1-practica2': {
       id: 'u1-practica2',
       titulo: '¿Qué palabra falta?',
+      codigo: 'language.word_classification',
       minutos: 4,
       pasos: [
         {
@@ -828,6 +836,7 @@ export default {
     'u1-desafio': {
       id: 'u1-desafio',
       titulo: 'Desafío: Las palabras',
+      codigo: 'language.word_classification',
       minutos: 5,
       pasos: [
         {
