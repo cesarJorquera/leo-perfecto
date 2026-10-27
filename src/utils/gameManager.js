@@ -293,6 +293,18 @@ export class GameManager {
    * @param {Object} intentoData - Datos del intento
    * @returns {Object} Resultado con métricas actualizadas
    */
+  saveGameResult(gameData) {
+    return this.registrarIntento({
+      textId: gameData.textId || 'trivia1',
+      gameId: gameData.gameId,
+      correctAnswers: gameData.correctAnswers,
+      totalQuestions: gameData.totalQuestions,
+      score: gameData.score,
+      timeSpent: gameData.timeSpent,
+      errores: gameData.errores || []
+    })
+  }
+
   registrarIntento(intentoData) {
     try {
       const {
