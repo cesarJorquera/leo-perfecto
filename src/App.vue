@@ -24,14 +24,9 @@
         @start-game2="handleStartGame2"
         @start-game3="handleStartGame3"
         @start-game4="handleStartGame4"
+        @abrir-ruta="irARuta"
       />
 
-      <!-- RUTA (4/5): entrada temporal a la ruta de aprendizaje (prototipo) -->
-      <button
-        type="button"
-        class="fixed bottom-4 right-4 z-50 px-5 py-3 rounded-full bg-indigo-600 text-white font-bold shadow-lg"
-        @click="irARuta"
-      >📘 Ruta (prototipo)</button>
     </div>
     <div v-else class="container mx-auto px-4 py-6 max-w-4xl" style="margin-top: 150px;">
       <!-- Mientras se revisa si hay una sesión guardada (evita mostrar el login un instante) -->
@@ -301,7 +296,7 @@ export default {
       this.showProgreso = false
       this.currentScreen = 'panelDocente'
     },
-    // RUTA (5/5): abre la ruta de aprendizaje (prototipo)
+    // RUTA (5/5): abre la ruta de aprendizaje (desde la tarjeta Unidad 1 de MiProgreso)
     irARuta() {
       this.showProgreso = false
       this.currentScreen = 'ruta'
