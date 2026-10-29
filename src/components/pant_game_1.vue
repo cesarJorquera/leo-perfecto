@@ -20,13 +20,18 @@
     <!-- Layout responsive del juego -->
     <div v-else class="flex flex-col md:flex-row gap-6">
       <!-- Texto de referencia -->
-      <div class="md:w-1/2 bg-white rounded-3xl shadow-xl p-8">
-        <h3 class="text-2xl font-bold text-gray-800 mb-4">
-          {{ currentText.title }}
-        </h3>
-        <div class="bg-green-50 p-6 rounded-xl text-lg leading-relaxed text-gray-700">
-          <p v-html="currentText.content"></p>
+      <div class="md:w-1/2 space-y-6">
+        <div class="bg-white rounded-3xl shadow-xl p-8">
+          <h3 class="text-2xl font-bold text-gray-800 mb-4">
+            {{ currentText.title }}
+          </h3>
+          <div class="bg-green-50 p-6 rounded-xl text-lg leading-relaxed text-gray-700">
+            <p v-html="currentText.content"></p>
+          </div>
         </div>
+
+        <!-- Lectura Viva: audio narrado del texto -->
+        <AudioLecturaViva :text-id="textId" />
       </div>
 
       <!-- Preguntas -->
@@ -154,6 +159,7 @@ import { getQuestionsByTextId } from '../data/quest_game_keyword'
 import { createGameManager } from '../utils/gameManager'
 import { createGameProgressTracker } from '../utils/supabaseProgress'
 import { keywordQuestionAssessment } from '../utils/assessment'
+import AudioLecturaViva from './AudioLecturaViva.vue'
 
 // ============================================
 // COMPONENTE: Juego 1 - Preguntas sobre Palabras Clave
@@ -164,7 +170,11 @@ import { keywordQuestionAssessment } from '../utils/assessment'
 // ============================================
 export default {
   name: 'QuestionsScreen',
-  
+
+  components: {
+    AudioLecturaViva
+  },
+
   // Props recibidas desde el componente padre (App.vue)
   props: {
     playerName: {
