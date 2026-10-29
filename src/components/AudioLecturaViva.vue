@@ -239,6 +239,7 @@ export default {
   },
 
   beforeUnmount() {
+    this.detener()
     clearTimeout(this.temporizadorCierre)
     document.removeEventListener('pointerdown', this.alPulsarFuera)
     if (this.consultaPuntero && this.consultaPuntero.removeEventListener) {
@@ -262,6 +263,31 @@ export default {
       } else {
         audio.pause()
       }
+    },
+
+    // Pausa conservando la posición: al reproducir de nuevo continúa desde ahí
+    pausar() {
+      const audio = this.$refs.audio
+      if (audio) audio.pause()
+    },
+
+    // Pausa y vuelve al segundo 0: al reproducir de nuevo empieza desde el inicio
+    reiniciar() {
+      const audio = this.$refs.audio
+      if (!audio) return
+      audio.pause()
+      audio.currentTime = 0
+      this.tiempo = 0
+    },
+
+    // Detiene y libera el archivo (al desmontar el componente)
+    detener() {
+      const audio = this.$refs.audio
+      if (!audio) return
+      audio.pause()
+      audio.removeAttribute('src')
+      audio.load()
+      this.reproduciendo = false
     },
 
     alPulsarBoton() {

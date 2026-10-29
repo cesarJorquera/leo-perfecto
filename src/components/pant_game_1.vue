@@ -31,7 +31,7 @@
         </div>
 
         <!-- Lectura Viva: audio narrado del texto -->
-        <AudioLecturaViva :text-id="textId" />
+        <AudioLecturaViva ref="lecturaViva" :text-id="textId" />
       </div>
 
       <!-- Preguntas -->
@@ -291,7 +291,14 @@ export default {
     // Maneja la selección de una respuesta
     selectAnswer(answer) {
       if (this.questionAnswered || !this.currentQuestion) return;
-      
+
+      // Lectura Viva: pausa al responder; en la última pregunta vuelve al inicio
+      if (this.isLastQuestion) {
+        this.reiniciarLecturaViva();
+      } else {
+        this.pausarLecturaViva();
+      }
+
       this.selectedAnswer = answer;
       this.questionAnswered = true;
       this.answeredQuestions++;
@@ -342,6 +349,16 @@ export default {
       })
     },
     
+    // Lectura Viva: pausa conservando la posición
+    pausarLecturaViva() {
+      if (this.$refs.lecturaViva) this.$refs.lecturaViva.pausar();
+    },
+
+    // Lectura Viva: pausa y vuelve al segundo 0
+    reiniciarLecturaViva() {
+      if (this.$refs.lecturaViva) this.$refs.lecturaViva.reiniciar();
+    },
+
     // Clases CSS para las opciones
     getOptionClass() {
       return '';
@@ -368,6 +385,7 @@ export default {
         this.currentQuestionIndex++;
       } else {
         this.gameCompleted = true;
+        this.reiniciarLecturaViva();
         this.playSound('complete');
         
         const allCorrect = this.correctAnswers === this.questions.length;
