@@ -1,6 +1,21 @@
 <template>
   <div class="bg-gradient-to-br from-blue-50 to-purple-50 min-h-screen">
-    <AppNavbar 
+    <!-- Proyector en pantalla grande para la sala (oculta la navbar común) -->
+    <LeoIdeasProyector
+      v-if="currentScreen === 'leoIdeasProyector' && esDocente"
+      :docente-id="usuario ? usuario.id : ''"
+      @salir="currentScreen = 'leoAula'"
+    />
+
+    <!-- Alumno en modo sala (oculta la navbar común) -->
+    <LeoIdeasAlumno
+      v-else-if="currentScreen === 'leoIdeasAlumno'"
+      :codigo-sala-inicial="codigoSalaUrl"
+      @volver-inicio="volverAlInicioDesdeSala"
+    />
+
+    <template v-else>
+      <AppNavbar 
       :show-progress-button="sesionIniciada && !showProgreso && currentScreen !== 'cargando'" 
       :sesion-iniciada="sesionIniciada"
       :mostrar-panel-docente="esDocente"
@@ -26,7 +41,6 @@
         @start-game4="handleStartGame4"
         @abrir-ruta="irARuta"
       />
-
     </div>
     <div v-else class="container mx-auto px-4 py-6 max-w-4xl" style="margin-top: 150px;">
       <!-- Mientras se revisa si hay una sesión guardada (evita mostrar el login un instante) -->
@@ -41,16 +55,36 @@
         :cargando="cargandoLogin"
         :error="errorLogin"
         @entrar-google="entrar"
+        @unirse-sala="handleUnirseSala"
       />
 
-      <!-- CU-04: la puerta del panel docente. El panel real es Sprint 2 (PA-01) -->
-      <div v-if="currentScreen === 'panelDocente' && esDocente" class="bg-white rounded-3xl shadow-xl p-8 text-center">
-        <h2 class="text-2xl font-bold text-gray-800 mb-2">📊 Panel docente</h2>
-        <p class="text-gray-600 mb-6">Próximamente: aquí verás el avance de tus estudiantes.</p>
-        <button class="bg-purple-600 hover:bg-purple-700 text-white font-semibold px-6 py-3 rounded-xl" @click="goToProgreso">
-          Volver
-        </button>
-      </div>
+      <!-- CU-04 / JU-08: Espacio docente (reemplaza el "Próximamente" de CU-04) -->
+      <ElegirEspacio
+        v-if="currentScreen === 'elegirEspacio' && esDocente"
+        :nombre-docente="playerName"
+        @elegir-aula="currentScreen = 'leoAula'"
+        @elegir-dash="currentScreen = 'leoDash'"
+        @volver="goToProgreso"
+      />
+
+      <LeoAula
+        v-if="currentScreen === 'leoAula' && esDocente"
+        @abrir-leo-ideas="abrirLeoIdeasProyector"
+        @volver="currentScreen = 'elegirEspacio'"
+      />
+
+      <LeoDash
+        v-if="currentScreen === 'leoDash' && esDocente"
+        @abrir-control-leo-ideas="abrirLeoIdeasControl"
+        @volver="currentScreen = 'elegirEspacio'"
+      />
+
+
+      <LeoIdeasControl
+        v-if="currentScreen === 'leoIdeasControl' && esDocente"
+        :docente-id="usuario ? usuario.id : ''"
+        @volver="currentScreen = 'leoDash'"
+      />
 
       <pant_bienvenida 
         v-if="currentScreen === 'welcome'"
@@ -116,7 +150,7 @@
         @reintentar="currentScreen = 'instructions_game4'"
       />
 
-      <!-- RUTA (3/5): ruta de aprendizaje (prototipo, rama feature/ruta-unidad1) -->
+      <!-- RUTA (3/5): ruta de aprendizaje (feature/ruta-unidad1) -->
       <RutaAprendizaje
         v-if="currentScreen === 'ruta'"
         @salir="goToProgreso"
@@ -127,6 +161,7 @@
         :current-screen="currentScreen"
       />
     </div>
+    </template>
   </div>
 </template>
 
@@ -143,6 +178,12 @@ import pant_reglas_game4 from './components/pant_reglas_game4.vue'
 import pant_game_4 from './components/pant_game_4.vue'
 import mascota from './components/mascota.vue'
 import pant_login from './components/pant_login.vue'
+import ElegirEspacio from './components/docente/ElegirEspacio.vue'
+import LeoAula from './components/docente/LeoAula.vue'
+import LeoDash from './components/docente/LeoDash.vue'
+import LeoIdeasProyector from './components/leo_ideas/LeoIdeasProyector.vue'
+import LeoIdeasControl from './components/leo_ideas/LeoIdeasControl.vue'
+import LeoIdeasAlumno from './components/leo_ideas/LeoIdeasAlumno.vue'
 // RUTA (1/5): componente de la ruta de aprendizaje
 import RutaAprendizaje from './components/ruta/RutaAprendizaje.vue'
 import { supabaseConfigurado } from './utils/supabaseClient'
@@ -174,11 +215,22 @@ export default {
     pant_game_4,
     mascota,
     pant_login,
+    ElegirEspacio,
+    LeoAula,
+    LeoDash,
+    LeoIdeasProyector,
+    LeoIdeasControl,
+    LeoIdeasAlumno,
     RutaAprendizaje // RUTA (2/5)
   },
   data() {
     return {
-      currentScreen: 'cargando', // 'cargando' → 'login' o directo al menú si hay sesión (CU-03)
+      codigoSalaUrl: (/^\d{6}$/.test((new URLSearchParams(window.location.search).get('sala') || '').trim()))
+        ? (new URLSearchParams(window.location.search).get('sala') || '').trim()
+        : '',
+      currentScreen: (/^\d{6}$/.test((new URLSearchParams(window.location.search).get('sala') || '').trim()))
+        ? 'leoIdeasAlumno'
+        : 'cargando',
       playerName: '', // Ahora viene del perfil de Google, ya no se escribe a mano
       currentTextId: 'text1', // ID del texto actual en juego 1
       currentGame2TextId: 'drag1', // ID del texto actual en juego 2
@@ -223,7 +275,7 @@ export default {
     // ============================================
     async iniciarAutenticacion() {
       if (!this.supabaseConfigurado) {
-        this.currentScreen = 'login' // la pantalla de login explica qué falta
+        if (!this.codigoSalaUrl) this.currentScreen = 'login' // la pantalla de login explica qué falta
         return
       }
       // 1) Escuchar entradas y salidas (login con Google, logout, otra pestaña)
@@ -235,10 +287,10 @@ export default {
       try {
         const sesion = await obtenerSesion()
         if (sesion) await this.entrarConSesion(sesion)
-        else if (!this.usuario) this.currentScreen = 'login'
+        else if (!this.usuario && !this.codigoSalaUrl) this.currentScreen = 'login'
       } catch (error) {
         console.error('No se pudo revisar la sesión:', error)
-        this.currentScreen = 'login'
+        if (!this.codigoSalaUrl) this.currentScreen = 'login'
       }
     },
     async entrar() {
@@ -268,6 +320,14 @@ export default {
         console.warn('No se pudo guardar el nombre en localStorage:', error)
       }
       this.cargandoLogin = false
+      if (this.codigoSalaUrl) {
+        return
+      }
+      if (this.esDocente) {
+        this.showProgreso = false
+        this.currentScreen = 'elegirEspacio'
+        return
+      }
       this.currentScreen = 'welcome'
       await this.goToWelcome() // carga el progreso asociado a la cuenta y abre el menú
     },
@@ -289,17 +349,52 @@ export default {
       this.isReturningUser = false
       this.showProgreso = false
       this.cargandoLogin = false
+      if (this.codigoSalaUrl) {
+        return
+      }
       this.currentScreen = 'login'
     },
     irAlPanelDocente() {
       if (!this.esDocente) return
       this.showProgreso = false
-      this.currentScreen = 'panelDocente'
+      this.currentScreen = 'elegirEspacio'
     },
     // RUTA (5/5): abre la ruta de aprendizaje (desde la tarjeta Unidad 1 de MiProgreso)
     irARuta() {
       this.showProgreso = false
       this.currentScreen = 'ruta'
+    },
+    abrirLeoIdeasProyector() {
+      this.showProgreso = false
+      this.currentScreen = 'leoIdeasProyector'
+    },
+    abrirLeoIdeasControl() {
+      this.showProgreso = false
+      this.currentScreen = 'leoIdeasControl'
+    },
+    handleUnirseSala(codigo) {
+      const limpio = String(codigo || '').trim()
+      if (!/^\d{6}$/.test(limpio)) return
+      this.codigoSalaUrl = limpio
+      this.currentScreen = 'leoIdeasAlumno'
+    },
+    volverAlInicioDesdeSala() {
+      if (window.location.search.includes('sala')) {
+        const url = new URL(window.location.href)
+        url.searchParams.delete('sala')
+        const nuevaUrl = url.pathname + (url.search ? url.search : '')
+        window.history.replaceState({}, document.title, nuevaUrl)
+      }
+      this.codigoSalaUrl = ''
+      if (this.usuario) {
+        if (this.esDocente) {
+          this.currentScreen = 'elegirEspacio'
+        } else {
+          this.goToWelcome()
+        }
+      } else {
+        this.currentScreen = 'login'
+      }
     },
     async loadUserProgress(playerName) {
       const progress = await cargarProgresoNube()
