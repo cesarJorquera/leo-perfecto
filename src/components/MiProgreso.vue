@@ -49,7 +49,7 @@
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <!-- Unidad 1 - Fundamentos y Conceptos Básicos -->
+          <!-- Unidad 1 - Ruta de aprendizaje "Las palabras" (feature/ruta-unidad1) -->
           <div class="group bg-gradient-to-br from-blue-100 to-blue-50 rounded-2xl p-6 border-2 border-blue-300 shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-2">
             <div class="flex flex-col items-center text-center h-full">
               <!-- Icono Grande -->
@@ -66,45 +66,28 @@
 
               <!-- Título -->
               <h3 class="text-2xl font-extrabold text-blue-900 mb-4 leading-tight">
-                Fundamentos Básicos
+                Las palabras
               </h3>
 
-              <!-- Habilidades Actuales -->
+              <!-- Qué aprende -->
               <div class="mb-4 px-2">
-                <p class="text-sm text-gray-800 font-semibold mb-2">• Identifica palabras clave en textos breves</p>
+                <p class="text-sm text-gray-800 font-semibold mb-2">• Sustantivos, verbos y adjetivos</p>
+                <p class="text-sm text-gray-800 font-semibold mb-2">• Conectores: y, pero, porque</p>
+                <p class="text-sm text-gray-800 font-semibold mb-2">• Un desafío final con un texto</p>
               </div>
 
-              <!-- Próximamente -->
-              <div class="mb-4 px-2">
-                <p class="text-xs text-gray-500 italic mb-1.5">🕒 Próximamente:</p>
-                <p class="text-xs text-gray-600">• Reconocimiento de sinónimos y antónimos</p>
-                <p class="text-xs text-gray-600">• Vocabulario contextual básico</p>
-                <p class="text-xs text-gray-600">• Estructura de oraciones simples</p>
-              </div>
-
-              <!-- Barra de Progreso -->
-              <div class="w-full mb-5">
-                <div class="flex justify-between items-center mb-2">
-                  <span class="text-xs font-semibold text-gray-600">Tu progreso</span>
-                  <span class="text-xs font-bold text-blue-600">{{ getUnidadProgress(1) }}%</span>
-                </div>
-                <div class="w-full bg-blue-200 rounded-full h-3 overflow-hidden shadow-inner">
-                  <div 
-                    class="h-3 rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 transition-all duration-700"
-                    :style="{ width: getUnidadProgress(1) + '%' }"
-                  ></div>
-                </div>
-              </div>
+              <!-- Formato de la ruta (la barra de progreso vuelve cuando la ruta guarde en Supabase) -->
+              <p class="text-xs text-gray-600 mb-5">8 lecciones cortas de 3 a 5 minutos, con Leo como guía.</p>
 
               <!-- Botón -->
-              <button 
-                @click="iniciarUnidad(1)"
+              <button
+                @click="entrarRuta"
                 @mouseenter="playSound('hover')"
                 class="mt-auto w-full bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white py-3 px-6 rounded-xl font-bold text-lg transition-all shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center justify-center gap-2">
                 <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" />
                 </svg>
-                <span>Jugar</span>
+                <span>Entrar</span>
               </button>
             </div>
           </div>
@@ -1047,6 +1030,13 @@ export default {
       }
     },
 
+    /**
+    * Abre la ruta de aprendizaje (Unidad 1). App.vue decide qué pantalla mostrar.
+     */
+    entrarRuta() {
+      this.playSound('click')
+      this.$emit('abrir-ruta')
+    },
     /**
      * Inicia una unidad seleccionando inteligentemente un juego
      * @param {number} unidadId - ID de la unidad a iniciar

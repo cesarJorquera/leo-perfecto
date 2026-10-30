@@ -39,6 +39,7 @@
         @start-game2="handleStartGame2"
         @start-game3="handleStartGame3"
         @start-game4="handleStartGame4"
+        @abrir-ruta="irARuta"
       />
     </div>
     <div v-else class="container mx-auto px-4 py-6 max-w-4xl" style="margin-top: 150px;">
@@ -149,6 +150,12 @@
         @reintentar="currentScreen = 'instructions_game4'"
       />
 
+      <!-- RUTA (3/5): ruta de aprendizaje (feature/ruta-unidad1) -->
+      <RutaAprendizaje
+        v-if="currentScreen === 'ruta'"
+        @salir="goToProgreso"
+      />
+
       <mascota 
         v-if="currentScreen === 'questions'"
         :current-screen="currentScreen"
@@ -177,6 +184,8 @@ import LeoDash from './components/docente/LeoDash.vue'
 import LeoIdeasProyector from './components/leo_ideas/LeoIdeasProyector.vue'
 import LeoIdeasControl from './components/leo_ideas/LeoIdeasControl.vue'
 import LeoIdeasAlumno from './components/leo_ideas/LeoIdeasAlumno.vue'
+// RUTA (1/5): componente de la ruta de aprendizaje
+import RutaAprendizaje from './components/ruta/RutaAprendizaje.vue'
 import { supabaseConfigurado } from './utils/supabaseClient'
 import {
   entrarConGoogle,
@@ -211,7 +220,8 @@ export default {
     LeoDash,
     LeoIdeasProyector,
     LeoIdeasControl,
-    LeoIdeasAlumno
+    LeoIdeasAlumno,
+    RutaAprendizaje // RUTA (2/5)
   },
   data() {
     return {
@@ -348,6 +358,11 @@ export default {
       if (!this.esDocente) return
       this.showProgreso = false
       this.currentScreen = 'elegirEspacio'
+    },
+    // RUTA (5/5): abre la ruta de aprendizaje (desde la tarjeta Unidad 1 de MiProgreso)
+    irARuta() {
+      this.showProgreso = false
+      this.currentScreen = 'ruta'
     },
     abrirLeoIdeasProyector() {
       this.showProgreso = false
