@@ -14,6 +14,12 @@
       @volver-inicio="volverAlInicioDesdeSala"
     />
 
+    <!-- UI-01: Landing Page (pantalla completa, sin navbar) -->
+    <PantallaLanding
+      v-else-if="currentScreen === 'landing'"
+      @entrar="currentScreen = 'login'"
+    />
+
     <template v-else>
       <AppNavbar 
       :show-progress-button="sesionIniciada && !showProgreso && currentScreen !== 'cargando'" 
@@ -56,6 +62,7 @@
         :error="errorLogin"
         @entrar-google="entrar"
         @unirse-sala="handleUnirseSala"
+        @volver="currentScreen = 'landing'"
       />
 
       <!-- CU-04 / JU-08: Espacio docente (reemplaza el "Próximamente" de CU-04) -->
@@ -178,6 +185,7 @@ import pant_reglas_game4 from './components/pant_reglas_game4.vue'
 import pant_game_4 from './components/pant_game_4.vue'
 import mascota from './components/mascota.vue'
 import pant_login from './components/pant_login.vue'
+import PantallaLanding from './components/PantallaLanding.vue'
 import ElegirEspacio from './components/docente/ElegirEspacio.vue'
 import LeoAula from './components/docente/LeoAula.vue'
 import LeoDash from './components/docente/LeoDash.vue'
@@ -215,6 +223,7 @@ export default {
     pant_game_4,
     mascota,
     pant_login,
+    PantallaLanding,
     ElegirEspacio,
     LeoAula,
     LeoDash,
@@ -275,7 +284,7 @@ export default {
     // ============================================
     async iniciarAutenticacion() {
       if (!this.supabaseConfigurado) {
-        if (!this.codigoSalaUrl) this.currentScreen = 'login' // la pantalla de login explica qué falta
+        if (!this.codigoSalaUrl) this.currentScreen = 'landing' // el login explica qué falta
         return
       }
       // 1) Escuchar entradas y salidas (login con Google, logout, otra pestaña)
@@ -287,10 +296,10 @@ export default {
       try {
         const sesion = await obtenerSesion()
         if (sesion) await this.entrarConSesion(sesion)
-        else if (!this.usuario && !this.codigoSalaUrl) this.currentScreen = 'login'
+        else if (!this.usuario && !this.codigoSalaUrl) this.currentScreen = 'landing'
       } catch (error) {
         console.error('No se pudo revisar la sesión:', error)
-        if (!this.codigoSalaUrl) this.currentScreen = 'login'
+        if (!this.codigoSalaUrl) this.currentScreen = 'landing'
       }
     },
     async entrar() {
@@ -352,7 +361,7 @@ export default {
       if (this.codigoSalaUrl) {
         return
       }
-      this.currentScreen = 'login'
+      this.currentScreen = 'landing'
     },
     irAlPanelDocente() {
       if (!this.esDocente) return
@@ -393,7 +402,7 @@ export default {
           this.goToWelcome()
         }
       } else {
-        this.currentScreen = 'login'
+        this.currentScreen = 'landing'
       }
     },
     async loadUserProgress(playerName) {
