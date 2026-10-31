@@ -2,6 +2,15 @@
   <!-- CU-02: reemplaza a la pantalla "escribe tu nombre". Mobile-first. -->
   <div class="text-center">
     <div class="bg-white rounded-3xl shadow-xl p-6 sm:p-10 max-w-md mx-auto">
+      <!-- UI-01: volver al landing -->
+      <button
+        type="button"
+        class="block text-left text-sm font-semibold text-gray-600 hover:text-gray-900 py-3 px-3 -ml-3 -mt-3 -mb-1"
+        data-test="volver-landing"
+        @click="$emit('volver')"
+      >
+        ← Volver
+      </button>
       <img src="@/assets/icons/libro-sin-fondo-feliz.png" alt="Leo, el libro feliz" class="h-28 mx-auto mb-2" />
       <h1 class="text-3xl font-bold text-gray-800 mb-2">Leo Perfecto</h1>
       <p class="text-lg text-gray-600 mb-8">Aprende comprensión lectora jugando</p>
@@ -85,7 +94,7 @@ export default {
     cargando: { type: Boolean, default: false },
     error: { type: String, default: '' }
   },
-  emits: ['entrar-google', 'unirse-sala'],
+  emits: ['entrar-google', 'unirse-sala', 'volver'],
   data() {
     return {
       acepta: false,
