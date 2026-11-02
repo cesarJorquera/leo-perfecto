@@ -20,6 +20,17 @@
       @entrar="currentScreen = 'login'"
     />
 
+    <!-- CU-02 / UI-02: login con Google (pantalla completa, sin navbar) -->
+    <pant_login
+      v-else-if="currentScreen === 'login'"
+      :configurado="supabaseConfigurado"
+      :cargando="cargandoLogin"
+      :error="errorLogin"
+      @entrar-google="entrar"
+      @unirse-sala="handleUnirseSala"
+      @volver="currentScreen = 'landing'"
+    />
+
     <template v-else>
       <AppNavbar 
       :show-progress-button="sesionIniciada && !showProgreso && currentScreen !== 'cargando'" 
@@ -53,17 +64,6 @@
       <div v-if="currentScreen === 'cargando'" class="text-center text-gray-500 py-20 animate-pulse">
         Cargando…
       </div>
-
-      <!-- CU-02: login con Google (reemplaza la pantalla "escribe tu nombre") -->
-      <pant_login
-        v-if="currentScreen === 'login'"
-        :configurado="supabaseConfigurado"
-        :cargando="cargandoLogin"
-        :error="errorLogin"
-        @entrar-google="entrar"
-        @unirse-sala="handleUnirseSala"
-        @volver="currentScreen = 'landing'"
-      />
 
       <!-- CU-04 / JU-08: Espacio docente (reemplaza el "Próximamente" de CU-04) -->
       <ElegirEspacio
