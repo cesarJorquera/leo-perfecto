@@ -77,6 +77,47 @@ export function leerAvance(juego, contenido) {
   }
 }
 
+/**
+ * UI-05: lista las partidas interrumpidas de ESTE usuario en ESTE navegador que
+ * siguen vigentes (menos de 24 horas), de la más reciente a la más antigua.
+ * La usa Inicio para la tarjeta "Continuar donde lo dejaste". Solo lee: las
+ * copias vencidas o con otro formato las descarta `leerAvance`, como siempre.
+ * Devuelve [{ juego, contenido, guardadoEn, sessionId }].
+ */
+export function listarAvancesGuardados() {
+  const usuarioId = estadoSesion.usuario && estadoSesion.usuario.id
+  if (!usuarioId) return []
+  const prefijo = `leo-perfecto-avance:v${VERSION}:${usuarioId}:`
+  const encontrados = []
+  try {
+    const claves = []
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i)
+      if (k && k.startsWith(prefijo)) claves.push(k)
+    }
+    // Se recorren aparte porque leerAvance puede borrar claves (cambia los índices)
+    claves.forEach(k => {
+      const [juegoTexto, ...resto] = k.slice(prefijo.length).split(':')
+      const juego = Number(juegoTexto)
+      const contenido = resto.join(':')
+      if (!juego || !contenido) return
+      const avance = leerAvance(juego, contenido)
+      if (avance) {
+        encontrados.push({
+          juego,
+          contenido,
+          guardadoEn: avance.guardadoEn || avance.iniciadaEn,
+          sessionId: avance.sessionId
+        })
+      }
+    })
+  } catch (error) {
+    console.warn('No se pudieron revisar las partidas guardadas:', error)
+    return []
+  }
+  return encontrados.sort((a, b) => b.guardadoEn - a.guardadoEn)
+}
+
 export function borrarAvance(juego, contenido) {
   const k = clave(juego, contenido)
   if (!k) return

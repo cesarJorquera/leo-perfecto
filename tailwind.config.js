@@ -17,6 +17,9 @@ module.exports = {
           linea: '#d9e4f1',
           coral: '#c2382d',
           hoja: '#1f7a47',
+          // UI-05: fondo de las pantallas con menú (celeste plano, elegido en el mockup).
+          // Contraste: texto suave #52627a sobre este fondo = 5,39:1 (cumple AA).
+          fondo: '#e7f0fa',
         },
       },
       fontFamily: {
