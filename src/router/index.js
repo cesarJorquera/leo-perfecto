@@ -12,6 +12,8 @@
  *  - layout:       'bare' = pantalla completa sin navbar; 'app' = con navbar.
  *  - ancho:        (layout app) ocupa todo el ancho, sin contenedor central.
  *  - mascota:      muestra a Leo (mascota) junto a la pantalla.
+ *  - seccion:      opción del menú principal que queda resaltada (UI-03).
+ *  - sinMenu:      oculta el menú principal (durante los juegos, para no distraer ni salir sin querer).
  *  - avance:       (juegos) función que devuelve { juego, contenido } para retomar
  *                  una partida interrumpida; ver utils/avanceJuego.js.
  */
@@ -25,6 +27,7 @@ import PantallaLanding from '../components/PantallaLanding.vue'
 import pant_login from '../components/pant_login.vue'
 import LeoIdeasAlumno from '../components/leo_ideas/LeoIdeasAlumno.vue'
 import MiProgreso from '../components/MiProgreso.vue'
+import SeccionEnConstruccion from '../components/menu/SeccionEnConstruccion.vue'
 import RutaAprendizaje from '../components/ruta/RutaAprendizaje.vue'
 import pant_reglas_game1 from '../components/pant_reglas_game1.vue'
 import pant_game_1 from '../components/pant_game_1.vue'
@@ -57,6 +60,7 @@ function textoJuego2Valido(to) {
 
 const BARE = { layout: 'bare' }
 const APP = { layout: 'app' }
+const JUEGO = { ...APP, seccion: 'inicio', sinMenu: true }
 
 const routes = [
   // --- Públicas ---
@@ -72,22 +76,26 @@ const routes = [
   },
 
   // --- Alumno ---
-  { path: '/inicio', name: 'inicio', component: MiProgreso, meta: { ...APP, ancho: true } },
-  { path: '/ruta', name: 'ruta', component: RutaAprendizaje, meta: APP },
-  { path: '/juego/1/:textId/reglas', name: 'juego1-reglas', component: pant_reglas_game1, meta: APP, beforeEnter: textoJuego1Valido },
-  { path: '/juego/1/:textId', name: 'juego1', component: pant_game_1, meta: { ...APP, mascota: true, avance: to => ({ juego: 1, contenido: to.params.textId }) }, beforeEnter: textoJuego1Valido },
-  { path: '/juego/2/:textId/reglas', name: 'juego2-reglas', component: pant_reglas_game2, meta: APP, beforeEnter: textoJuego2Valido },
-  { path: '/juego/2/:textId', name: 'juego2', component: pant_game_2, meta: { ...APP, avance: to => ({ juego: 2, contenido: to.params.textId }) }, beforeEnter: textoJuego2Valido },
-  { path: '/juego/3', name: 'juego3', component: pant_game_3, meta: { ...APP, avance: () => ({ juego: 3, contenido: 'principal', exigirPartidaAbierta: false }) } },
-  { path: '/juego/4/reglas', name: 'juego4-reglas', component: pant_reglas_game4, meta: APP },
-  { path: '/juego/4', name: 'juego4', component: pant_game_4, meta: { ...APP, avance: () => ({ juego: 4, contenido: 'trivia' }) } },
+  { path: '/inicio', name: 'inicio', component: MiProgreso, meta: { ...APP, seccion: 'inicio', ancho: true } },
+  // UI-03: secciones del menú (el contenido real llega en UI-04)
+  { path: '/progreso', name: 'progreso', component: SeccionEnConstruccion, meta: { ...APP, seccion: 'progreso', titulo: 'Progreso y Ranking' } },
+  { path: '/leoia', name: 'leoia', component: SeccionEnConstruccion, meta: { ...APP, seccion: 'leoia', titulo: 'LeoIA' } },
+  { path: '/ajustes', name: 'ajustes', component: SeccionEnConstruccion, meta: { ...APP, seccion: 'ajustes', titulo: 'Ajustes' } },
+  { path: '/ruta', name: 'ruta', component: RutaAprendizaje, meta: { ...APP, seccion: 'inicio' } },
+  { path: '/juego/1/:textId/reglas', name: 'juego1-reglas', component: pant_reglas_game1, meta: { ...APP, seccion: 'inicio' }, beforeEnter: textoJuego1Valido },
+  { path: '/juego/1/:textId', name: 'juego1', component: pant_game_1, meta: { ...JUEGO, mascota: true, avance: to => ({ juego: 1, contenido: to.params.textId }) }, beforeEnter: textoJuego1Valido },
+  { path: '/juego/2/:textId/reglas', name: 'juego2-reglas', component: pant_reglas_game2, meta: { ...APP, seccion: 'inicio' }, beforeEnter: textoJuego2Valido },
+  { path: '/juego/2/:textId', name: 'juego2', component: pant_game_2, meta: { ...JUEGO, avance: to => ({ juego: 2, contenido: to.params.textId }) }, beforeEnter: textoJuego2Valido },
+  { path: '/juego/3', name: 'juego3', component: pant_game_3, meta: { ...JUEGO, avance: () => ({ juego: 3, contenido: 'principal', exigirPartidaAbierta: false }) } },
+  { path: '/juego/4/reglas', name: 'juego4-reglas', component: pant_reglas_game4, meta: { ...APP, seccion: 'inicio' } },
+  { path: '/juego/4', name: 'juego4', component: pant_game_4, meta: { ...JUEGO, avance: () => ({ juego: 4, contenido: 'trivia' }) } },
 
   // --- Docente ---
-  { path: '/docente', name: 'docente', component: ElegirEspacio, meta: { ...APP, docente: true } },
-  { path: '/docente/aula', name: 'docente-aula', component: LeoAula, meta: { ...APP, docente: true } },
+  { path: '/docente', name: 'docente', component: ElegirEspacio, meta: { ...APP, seccion: 'docente', docente: true } },
+  { path: '/docente/aula', name: 'docente-aula', component: LeoAula, meta: { ...APP, seccion: 'docente', docente: true } },
   { path: '/docente/aula/proyector', name: 'docente-proyector', component: LeoIdeasProyector, meta: { ...BARE, docente: true } },
-  { path: '/docente/panel', name: 'docente-panel', component: LeoDash, meta: { ...APP, docente: true } },
-  { path: '/docente/panel/control', name: 'docente-control', component: LeoIdeasControl, meta: { ...APP, docente: true } },
+  { path: '/docente/panel', name: 'docente-panel', component: LeoDash, meta: { ...APP, seccion: 'docente', docente: true } },
+  { path: '/docente/panel/control', name: 'docente-control', component: LeoIdeasControl, meta: { ...APP, seccion: 'docente', docente: true } },
 
   // Cualquier otra dirección vuelve a la landing
   { path: '/:pathMatch(.*)*', redirect: { name: 'landing' } }

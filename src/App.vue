@@ -23,41 +23,50 @@
 
       <!-- Con navbar -->
       <template v-else>
+        <!-- UI-03: con el menú principal visible, "Menú Principal" y "Panel docente" ya están en
+             el menú, igual que "Salir" (ahora debajo de Ajustes); solo se muestran aquí en las
+             pantallas sin menú (los juegos). -->
         <AppNavbar
-          :show-progress-button="sesionIniciada && route.name !== 'inicio'"
-          :sesion-iniciada="sesionIniciada"
-          :mostrar-panel-docente="esDocente"
+          :show-progress-button="sesionIniciada && !!route.meta.sinMenu"
+          :sesion-iniciada="sesionIniciada && !!route.meta.sinMenu"
+          :mostrar-panel-docente="esDocente && !!route.meta.sinMenu"
           @go-progreso="goToProgreso"
           @go-panel-docente="irAlPanelDocente"
           @cerrar-sesion="salir"
         />
-        <div v-if="errorProgreso" class="max-w-4xl mx-auto px-4 pt-4">
-          <p class="rounded-xl border border-red-300 bg-red-50 p-4 text-red-800" role="alert">
-            No se pudo cargar tu progreso desde la nube. Tus datos no se han reemplazado.
-            Revisa tu conexión e intenta iniciar sesión nuevamente.
-          </p>
-        </div>
+        <!-- Escritorio: menú lateral + contenido. Celular: el menú es una barra inferior fija. -->
+        <div :class="{ 'lg:flex lg:items-start': !route.meta.sinMenu }">
+          <MenuPrincipal v-if="!route.meta.sinMenu" :es-docente="esDocente" @salir="salir" />
+          <div class="flex-1 min-w-0" :class="{ 'pb-24 lg:pb-0': !route.meta.sinMenu }">
+            <div v-if="errorProgreso" class="max-w-4xl mx-auto px-4 pt-4">
+              <p class="rounded-xl border border-red-300 bg-red-50 p-4 text-red-800" role="alert">
+                No se pudo cargar tu progreso desde la nube. Tus datos no se han reemplazado.
+                Revisa tu conexión e intenta iniciar sesión nuevamente.
+              </p>
+            </div>
 
-        <!-- Menú principal: ocupa todo el ancho -->
-        <component
-          :is="Component"
-          v-if="route.meta.ancho"
-          :key="claveDe(route)"
-          v-bind="propsDe(route)"
-          v-on="eventosDe(route)"
-        />
+            <!-- Menú principal: ocupa todo el ancho -->
+            <component
+              :is="Component"
+              v-if="route.meta.ancho"
+              :key="claveDe(route)"
+              v-bind="propsDe(route)"
+              v-on="eventosDe(route)"
+            />
 
-        <div v-else class="container mx-auto px-4 py-6 max-w-4xl" style="margin-top: 150px;">
-          <component
-            :is="Component"
-            :key="claveDe(route)"
-            v-bind="propsDe(route)"
-            v-on="eventosDe(route)"
-          />
-          <mascota
-            v-if="route.meta.mascota"
-            current-screen="questions"
-          />
+            <div v-else class="container mx-auto px-4 py-6 max-w-4xl" style="margin-top: 150px;">
+              <component
+                :is="Component"
+                :key="claveDe(route)"
+                v-bind="propsDe(route)"
+                v-on="eventosDe(route)"
+              />
+              <mascota
+                v-if="route.meta.mascota"
+                current-screen="questions"
+              />
+            </div>
+          </div>
         </div>
       </template>
     </router-view>
@@ -69,6 +78,7 @@
 
 <script>
 import AppNavbar from './components/Navbar.vue'
+import MenuPrincipal from './components/menu/MenuPrincipal.vue'
 // MEJ-03 — pant_bienvenida queda SIN USO y se deja comentado (no se borra):
 // antes se veía unos instantes al iniciar sesión (currentScreen = 'welcome') mientras
 // se descargaba el progreso, y su botón "continuar" abría las reglas del Juego 1.
@@ -100,6 +110,7 @@ export default {
   name: 'App',
   components: {
     AppNavbar,
+    MenuPrincipal,
     mascota,
     ModalConfirmacion
   },
