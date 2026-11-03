@@ -21,8 +21,9 @@
         v-on="eventosDe(route)"
       />
 
-      <!-- Con navbar -->
-      <template v-else>
+      <!-- Con navbar. UI-05: fondo celeste plano (leo-fondo) en las pantallas con menú;
+           la landing y el login (layout bare) no cambian. -->
+      <div v-else class="bg-leo-fondo min-h-screen">
         <!-- UI-03: con el menú principal visible, "Menú Principal" y "Panel docente" ya están en
              el menú, igual que "Salir" (ahora debajo de Ajustes); solo se muestran aquí en las
              pantallas sin menú (los juegos). -->
@@ -30,6 +31,10 @@
           :show-progress-button="sesionIniciada && !!route.meta.sinMenu"
           :sesion-iniciada="sesionIniciada && !!route.meta.sinMenu"
           :mostrar-panel-docente="esDocente && !!route.meta.sinMenu"
+          :nombre="playerName"
+          :titulo="route.meta.titulo || ''"
+          :atras="route.meta.atras ? { name: route.meta.atras } : null"
+          :en-juego="!!route.meta.sinMenu"
           @go-progreso="goToProgreso"
           @go-panel-docente="irAlPanelDocente"
           @cerrar-sesion="salir"
@@ -54,7 +59,9 @@
               v-on="eventosDe(route)"
             />
 
-            <div v-else class="container mx-auto px-4 py-6 max-w-4xl" style="margin-top: 150px;">
+            <!-- UI-05: el espacio de 150px arriba se deja solo en los juegos (ahí está Leo, la mascota);
+                 en la ruta, las reglas y el panel docente dejaba un hueco bajo la barra nueva -->
+            <div v-else class="container mx-auto px-4 py-6 max-w-4xl" :style="route.meta.sinMenu ? 'margin-top: 150px;' : ''">
               <component
                 :is="Component"
                 :key="claveDe(route)"
@@ -68,7 +75,7 @@
             </div>
           </div>
         </div>
-      </template>
+      </div>
     </router-view>
 
     <!-- MEJ-03: aviso de confirmación al salir de algo en curso (juego, actividad) -->

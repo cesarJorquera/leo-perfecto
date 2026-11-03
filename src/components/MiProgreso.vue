@@ -1,218 +1,197 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50">
-    <div class="container mx-auto px-4 py-8 max-w-7xl">
-      
-      <!-- Header -->
-      <div class="bg-white rounded-2xl shadow-xl p-6 md:p-8 mb-8 border-2 border-purple-200">
-        <div class="flex flex-col md:flex-row items-center justify-between gap-4">
-          <div class="flex items-center gap-4">
-            <div class="relative">
-              <div class="absolute inset-0 bg-gradient-to-br from-purple-400 to-pink-400 rounded-full blur-lg opacity-50"></div>
-              <img src="@/assets/icons/libro-sin-fondo-feliz.png" alt="Leo" class="w-20 h-20 relative z-10 drop-shadow-lg" />
-            </div>
-            <div>
-              <h1 class="text-2xl md:text-3xl font-bold text-purple-700">
-                <span v-if="!isReturningUser">¡Bienvenido, {{playerName}}!</span>
-                <span v-else>¡Hola de nuevo, {{playerName}}!</span>
-              </h1>
-              <p class="text-base text-gray-600 font-medium">
-                <span v-if="!isReturningUser" class="flex items-center gap-2">
-                  <svg class="w-5 h-5 text-indigo-600" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" />
-                  </svg>
-                  <span>Comienza tu aventura de aprendizaje</span>
-                </span>
-                <span v-else class="flex items-center gap-2">
-                  <svg class="w-5 h-5 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.007 5.404.433c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.433 2.082-5.006z" clip-rule="evenodd" />
-                  </svg>
-                  <span>Continúa mejorando tus habilidades</span>
-                </span>
-              </p>
-            </div>
-          </div>
+  <!-- UI-05: Rework de Inicio. Fondo plano (lo pone App.vue), saludo corto,
+       tarjeta "Continuar" con Leo y unidades compactas con panel de detalle.
+       El contenido de las unidades (qué se practica, próximamente) es el mismo
+       de antes; ahora vive en el panel de detalle para que la pantalla respire. -->
+  <div class="inicio" :class="{ 'inicio--entrada': conEntrada }">
+
+    <!-- Saludo -->
+    <header class="inicio__saludo">
+      <h1 class="inicio__hola" data-test="saludo">Hola, {{ nombreCorto || 'lector' }}</h1>
+      <p class="inicio__bajada">
+        <span v-if="isReturningUser">Sigue con tu ruta cuando quieras.</span>
+        <span v-else>Empieza tu ruta cuando quieras. Son pasos cortos.</span>
+      </p>
+    </header>
+
+    <!-- Continuar donde lo dejaste -->
+    <LeoTarjeta como="section" class="continuar" aria-labelledby="continuar-titulo" data-test="tarjeta-continuar">
+      <LeoBurbuja
+        class="continuar__leo"
+        :mensaje="continuar.mensajeLeo"
+        :disposicion="esAncho ? 'arriba' : 'lado'"
+        :tamano="esAncho ? 150 : 96"
+      />
+      <div class="continuar__texto">
+        <p class="continuar__etiqueta" data-test="continuar-etiqueta">{{ continuar.etiqueta }}</p>
+        <h2 id="continuar-titulo" class="continuar__titulo" data-test="continuar-titulo">{{ continuar.titulo }}</h2>
+
+        <div v-if="continuar.unidad || continuar.minutos || continuar.detalle" class="continuar__meta">
+          <LeoEtiqueta v-if="continuar.unidad" :tono="continuar.tipo === 'unidad2' ? 'verde' : 'azul'">{{ continuar.unidad }}</LeoEtiqueta>
+          <span v-if="continuar.minutos">{{ continuar.minutos }} min</span>
+          <span v-if="continuar.detalle">{{ continuar.detalle }}</span>
+        </div>
+
+        <div v-if="continuar.total" class="continuar__avance">
+          <LeoBarraProgreso
+            :valor="continuar.hechos"
+            :maximo="continuar.total"
+            :alto="10"
+            etiqueta="Avance de la Unidad 1"
+          />
+          <span class="continuar__pasos" data-test="continuar-pasos">{{ continuar.hechos }} de {{ continuar.total }} pasos</span>
+        </div>
+
+        <div class="continuar__acciones">
+          <LeoBoton data-test="boton-continuar" @click="alContinuar">
+            {{ continuar.boton }}
+            <svg viewBox="0 0 20 20" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 10 H16 M11 5 L16 10 L11 15" /></svg>
+          </LeoBoton>
+          <button
+            v-if="continuar.tipo !== 'unidad2'"
+            type="button"
+            class="inicio__enlace"
+            data-test="ver-ruta"
+            @click="entrarRuta"
+          >Ver mi ruta</button>
         </div>
       </div>
+    </LeoTarjeta>
 
+    <!-- Unidades -->
+    <section class="unidades" aria-labelledby="unidades-titulo">
+      <h2 id="unidades-titulo" class="unidades__titulo">Unidades de aprendizaje</h2>
 
-      <!-- Unidades de Aprendizaje - Diseño Restructurado -->
-      <div class="bg-white rounded-2xl shadow-xl p-6 md:p-8 mb-8 border-2 border-indigo-200">
-        <div class="flex items-center gap-3 mb-6">
-          <div class="bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl p-3 shadow-lg">
-            <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M11.25 4.533A9.707 9.707 0 006 3a9.735 9.735 0 00-3.25.555.75.75 0 00-.5.707v14.25a.75.75 0 001 .707A8.237 8.237 0 016 18.75c1.995 0 3.823.707 5.25 1.886V4.533zM12.75 20.636A8.214 8.214 0 0118 18.75c.966 0 1.89.166 2.75.47a.75.75 0 001-.708V4.262a.75.75 0 00-.5-.707A9.735 9.735 0 0018 3a9.707 9.707 0 00-5.25 1.533v16.103z" />
-            </svg>
+      <!-- Celular: lista compacta; tocar una fila abre su detalle -->
+      <ul class="unidades__lista">
+        <li v-for="u in unidades" :key="u.id">
+          <button
+            type="button"
+            class="fila"
+            :class="{ 'fila--apagada': u.bloqueada }"
+            :data-test="`fila-${u.id}`"
+            @click="abrirDetalle(u.id)"
+          >
+            <span class="icono-unidad" :style="{ background: u.fondoIcono }">
+              <span class="icono-unidad__svg" v-html="u.icono"></span>
+            </span>
+            <span class="fila__textos">
+              <span class="fila__antetitulo" :style="{ color: u.colorTexto }">{{ u.antetitulo }}</span>
+              <span class="fila__nombre">{{ u.nombre }}</span>
+              <span class="fila__avance">{{ u.textoAvance }}</span>
+            </span>
+            <svg class="fila__flecha" viewBox="0 0 20 20" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4 L13 10 L7 16" /></svg>
+          </button>
+        </li>
+      </ul>
+
+      <!-- Tablet y escritorio: tarjetas (2 columnas en tablet, 3 en escritorio) -->
+      <div class="unidades__grilla">
+        <LeoTarjeta
+          v-for="u in unidades"
+          :key="u.id"
+          como="article"
+          class="unidad"
+          :apagada="u.bloqueada"
+          :data-test="`tarjeta-${u.id}`"
+        >
+          <div class="unidad__cabecera">
+            <span class="icono-unidad icono-unidad--grande" :style="{ background: u.fondoIcono }">
+              <span class="icono-unidad__svg" v-html="u.icono"></span>
+            </span>
+            <LeoEtiqueta v-if="u.bloqueada" tono="ambar">
+              <svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="9" width="12" height="8" rx="2" /><path d="M7 9 V6.5 a3 3 0 0 1 6 0 V9" /></svg>
+              Próximamente
+            </LeoEtiqueta>
+            <button
+              type="button"
+              class="unidad__info"
+              :aria-label="`Ver el detalle de la ${u.antetitulo.toLowerCase()}`"
+              :data-test="`detalle-${u.id}`"
+              @click="abrirDetalle(u.id)"
+            >
+              <svg viewBox="0 0 20 20" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="10" cy="10" r="7.5" /><path d="M10 9 V14" /><circle cx="10" cy="6.3" r="0.6" fill="currentColor" /></svg>
+            </button>
           </div>
-          <h2 class="text-3xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-            Unidades de Aprendizaje
-          </h2>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <!-- Unidad 1 - Ruta de aprendizaje "Las palabras" (feature/ruta-unidad1) -->
-          <div class="group bg-gradient-to-br from-blue-100 to-blue-50 rounded-2xl p-6 border-2 border-blue-300 shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-2">
-            <div class="flex flex-col items-center text-center h-full">
-              <!-- Icono Grande -->
-              <div class="bg-gradient-to-br from-blue-500 to-indigo-600 text-white rounded-2xl p-5 mb-4 shadow-xl">
-                <svg class="w-14 h-14" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M11.25 4.533A9.707 9.707 0 006 3a9.735 9.735 0 00-3.25.555.75.75 0 00-.5.707v14.25a.75.75 0 001 .707A8.237 8.237 0 016 18.75c1.995 0 3.823.707 5.25 1.886V4.533zM12.75 20.636A8.214 8.214 0 0118 18.75c.966 0 1.89.166 2.75.47a.75.75 0 001-.708V4.262a.75.75 0 00-.5-.707A9.735 9.735 0 0018 3a9.707 9.707 0 00-5.25 1.533v16.103z" />
-                </svg>
-              </div>
-
-              <!-- Badge Unidad -->
-              <div class="bg-blue-600 text-white text-xs px-4 py-1 rounded-full font-bold mb-3 shadow-md">
-                UNIDAD 1
-              </div>
-
-              <!-- Título -->
-              <h3 class="text-2xl font-extrabold text-blue-900 mb-4 leading-tight">
-                Las palabras
-              </h3>
-
-              <!-- Qué aprende -->
-              <div class="mb-4 px-2">
-                <p class="text-sm text-gray-800 font-semibold mb-2">• Sustantivos, verbos y adjetivos</p>
-                <p class="text-sm text-gray-800 font-semibold mb-2">• Conectores: y, pero, porque</p>
-                <p class="text-sm text-gray-800 font-semibold mb-2">• Un desafío final con un texto</p>
-              </div>
-
-              <!-- Formato de la ruta (la barra de progreso vuelve cuando la ruta guarde en Supabase) -->
-              <p class="text-xs text-gray-600 mb-5">8 lecciones cortas de 3 a 5 minutos, con Leo como guía.</p>
-
-              <!-- Botón -->
-              <button
-                @click="entrarRuta"
-                @mouseenter="playSound('hover')"
-                class="mt-auto w-full bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white py-3 px-6 rounded-xl font-bold text-lg transition-all shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center justify-center gap-2">
-                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" />
-                </svg>
-                <span>Entrar</span>
-              </button>
-            </div>
+          <div>
+            <p class="unidad__antetitulo" :style="{ color: u.colorTexto }">{{ u.antetitulo }}</p>
+            <h3 class="unidad__nombre">{{ u.nombre }}</h3>
+            <p class="unidad__resumen">{{ u.resumen }}</p>
           </div>
-
-          <!-- Unidad 2 - Comprensión Inferencial y Analítica -->
-          <div class="group bg-green-100 rounded-2xl p-6 border-2 border-green-300 shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-2">
-            <div class="flex flex-col items-center text-center h-full">
-              <!-- Icono Grande -->
-              <div class="bg-green-500 text-white rounded-2xl p-5 mb-4 shadow-xl">
-                <svg class="w-14 h-14" fill="currentColor" viewBox="0 0 24 24">
-                  <path fill-rule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm8.706-1.442c1.146-.573 2.437.463 2.126 1.706l-.709 2.836.042-.02a.75.75 0 01.67 1.34l-.04.022c-1.147.573-2.438-.463-2.127-1.706l.71-2.836-.042.02a.75.75 0 11-.671-1.34l.041-.022zM12 9a.75.75 0 100-1.5.75.75 0 000 1.5z" clip-rule="evenodd" />
-                </svg>
-              </div>
-
-              <!-- Badge Unidad -->
-              <div class="bg-green-600 text-white text-xs px-4 py-1 rounded-full font-bold mb-3 shadow-md">
-                UNIDAD 2
-              </div>
-
-              <!-- Título -->
-              <h3 class="text-2xl font-extrabold text-green-900 mb-4 leading-tight">
-                Comprensión Lectora
-              </h3>
-
-              <!-- Habilidades Actuales -->
-              <div class="mb-4 px-2">
-                <p class="text-sm text-gray-800 font-semibold mb-2">• Identificar Idea Principal</p>
-                <p class="text-sm text-gray-800 font-semibold mb-2">• Identificar Causa-Efecto</p>
-                <p class="text-sm text-gray-800 font-semibold mb-2">• Hacer Inferencias</p>
-                <p class="text-sm text-gray-800 font-semibold mb-2">• Identificar Detalles Específicos</p>
-                <p class="text-sm text-gray-800 font-semibold mb-2">• Identificar Propósito/Intención</p>
-              </div>
-
-              <!-- Próximamente -->
-              <div class="mb-4 px-2">
-                <p class="text-xs text-gray-500 italic mb-1.5">🕒 Próximamente:</p>
-                <p class="text-xs text-gray-600">• Comparación y contraste de ideas</p>
-                <p class="text-xs text-gray-600">• Interpretación de metáforas</p>
-                <p class="text-xs text-gray-600">• Análisis de estructura textual</p>
-              </div>
-
-              <!-- Barra de Progreso -->
-              <div class="w-full mb-5">
-                <div class="flex justify-between items-center mb-2">
-                  <span class="text-xs font-semibold text-green-700">Progreso</span>
-                  <span class="text-xs font-bold text-green-600">{{ getUnidadProgress(2) }}%</span>
-                </div>
-                <div class="w-full bg-green-200 rounded-full h-3 shadow-inner">
-                  <div 
-                    class="bg-green-500 h-3 rounded-full transition-all duration-500 flex items-center justify-end pr-1"
-                    :style="{ width: getUnidadProgress(2) + '%' }"
-                  >
-                    <span v-if="getUnidadProgress(2) > 10" class="text-xs font-bold text-white">{{ getUnidadProgress(2) }}%</span>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Botón -->
-              <button 
-                @click="iniciarUnidad(2)"
-                @mouseenter="playSound('hover')"
-                class="mt-auto w-full bg-green-600 hover:bg-green-700 text-white py-3 px-6 rounded-xl font-bold text-lg transition-all hover:shadow-2xl hover:scale-105 transform flex items-center justify-center gap-2">
-                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M10 2a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0v-1.5A.75.75 0 0110 2zM10 15a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0v-1.5A.75.75 0 0110 15zM10 7a3 3 0 100 6 3 3 0 000-6zM15.657 5.404a.75.75 0 10-1.06-1.06l-1.061 1.06a.75.75 0 001.06 1.06l1.06-1.06zM6.464 14.596a.75.75 0 10-1.06-1.06l-1.06 1.06a.75.75 0 001.06 1.06l1.06-1.06zM18 10a.75.75 0 01-.75.75h-1.5a.75.75 0 010-1.5h1.5A.75.75 0 0118 10zM5 10a.75.75 0 01-.75.75h-1.5a.75.75 0 010-1.5h1.5A.75.75 0 015 10zM14.596 15.657a.75.75 0 001.06-1.06l-1.06-1.061a.75.75 0 10-1.06 1.06l1.06 1.06zM5.404 6.464a.75.75 0 001.06-1.06l-1.06-1.06a.75.75 0 10-1.061 1.06l1.06 1.06z" />
-                </svg>
-                <span>Jugar</span>
-              </button>
-            </div>
+          <div class="unidad__avance">
+            <LeoBarraProgreso
+              :valor="u.valor"
+              :maximo="u.maximo"
+              :color="u.color"
+              :etiqueta="`Avance de la ${u.antetitulo.toLowerCase()}`"
+            />
+            <span class="unidad__avance-texto">{{ u.textoAvance }}</span>
           </div>
-          <!-- Unidad 3 - Aplicación y Metacognición -->
-          <div class="group bg-red-100 rounded-2xl p-6 border-2 border-red-300 shadow-lg opacity-90">
-            <div class="flex flex-col items-center text-center h-full">
-              <!-- Icono Grande -->
-              <div class="bg-gradient-to-br from-red-500 to-rose-600 text-white rounded-2xl p-5 mb-4 shadow-xl">
-                <svg class="w-14 h-14" fill="currentColor" viewBox="0 0 24 24">
-                  <path fill-rule="evenodd" d="M9 4.5a.75.75 0 01.721.544l.813 2.846a3.75 3.75 0 002.576 2.576l2.846.813a.75.75 0 010 1.442l-2.846.813a3.75 3.75 0 00-2.576 2.576l-.813 2.846a.75.75 0 01-1.442 0l-.813-2.846a3.75 3.75 0 00-2.576-2.576l-2.846-.813a.75.75 0 010-1.442l2.846-.813A3.75 3.75 0 007.466 7.89l.813-2.846A.75.75 0 019 4.5zM18 1.5a.75.75 0 01.728.568l.258 1.036c.236.94.97 1.674 1.91 1.91l1.036.258a.75.75 0 010 1.456l-1.036.258c-.94.236-1.674.97-1.91 1.91l-.258 1.036a.75.75 0 01-1.456 0l-.258-1.036a2.625 2.625 0 00-1.91-1.91l-1.036-.258a.75.75 0 010-1.456l1.036-.258a2.625 2.625 0 001.91-1.91l.258-1.036A.75.75 0 0118 1.5zM16.5 15a.75.75 0 01.712.513l.394 1.183c.15.447.5.799.948.948l1.183.395a.75.75 0 010 1.422l-1.183.395c-.447.15-.799.5-.948.948l-.395 1.183a.75.75 0 01-1.422 0l-.395-1.183a1.5 1.5 0 00-.948-.948l-1.183-.395a.75.75 0 010-1.422l1.183-.395c.447-.15.799-.5.948-.948l.395-1.183A.75.75 0 0116.5 15z" clip-rule="evenodd" />
-                </svg>
-              </div>
-
-              <!-- Badge Unidad -->
-              <div class="bg-red-600 text-white text-xs px-4 py-1 rounded-full font-bold mb-3 shadow-md">
-                UNIDAD 3
-              </div>
-
-              <!-- Título -->
-              <h3 class="text-2xl font-extrabold text-red-900 mb-4 leading-tight">
-                Aplicación y Metacognición
-              </h3>
-
-              <!-- Próximamente -->
-              <div class="mb-4 px-2">
-                <p class="text-xs text-gray-500 italic mb-1.5">🕒 Próximamente:</p>
-                <p class="text-xs text-gray-600">• Lectura de textos extensos y complejos</p>
-                <p class="text-xs text-gray-600">• Síntesis y resumen de información</p>
-                <p class="text-xs text-gray-600">• Análisis crítico y formación de opiniones</p>
-                <p class="text-xs text-gray-600">• Estrategias de concentración y retención</p>
-              </div>
-
-              <!-- Badge Estado -->
-              <div class="bg-yellow-200 border-2 border-yellow-400 text-yellow-800 text-sm px-5 py-2 rounded-full font-extrabold shadow-md mb-5 flex items-center justify-center gap-2">
-                <svg class="w-5 h-5 text-yellow-600" fill="currentColor" viewBox="0 0 20 20">
-                  <path fill-rule="evenodd" d="M10 1a4.5 4.5 0 00-4.5 4.5V9H5a2 2 0 00-2 2v6a2 2 0 002 2h10a2 2 0 002-2v-6a2 2 0 00-2-2h-.5V5.5A4.5 4.5 0 0010 1zm3 8V5.5a3 3 0 10-6 0V9h6z" clip-rule="evenodd" />
-                </svg>
-                <span>Próximamente</span>
-              </div>
-
-              <!-- Botón -->
-              <button 
-                disabled
-                class="mt-auto w-full bg-gray-300 text-gray-600 py-3 px-6 rounded-xl font-bold text-lg cursor-not-allowed opacity-70 shadow-md flex items-center justify-center gap-2">
-                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                  <path fill-rule="evenodd" d="M10 1a4.5 4.5 0 00-4.5 4.5V9H5a2 2 0 00-2 2v6a2 2 0 002 2h10a2 2 0 002-2v-6a2 2 0 00-2-2h-.5V5.5A4.5 4.5 0 0010 1zm3 8V5.5a3 3 0 10-6 0V9h6z" clip-rule="evenodd" />
-                </svg>
-                <span>Bloqueado</span>
-              </button>
-            </div>
-          </div>
-        </div>
+          <LeoBoton
+            v-if="!u.bloqueada"
+            variante="secundario"
+            tamano="compacto"
+            ancho
+            :data-test="`entrar-${u.id}`"
+            @mouseenter="playSound('hover')"
+            @click="entrarUnidad(u.id)"
+          >{{ u.boton }}</LeoBoton>
+        </LeoTarjeta>
       </div>
+    </section>
 
+    <!-- Detalle de la unidad (bottom sheet en celular, centrado en pantallas anchas) -->
+    <LeoPanelDetalle
+      :abierto="!!detalle"
+      :titulo="detalle ? detalle.nombre : ''"
+      :antetitulo="detalle ? detalle.antetitulo : ''"
+      :color-antetitulo="detalle ? detalle.colorTexto : '#1b4f9e'"
+      @cerrar="cerrarDetalle"
+    >
+      <template #icono>
+        <span v-if="detalle" class="icono-unidad icono-unidad--grande" :style="{ background: detalle.fondoIcono }">
+          <span class="icono-unidad__svg" v-html="detalle.icono"></span>
+        </span>
+      </template>
 
-      <!-- UI-04: los bloques "Tu Progreso" y "Ranking Global" pasaron a la sección Progreso
-           (PantallaProgreso.vue / RankingGlobal.vue) y el asistente a LeoIA (PantallaLeoIA.vue). -->
+      <template v-if="detalle">
+        <p class="detalle__para-que">{{ detalle.paraQue }}</p>
 
-    </div>
+        <div v-if="detalle.practicas.length">
+          <h3 class="detalle__subtitulo">Qué practicas</h3>
+          <ul class="detalle__lista">
+            <li v-for="item in detalle.practicas" :key="item">
+              <svg viewBox="0 0 20 20" width="18" height="18" fill="none" :stroke="detalle.colorTexto" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 10.5 L8.5 15 L16 6" /></svg>
+              {{ item }}
+            </li>
+          </ul>
+        </div>
+
+        <div v-if="detalle.proximamente.length">
+          <h3 class="detalle__subtitulo">Próximamente</h3>
+          <ul class="detalle__lista detalle__lista--pronto">
+            <li v-for="item in detalle.proximamente" :key="item">
+              <svg viewBox="0 0 20 20" width="18" height="18" fill="none" stroke="#8a5a00" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="10" cy="10" r="7" /><path d="M10 6 V10 L12.5 12" /></svg>
+              {{ item }}
+            </li>
+          </ul>
+        </div>
+
+        <div v-if="!detalle.bloqueada" class="unidad__avance">
+          <LeoBarraProgreso
+            :valor="detalle.valor"
+            :maximo="detalle.maximo"
+            :color="detalle.color"
+            :etiqueta="`Avance de la ${detalle.antetitulo.toLowerCase()}`"
+          />
+          <span class="unidad__avance-texto">{{ detalle.textoAvance }}</span>
+        </div>
+      </template>
+
+      <template v-if="detalle && !detalle.bloqueada" #pie>
+        <LeoBoton ancho data-test="panel-entrar" @click="entrarDesdeDetalle(detalle.id)">{{ detalle.boton }}</LeoBoton>
+      </template>
+    </LeoPanelDetalle>
   </div>
 </template>
 
@@ -223,12 +202,36 @@
 import { createGameManager } from '../utils/gameManager'
 // UI-04: AsistenteIA se movió a la sección LeoIA (PantallaLeoIA.vue)
 // import AsistenteIA from './AsistenteIA.vue'
+// UI-05: componentes base y lógica de la tarjeta "Continuar"
+import LeoBoton from './base/LeoBoton.vue'
+import LeoTarjeta from './base/LeoTarjeta.vue'
+import LeoEtiqueta from './base/LeoEtiqueta.vue'
+import LeoBarraProgreso from './base/LeoBarraProgreso.vue'
+import LeoBurbuja from './base/LeoBurbuja.vue'
+import LeoPanelDetalle from './base/LeoPanelDetalle.vue'
+import unidad1 from '../data/ruta/unidad1'
+import { estadoDeNodos } from './ruta/progresoRuta'
+import { cargarProgresoNube, sesionSigueEnCurso } from '../utils/supabaseProgress'
+import { listarAvancesGuardados } from '../utils/avanceJuego'
+import { elegirContinuar, contarPasos } from '../utils/continuarInicio'
+import { primerNombre } from '../utils/nombre'
+import { sonidosActivos, animacionesActivas } from '../utils/preferencias'
+
+// UI-05: íconos de las unidades (los mismos del mockup). Son SVG fijos escritos aquí,
+// sin datos del usuario, por eso se pueden insertar con v-html.
+const ICONOS = {
+  u1: '<svg viewBox="0 0 32 32" width="100%" height="100%" aria-hidden="true"><path d="M3 9 Q9.5 6.5 16 10 Q22.5 6.5 29 9 V25 Q22.5 22.5 16 26 Q9.5 22.5 3 25 Z" fill="#2568c4"/><path d="M16 10 V26" stroke="#fff" stroke-width="1.6"/><path d="M6.5 13 Q10.5 12 13 13.5 M6.5 17 Q10.5 16 13 17.5 M19 13.5 Q21.5 12 25.5 13 M19 17.5 Q21.5 16 25.5 17" stroke="#fff" stroke-width="1.4" fill="none" stroke-linecap="round"/></svg>',
+  u2: '<svg viewBox="0 0 32 32" width="100%" height="100%" aria-hidden="true"><rect x="4" y="5" width="18" height="22" rx="3" fill="#1f7a47"/><path d="M8 11 H18 M8 15 H18 M8 19 H13" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/><circle cx="22" cy="21" r="5.5" fill="#fff" stroke="#1f7a47" stroke-width="2.4"/><path d="M26 25 L29.5 28.5" stroke="#1f7a47" stroke-width="2.8" stroke-linecap="round"/></svg>',
+  u3: '<svg viewBox="0 0 32 32" width="100%" height="100%" aria-hidden="true"><path d="M16 3 L19 12 L28 16 L19 20 L16 29 L13 20 L4 16 L13 12 Z" fill="#b07a00"/><circle cx="16" cy="16" r="3" fill="#fff"/></svg>'
+}
+
+const CLAVE_ENTRADA = 'leo-perfecto-inicio-animado'
 
 export default {
   name: 'MiProgreso',
-  
+
+  components: { LeoBoton, LeoTarjeta, LeoEtiqueta, LeoBarraProgreso, LeoBurbuja, LeoPanelDetalle },
   // components: { AsistenteIA }, // UI-04: ya no se usa aquí (ver PantallaLeoIA.vue)
-  
   // ============================================
   // PROPS
   // ============================================
@@ -256,10 +259,125 @@ export default {
       audioContext: null,
       
       // Gestor de juegos
-      gameManager: null
+      gameManager: null,
+
+      // --- UI-05 ---
+      sesionesNube: null, // progreso recién pedido a Supabase (null = usar el que trae App.vue)
+      partida: null, // partida interrumpida en este dispositivo (ya verificada)
+      detalleAbierto: null, // 'u1' | 'u2' | 'u3' | null
+      esAncho: false, // >= 768px: Leo con la burbuja arriba; si no, al lado
+      consultaAncho: null,
+      alCambiarAncho: null,
+      conEntrada: false, // animación de entrada (una vez por sesión del navegador)
+      progresoU2: 0
     };
   },
   
+  // ============================================
+  // UI-05: DATOS QUE MUESTRA INICIO
+  // ============================================
+  computed: {
+    nombreCorto() {
+      return primerNombre(this.playerName)
+    },
+    // Ids de las tareas de la ruta ya completadas (gameId de la ruta = 5)
+    completadasRuta() {
+      const sesiones = this.sesionesNube || this.userProgress || []
+      const ids = sesiones
+        .filter(s => s.gameId === unidad1.gameId && s.status === 'completed')
+        .map(s => s.textId)
+      return [...new Set(ids)]
+    },
+    nodosRuta() {
+      return estadoDeNodos(unidad1.nodos, this.completadasRuta)
+    },
+    pasosRuta() {
+      return contarPasos(this.nodosRuta)
+    },
+    continuar() {
+      return elegirContinuar({ partida: this.partida, unidad: unidad1, nodos: this.nodosRuta })
+    },
+    unidades() {
+      const { hechos, total } = this.pasosRuta
+      const u2 = this.progresoU2
+      return [
+        {
+          id: 'u1',
+          antetitulo: 'Unidad 1',
+          nombre: 'Las palabras',
+          resumen: 'Sustantivos, verbos, adjetivos y conectores.',
+          paraQue: '8 lecciones cortas de 3 a 5 minutos, con Leo como guía. Descubre qué hace cada palabra en una frase.',
+          practicas: unidad1.nodos.map(n => n.titulo),
+          proximamente: [],
+          valor: hechos,
+          maximo: total || 1,
+          color: 'azul',
+          textoAvance: hechos ? `${hechos} de ${total} pasos` : 'Aún no empiezas',
+          boton: hechos ? 'Entrar a mi ruta' : 'Empezar mi ruta',
+          bloqueada: false,
+          icono: ICONOS.u1,
+          fondoIcono: '#e4f0fb',
+          colorTexto: '#1b4f9e'
+        },
+        {
+          id: 'u2',
+          antetitulo: 'Unidad 2',
+          nombre: 'Comprensión lectora',
+          resumen: 'Idea principal, causa y efecto, inferencias.',
+          // Borrador de texto: validar con el cliente
+          paraQue: 'Practicas cómo entender lo que lees: qué dice el texto, por qué pasa algo y qué se puede deducir de él.',
+          practicas: [
+            'Identificar la idea principal',
+            'Identificar causa y efecto',
+            'Hacer inferencias',
+            'Identificar detalles específicos',
+            'Identificar el propósito o la intención'
+          ],
+          proximamente: [
+            'Comparación y contraste de ideas',
+            'Interpretación de metáforas',
+            'Análisis de estructura textual'
+          ],
+          valor: u2,
+          maximo: 100,
+          color: 'verde',
+          textoAvance: u2 ? `${u2} % completado` : 'Aún no empiezas',
+          boton: u2 ? 'Seguir jugando' : 'Empezar',
+          bloqueada: false,
+          icono: ICONOS.u2,
+          fondoIcono: '#e3f3ea',
+          colorTexto: '#1f6b40'
+        },
+        {
+          id: 'u3',
+          antetitulo: 'Unidad 3',
+          nombre: 'Aplicación y metacognición',
+          resumen: 'Textos más largos, síntesis y análisis.',
+          paraQue: 'Esta unidad estará disponible más adelante.',
+          practicas: [],
+          proximamente: [
+            'Lectura de textos extensos y complejos',
+            'Síntesis y resumen de información',
+            'Análisis crítico y formación de opiniones',
+            'Estrategias de concentración y retención'
+          ],
+          valor: 0,
+          maximo: 100,
+          color: 'ambar',
+          textoAvance: 'Disponible más adelante',
+          boton: '',
+          bloqueada: true,
+          icono: ICONOS.u3,
+          fondoIcono: '#fff3cf',
+          colorTexto: '#8a5a00'
+        }
+      ]
+    },
+    detalle() {
+      return this.unidades.find(u => u.id === this.detalleAbierto) || null
+    }
+  },
+
   // ============================================
   // CICLO DE VIDA: MOUNTED
   // ============================================
@@ -269,6 +387,11 @@ export default {
       this.gameManager = createGameManager(this.playerName)
       
       // (UI-04) Los datos de progreso se cargan ahora en PantallaProgreso.vue
+
+      // UI-05: avance de la Unidad 2 (igual que antes, desde gameManager)
+      this.progresoU2 = this.getUnidadProgress(2)
+      // UI-05: tarjeta "Continuar", ancho de pantalla y animación de entrada
+      this.prepararInicio()
       
       // Inicializar audio
       this.initAudio()
@@ -280,10 +403,112 @@ export default {
     }
   },
   
+  beforeUnmount() {
+    this.dejarDeMedirAncho()
+  },
+
   // ============================================
   // MÉTODOS DEL COMPONENTE
   // ============================================
   methods: {
+    // ============================================
+    // UI-05: INICIO
+    // ============================================
+    prepararInicio() {
+      this.medirAncho()
+      this.decidirEntrada()
+      this.buscarPartida()
+      this.refrescarProgreso()
+    },
+
+    // Leo va arriba de la burbuja desde 768px; en celular, al lado
+    medirAncho() {
+      try {
+        this.consultaAncho = window.matchMedia('(min-width: 768px)')
+        this.esAncho = this.consultaAncho.matches
+        this.alCambiarAncho = e => { this.esAncho = e.matches }
+        if (this.consultaAncho.addEventListener) this.consultaAncho.addEventListener('change', this.alCambiarAncho)
+        else this.consultaAncho.addListener(this.alCambiarAncho)
+      } catch (error) {
+        this.esAncho = false
+      }
+    },
+    dejarDeMedirAncho() {
+      try {
+        if (!this.consultaAncho || !this.alCambiarAncho) return
+        if (this.consultaAncho.removeEventListener) this.consultaAncho.removeEventListener('change', this.alCambiarAncho)
+        else this.consultaAncho.removeListener(this.alCambiarAncho)
+      } catch (error) {
+        // nada que limpiar
+      }
+    },
+
+    // Las tarjetas aparecen suavemente solo la primera vez que se abre Inicio en la sesión
+    decidirEntrada() {
+      if (!animacionesActivas()) return
+      try {
+        if (sessionStorage.getItem(CLAVE_ENTRADA)) return
+        sessionStorage.setItem(CLAVE_ENTRADA, '1')
+      } catch (error) {
+        return
+      }
+      this.conEntrada = true
+    },
+
+    // Partida interrumpida en este dispositivo (menos de 24 horas). Se muestra al tiro y
+    // luego se confirma con la base que siga abierta; si se cerró, la tarjeta pasa a la ruta.
+    async buscarPartida() {
+      const [masReciente] = listarAvancesGuardados()
+      if (!masReciente) return
+      this.partida = masReciente
+      try {
+        const abierta = await sesionSigueEnCurso(masReciente.sessionId)
+        // Juego 3 retoma su carrera aunque la partida de ese texto ya esté cerrada (ver avanceJuego.js)
+        // (se compara por sessionId: this.partida es la versión reactiva del mismo objeto)
+        const sigueSiendoLaMisma = this.partida && this.partida.sessionId === masReciente.sessionId
+        if (!abierta && masReciente.juego !== 3 && sigueSiendoLaMisma) this.partida = null
+      } catch (error) {
+        // Sin conexión: se mantiene la propuesta de retomar (el router vuelve a revisar al entrar)
+        console.warn('No se pudo comprobar la partida guardada:', error)
+      }
+    },
+
+    // El progreso que trae App.vue se carga al iniciar sesión; si el alumno avanzó en la
+    // ruta después, se vuelve a pedir para que la tarjeta y las unidades estén al día.
+    async refrescarProgreso() {
+      try {
+        this.sesionesNube = await cargarProgresoNube()
+      } catch (error) {
+        console.warn('No se pudo actualizar el progreso de Inicio; se usa el ya cargado:', error)
+      }
+    },
+
+    alContinuar() {
+      this.playSound('click')
+      const { destino, tipo } = this.continuar
+      if (tipo === 'unidad2') {
+        this.iniciarUnidad(2)
+        return
+      }
+      if (destino) this.$router.push(destino)
+    },
+
+    entrarUnidad(id) {
+      if (id === 'u1') this.entrarRuta()
+      else if (id === 'u2') this.iniciarUnidad(2)
+    },
+    abrirDetalle(id) {
+      this.playSound('click')
+      this.detalleAbierto = id
+    },
+    cerrarDetalle() {
+      this.detalleAbierto = null
+    },
+    entrarDesdeDetalle(id) {
+      this.detalleAbierto = null
+      this.entrarUnidad(id)
+    },
+
     // UI-04: loadPlayerData, resetearEstadisticas, calcularRachaDias y calcularFortalezasYDebilidades
     // (y los computed de nivel, progreso, emoji y mensaje) se movieron TAL CUAL a PantallaProgreso.vue,
     // porque solo los usa el bloque "Tu Progreso", que ahora vive en la sección Progreso.
@@ -397,6 +622,8 @@ export default {
 
     playSound(type) {
       if (!this.audioContext) return;
+      // UI-05: respeta el interruptor de sonidos (se podrá cambiar en Ajustes, UI-08)
+      if (!sonidosActivos()) return;
       
       const oscillator = this.audioContext.createOscillator();
       const gainNode = this.audioContext.createGain();
@@ -438,22 +665,237 @@ export default {
 </script>
 
 <style scoped>
-/* Estilos para el carousel de logros */
-.overflow-x-auto::-webkit-scrollbar {
-  height: 8px;
+/* UI-05: el estilo del carrusel de logros que había aquí ya no aplicaba
+   (los logros pasaron a Progreso en UI-04). */
+/* .overflow-x-auto::-webkit-scrollbar { height: 8px; }
+.overflow-x-auto::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
+.overflow-x-auto::-webkit-scrollbar-thumb { background: #a78bfa; border-radius: 10px; }
+.overflow-x-auto::-webkit-scrollbar-thumb:hover { background: #8b5cf6; } */
+
+.inicio {
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: 1.25rem 1rem 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  text-align: left;
+  font-family: 'Atkinson Hyperlegible', system-ui, sans-serif;
+  color: #3a4960;
 }
 
-.overflow-x-auto::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: 10px;
+/* Saludo */
+.inicio__hola {
+  margin: 0;
+  font-family: 'Lexend', system-ui, sans-serif;
+  font-weight: 600;
+  font-size: 1.625rem;
+  line-height: 1.2;
+  color: #14233b;
+}
+.inicio__bajada { margin: 0.25rem 0 0; font-size: 1rem; color: #52627a; }
+
+.inicio__enlace {
+  min-height: 2.75rem;
+  padding: 0 0.25rem;
+  border: 0;
+  background: transparent;
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 1rem;
+  color: #1b4f9e;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+.inicio__enlace:hover { color: #14233b; }
+.inicio__enlace:focus-visible { outline: 3px solid #14233b; outline-offset: 2px; border-radius: 4px; }
+
+/* Tarjeta Continuar */
+.continuar {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1.125rem;
+}
+.continuar__texto { display: flex; flex-direction: column; gap: 0.625rem; min-width: 0; }
+.continuar__etiqueta {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #1b4f9e;
+}
+.continuar__titulo {
+  margin: 0;
+  font-family: 'Lexend', system-ui, sans-serif;
+  font-weight: 600;
+  font-size: 1.3125rem;
+  line-height: 1.2;
+  color: #14233b;
+}
+.continuar__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+  font-size: 0.9375rem;
+  color: #52627a;
+}
+.continuar__avance { display: flex; align-items: center; gap: 0.75rem; max-width: 26rem; }
+.continuar__pasos { font-size: 0.875rem; font-weight: 700; color: #3a4960; white-space: nowrap; }
+.continuar__acciones {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.25rem;
+  margin-top: 0.25rem;
 }
 
-.overflow-x-auto::-webkit-scrollbar-thumb {
-  background: #a78bfa;
-  border-radius: 10px;
+/* Unidades */
+.unidades { display: flex; flex-direction: column; gap: 0.75rem; }
+.unidades__titulo {
+  margin: 0;
+  font-family: 'Lexend', system-ui, sans-serif;
+  font-weight: 600;
+  font-size: 1.125rem;
+  color: #14233b;
+}
+.unidades__lista { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.625rem; }
+.unidades__grilla { display: none; }
+
+.icono-unidad {
+  flex-shrink: 0;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 0.875rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.icono-unidad--grande { width: 3.5rem; height: 3.5rem; border-radius: 1rem; }
+.icono-unidad__svg { display: block; width: 1.75rem; height: 1.75rem; }
+.icono-unidad--grande .icono-unidad__svg { width: 2rem; height: 2rem; }
+
+/* Fila (celular) */
+.fila {
+  width: 100%;
+  min-height: 4.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.625rem 0.75rem;
+  border: 1px solid #d9e4f1;
+  border-radius: 1rem;
+  background: #ffffff;
+  text-align: left;
+  font-family: inherit;
+  color: inherit;
+  cursor: pointer;
+  transition: transform 0.1s ease;
+}
+.fila:active { transform: scale(0.98); }
+.fila:focus-visible { outline: 3px solid #14233b; outline-offset: 2px; }
+.fila--apagada { background: #f6f8fb; }
+.fila__textos { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 0.1875rem; }
+.fila__antetitulo { font-size: 0.6875rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; }
+.fila__nombre { font-family: 'Lexend', system-ui, sans-serif; font-weight: 600; font-size: 1rem; line-height: 1.2; color: #14233b; }
+.fila__avance { font-size: 0.8125rem; font-weight: 700; color: #52627a; }
+.fila__flecha { flex-shrink: 0; color: #52627a; }
+
+/* Tarjeta de unidad (tablet y escritorio) */
+.unidad { display: flex; flex-direction: column; gap: 0.875rem; padding: 1.25rem; }
+.unidad__cabecera { display: flex; align-items: flex-start; justify-content: space-between; gap: 0.5rem; }
+.unidad__info {
+  width: 2.75rem;
+  height: 2.75rem;
+  margin: -0.375rem -0.375rem 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #d9e4f1;
+  border-radius: 50%;
+  background: #ffffff;
+  color: #52627a;
+  cursor: pointer;
+}
+.unidad__info:hover { border-color: #2568c4; color: #1b4f9e; }
+.unidad__info:focus-visible { outline: 3px solid #14233b; outline-offset: 2px; }
+.unidad__antetitulo { margin: 0; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; }
+.unidad__nombre {
+  margin: 0.25rem 0 0;
+  font-family: 'Lexend', system-ui, sans-serif;
+  font-weight: 600;
+  font-size: 1.1875rem;
+  line-height: 1.25;
+  color: #14233b;
+}
+.unidad__resumen { margin: 0.375rem 0 0; font-size: 0.9375rem; line-height: 1.4; color: #52627a; }
+.unidad__avance { display: flex; flex-direction: column; gap: 0.375rem; margin-top: auto; }
+.unidad__avance-texto { font-size: 0.875rem; font-weight: 700; color: #3a4960; }
+
+/* Panel de detalle */
+.detalle__para-que { margin: 0; font-size: 1.0625rem; line-height: 1.5; color: #3a4960; }
+.detalle__subtitulo {
+  margin: 0 0 0.5rem;
+  font-family: 'Lexend', system-ui, sans-serif;
+  font-weight: 600;
+  font-size: 1rem;
+  color: #14233b;
+}
+.detalle__lista { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.5rem; }
+.detalle__lista li { display: flex; align-items: flex-start; gap: 0.625rem; font-size: 1rem; line-height: 1.35; color: #3a4960; }
+.detalle__lista svg { flex-shrink: 0; margin-top: 0.0625rem; }
+.detalle__lista--pronto li { color: #52627a; }
+
+/* Tablet: Leo arriba de la burbuja, unidades en 2 columnas */
+@media (min-width: 768px) {
+  .inicio { padding: 1.75rem 1.5rem 2.5rem; gap: 1.75rem; }
+  .inicio__hola { font-size: 2rem; }
+  .inicio__bajada { font-size: 1.125rem; }
+  .continuar {
+    flex-direction: row-reverse;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    padding: 1.75rem 2rem;
+    border-radius: 1.5rem;
+  }
+  .continuar__leo { flex-shrink: 0; width: 17rem; }
+  .continuar__titulo { font-size: 1.75rem; }
+  .continuar__acciones { flex-direction: row; align-items: center; gap: 1.25rem; }
+  .unidades__titulo { font-size: 1.375rem; }
+  .unidades__lista { display: none; }
+  .unidades__grilla { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.25rem; }
+}
+/* Escritorio: 3 columnas */
+@media (min-width: 1024px) {
+  .inicio { padding: 1.5rem 2.5rem 2.5rem 1.5rem; }
+  .unidades__grilla { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
 
-.overflow-x-auto::-webkit-scrollbar-thumb:hover {
-  background: #8b5cf6;
+/* Entrada: las tarjetas aparecen una vez por sesión (se apaga con las preferencias) */
+.inicio--entrada .inicio__saludo,
+.inicio--entrada .continuar,
+.inicio--entrada .unidades {
+  animation: inicio-aparece 0.45s ease-out both;
 }
+.inicio--entrada .continuar { animation-delay: 0.06s; }
+.inicio--entrada .unidades { animation-delay: 0.12s; }
+@keyframes inicio-aparece {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .inicio--entrada .inicio__saludo,
+  .inicio--entrada .continuar,
+  .inicio--entrada .unidades { animation: none; }
+  .fila { transition: none; }
+  .fila:active { transform: none; }
+}
+html[data-animaciones="off"] .inicio--entrada .inicio__saludo,
+html[data-animaciones="off"] .inicio--entrada .continuar,
+html[data-animaciones="off"] .inicio--entrada .unidades { animation: none; }
+html[data-animaciones="off"] .fila { transition: none; }
 </style>

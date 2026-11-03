@@ -125,6 +125,19 @@ export default {
         this.errorCarga = true
       } finally {
         this.cargando = false
+        this.abrirTareaPedida()
+      }
+    },
+    // UI-05: el botón "Continuar" de Inicio llega con ?tarea=<id> para abrir ese paso
+    // directamente. Solo se abre si el paso no está bloqueado; si lo está, queda el camino.
+    abrirTareaPedida() {
+      const pedida = this.$route && this.$route.query && this.$route.query.tarea
+      if (!pedida) return
+      const nodo = this.nodosConEstado.find(n => n.tareaId === pedida)
+      // Se quita de la URL para que "atrás" o recargar no vuelvan a abrir la tarea
+      this.$router.replace({ query: {} }).catch(() => {})
+      if (nodo && (nodo.estado === 'disponible' || nodo.estado === 'completado')) {
+        this.abrirTarea(pedida)
       }
     },
     abrirTarea(tareaId) {
