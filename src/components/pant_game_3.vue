@@ -1,5 +1,13 @@
 <template>
   <div>
+    <!-- MEJ-03: aviso al retomar una partida interrumpida (se oculta al responder o pasar de texto) -->
+    <p
+      v-if="retomado"
+      class="fixed top-4 left-4 right-4 md:left-1/2 md:right-auto md:-translate-x-1/2 z-50 bg-blue-50 border border-blue-200 text-blue-900 rounded-xl px-4 py-3 text-base text-center shadow-lg"
+      role="status"
+    >
+      Retomaste tu partida donde la dejaste.
+    </p>
     <!-- Pantalla de instrucciones -->
     <pant-instrucciones-game3
       v-if="mostrarInstrucciones"
@@ -301,6 +309,8 @@ import { game3Texts } from '@/data/game3_texts.js';
 import { createGameManager } from '@/utils/gameManager.js';
 import { emitter } from '@/utils/eventBus.js';
 import { createGameProgressTracker } from '@/utils/supabaseProgress.js';
+import { guardarAvance, borrarAvance, tomarAvance } from '@/utils/avanceJuego.js';
+import { registrarSalida, liberarSalida } from '@/utils/confirmarSalida.js';
 import { readingQuestionAssessment } from '@/utils/assessment.js';
 import PantInstruccionesGame3 from './pant_instrucciones_game3.vue';
 
@@ -349,7 +359,13 @@ export default {
       hasNextText: true,
       textosDisponibles: [],
       progressTracker: null,
-      progressClosed: false
+      progressClosed: false,
+
+      // MEJ-03: retomar una partida interrumpida (ver utils/avanceJuego.js)
+      iniciadaEn: null,
+      sessionIdRetomada: null,   // partida de Supabase del texto actual, si sigue abierta
+      sessionIdGuardada: null,   // última partida registrada en la copia local (aunque esté cerrada)
+      retomado: false
     };
   },
   computed: {
@@ -358,10 +374,45 @@ export default {
       return Math.round((this.respuestasCorrectas / this.textosProcesados) * 100);
     }
   },
+  created() {
+    // MEJ-03: si el alumno recargó a mitad de la carrera, volver a donde iba.
+    // El router ya comprobó (sin exigir que la partida siga abierta, ver avanceJuego.js).
+    const avance = tomarAvance(3, 'principal');
+    if (avance && this.restaurarEstado(avance.estado)) {
+      this.iniciadaEn = avance.iniciadaEn;
+      this.sessionIdRetomada = avance.partidaAbierta ? avance.sessionId : null;
+      this.sessionIdGuardada = avance.sessionId;
+      this.retomado = true;
+    }
+  },
   mounted() {
+    // MEJ-03: avisar antes de salir si ya respondió algún texto y la carrera no terminó
+    this.avisoSalida = () => (this.textosProcesados > 0 && !this.juegoTerminado ? { tipo: 'carrera' } : null);
+    registrarSalida(this.avisoSalida);
     // No cargar texto hasta que se elija el modo
+    if (this.retomado) {
+      // MEJ-03: seguir en la partida abierta del texto actual (si la hay)
+      if (this.sessionIdRetomada && !this.respuestaSeleccionada) {
+        this.progressClosed = false;
+        this.progressTracker = createGameProgressTracker({
+          gameId: 3,
+          contentId: this.textoActual.id,
+          totalQuestions: 1,
+          mode: this.modoJuego,
+          resumeSessionId: this.sessionIdRetomada
+        });
+      } else {
+        this.progressClosed = true; // la partida de este texto ya estaba cerrada
+      }
+      if (this.modoJuego === 'desafio' && !this.juegoTerminado) {
+        this.iniciarTimer();
+      } else if (this.juegoTerminado) {
+        this.abandonarSesionActual();
+      }
+    }
   },
   beforeUnmount() {
+    liberarSalida(this.avisoSalida);
     // Limpiar timer si existe
     if (this.timerInterval) {
       clearInterval(this.timerInterval);
@@ -371,11 +422,13 @@ export default {
         console.error('❌ No se pudo registrar el abandono del Juego 3:', error);
       });
     }
+    borrarAvance(3, 'principal'); // salir de la carrera descarta su avance guardado
   },
   methods: {
     iniciarConModo(modo) {
       this.modoJuego = modo;
       this.mostrarInstrucciones = false;
+      this.iniciadaEn = Date.now();
       
       // Si es modo desafío, iniciar timer
       if (modo === 'desafio') {
@@ -393,6 +446,7 @@ export default {
         if (this.tiempoRestante <= 0) {
           clearInterval(this.timerInterval);
           this.juegoTerminado = true;
+          borrarAvance(3, 'principal'); // se acabó el tiempo: nada que retomar
           this.abandonarSesionActual();
         }
       }, 1000);
@@ -434,6 +488,7 @@ export default {
           totalQuestions: 1,
           mode: this.modoJuego
         });
+        this.guardarAvanceActual();
       } else {
         // No hay más textos, terminar
         this.juegoTerminado = true;
@@ -442,6 +497,7 @@ export default {
 
     seleccionarRespuesta(alternativa) {
       if (this.respuestaSeleccionada) return;
+      this.retomado = false;
       
       this.respuestaSeleccionada = alternativa;
       this.respuestaCorrecta = alternativa.correcta;
@@ -467,7 +523,9 @@ export default {
       }
 
       const assessment = readingQuestionAssessment(this.textoActual.habilidad);
-      this.progressTracker.record({
+      // MEJ-03: tras retomar un texto cuya partida ya estaba cerrada no hay tracker (igual que
+      // en los textos 2 en adelante, cuyo tracker queda cerrado): solo se guarda el avance local.
+      (this.progressTracker ? this.progressTracker.record({
         itemId: this.textoActual.id,
         assessmentType: assessment.type,
         assessmentCode: assessment.code,
@@ -476,9 +534,9 @@ export default {
           text: alternativa.texto
         },
         isCorrect: this.respuestaCorrecta
-      }).catch(error => {
+      }) : Promise.resolve()).catch(error => {
         console.error('❌ No se pudo guardar la respuesta del Juego 3:', error);
-      });
+      }).then(() => this.guardarAvanceActual());
       
       // Guardar progreso
       this.guardarProgreso();
@@ -491,6 +549,7 @@ export default {
     },
 
     siguienteTexto() {
+      this.retomado = false;
       // Registrar texto actual como jugado
       this.textosJugados.push(this.textoActual.id);
       
@@ -510,10 +569,82 @@ export default {
         const textoId = textosNoJugados[randomIndex];
         this.textoActual = game3Texts[textoId];
         this.hasNextText = textosNoJugados.length > 1;
+        this.guardarAvanceActual();
       } else {
         // Terminar juego - todos los textos completados
         this.juegoTerminado = true;
+        borrarAvance(3, 'principal');
       }
+    },
+
+    // MEJ-03: avance de la carrera para poder retomarla tras una recarga.
+    // Se guarda al mostrar cada texto y cuando la respuesta ya llegó a Supabase.
+    // El tiempo se guarda como la HORA en que se acaba (no como segundos restantes):
+    // así, aunque la página esté cerrada, el reloj del desafío sigue corriendo.
+    async guardarAvanceActual() {
+      if (this.juegoTerminado || !this.textoActual) return;
+      // Sin tracker (se retomó un texto cuya partida ya estaba cerrada): se conserva el último sessionId
+      const sessionId = this.progressTracker ? await this.progressTracker.sessionId() : this.sessionIdGuardada;
+      if (!sessionId) return;
+      guardarAvance(3, 'principal', {
+        sessionId,
+        iniciadaEn: this.iniciadaEn,
+        estado: {
+          modoJuego: this.modoJuego,
+          finTimerEn: this.modoJuego === 'desafio' ? Date.now() + this.tiempoRestante * 1000 : null,
+          textoActualId: this.textoActual.id,
+          numeroTextoActual: this.numeroTextoActual,
+          respuestaSeleccionadaId: this.respuestaSeleccionada ? this.respuestaSeleccionada.id : null,
+          mostrarFeedback: this.mostrarFeedback,
+          respuestaCorrecta: this.respuestaCorrecta,
+          respuestasCorrectas: this.respuestasCorrectas,
+          respuestasIncorrectas: this.respuestasIncorrectas,
+          textosProcesados: this.textosProcesados,
+          erroresJuego: this.erroresJuego,
+          textosJugados: this.textosJugados,
+          hasNextText: this.hasNextText
+        }
+      });
+    },
+    // Devuelve false (y no toca nada) si la copia guardada no es coherente.
+    restaurarEstado(e) {
+      const entero = n => Number.isInteger(n) && n >= 0;
+      const texto = e && game3Texts[e.textoActualId];
+      if (
+        !e || !texto || !['practica', 'desafio'].includes(e.modoJuego) ||
+        !Array.isArray(e.textosJugados) || !e.textosJugados.every(id => game3Texts[id]) ||
+        !Array.isArray(e.erroresJuego) ||
+        !entero(e.numeroTextoActual) || !entero(e.respuestasCorrectas) ||
+        !entero(e.respuestasIncorrectas) || !entero(e.textosProcesados) ||
+        (e.modoJuego === 'desafio' && typeof e.finTimerEn !== 'number')
+      ) return false;
+      const alternativa = e.respuestaSeleccionadaId
+        ? texto.alternativas.find(a => a.id === e.respuestaSeleccionadaId)
+        : null;
+      if (e.respuestaSeleccionadaId && !alternativa) return false;
+
+      this.modoJuego = e.modoJuego;
+      this.mostrarInstrucciones = false;
+      this.textoActual = texto;
+      this.numeroTextoActual = e.numeroTextoActual;
+      this.respuestaSeleccionada = alternativa;
+      this.mostrarFeedback = Boolean(alternativa) && e.mostrarFeedback === true;
+      this.respuestaCorrecta = Boolean(alternativa) && e.respuestaCorrecta === true;
+      this.respuestasCorrectas = e.respuestasCorrectas;
+      this.respuestasIncorrectas = e.respuestasIncorrectas;
+      this.textosProcesados = e.textosProcesados;
+      this.erroresJuego = e.erroresJuego;
+      this.textosJugados = e.textosJugados;
+      this.hasNextText = e.hasNextText !== false;
+      if (e.modoJuego === 'desafio') {
+        // El reloj siguió corriendo mientras la página estuvo cerrada
+        this.tiempoRestante = Math.max(0, Math.ceil((e.finTimerEn - Date.now()) / 1000));
+        if (this.tiempoRestante <= 0) {
+          this.juegoTerminado = true;
+          borrarAvance(3, 'principal'); // se acabó el tiempo mientras no estaba: se muestran los resultados
+        }
+      }
+      return true;
     },
 
     guardarProgreso() {
@@ -535,7 +666,7 @@ export default {
         
         if (resultado.success) {
           this.progressClosed = true;
-          this.progressTracker.complete().catch(error => {
+          if (this.progressTracker) this.progressTracker.complete().catch(error => {
             this.progressClosed = false;
             console.error('❌ No se pudo cerrar la sesión del Juego 3:', error);
           });

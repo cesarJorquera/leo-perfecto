@@ -1,5 +1,13 @@
 <template>
   <div class="max-w-5xl mx-auto px-4">
+    <!-- MEJ-03: aviso al retomar una partida interrumpida (se oculta al avanzar de pregunta) -->
+    <p
+      v-if="retomado"
+      class="mb-4 bg-blue-50 border border-blue-200 text-blue-900 rounded-xl px-4 py-3 text-base"
+      role="status"
+    >
+      Retomaste tu partida donde la dejaste.
+    </p>
     <!-- Contenedor principal -->
     <div class="bg-white rounded-3xl shadow-2xl overflow-hidden border-4 border-orange-300">
       
@@ -180,6 +188,8 @@
 import { getAllTriviaPreguntas } from '../data/game4_trivia'
 import { createGameManager } from '../utils/gameManager'
 import { createGameProgressTracker } from '../utils/supabaseProgress'
+import { guardarAvance, borrarAvance, tomarAvance } from '../utils/avanceJuego'
+import { registrarSalida, liberarSalida } from '../utils/confirmarSalida'
 import { triviaQuestionAssessment } from '../utils/assessment'
 
 export default {
@@ -202,7 +212,11 @@ export default {
       mostrarResultados: false,
       gameManager: null,
       progressTracker: null,
-      progressClosed: false
+      progressClosed: false,
+      // MEJ-03: retomar una partida interrumpida (ver utils/avanceJuego.js)
+      iniciadaEn: null,
+      sessionIdRetomada: null,
+      retomado: false
     }
   },
   computed: {
@@ -223,16 +237,35 @@ export default {
       return Math.round((this.respuestasCorrectas / this.totalPreguntas) * 100)
     }
   },
+  created() {
+    // MEJ-03: si el alumno recargó a mitad de partida, volver a donde iba.
+    // Las preguntas se cargan aquí (y no solo en mounted) para poder validar la copia guardada.
+    this.preguntas = getAllTriviaPreguntas()
+    const avance = tomarAvance(4, 'trivia')
+    if (avance && this.restaurarEstado(avance.estado)) {
+      this.sessionIdRetomada = avance.sessionId
+      this.iniciadaEn = avance.iniciadaEn
+      this.retomado = true
+    }
+  },
   mounted() {
+    // MEJ-03: avisar antes de salir si ya respondió algo y no terminó
+    this.avisoSalida = () => (
+      Object.keys(this.respuestasUsuario).length > 0 && !this.mostrarResultados ? { tipo: 'juego' } : null
+    )
+    registrarSalida(this.avisoSalida)
     this.gameManager = createGameManager(this.playerName)
     this.preguntas = getAllTriviaPreguntas()
+    if (!this.iniciadaEn) this.iniciadaEn = Date.now()
     this.iniciarRegistroSesion()
   },
   beforeUnmount() {
+    liberarSalida(this.avisoSalida)
     if (this.progressTracker && !this.progressClosed) {
       this.progressTracker.abandon().catch(error => {
         console.error('❌ No se pudo registrar el abandono del Juego 4:', error)
       })
+      borrarAvance(4, 'trivia') // abandonar la partida descarta su avance guardado
     }
   },
   methods: {
@@ -241,8 +274,41 @@ export default {
       this.progressTracker = createGameProgressTracker({
         gameId: 4,
         contentId: 'trivia1',
-        totalQuestions: this.totalPreguntas
+        totalQuestions: this.totalPreguntas,
+        resumeSessionId: this.sessionIdRetomada || undefined // sigue en la misma partida (sin fila nueva)
       })
+    },
+    // MEJ-03: avance de la partida para poder retomarla tras una recarga.
+    // Se guarda cuando la respuesta ya llegó a Supabase, para que ambos coincidan.
+    async guardarAvanceActual() {
+      if (this.progressClosed || this.mostrarResultados) return
+      const sessionId = await this.progressTracker.sessionId()
+      guardarAvance(4, 'trivia', {
+        sessionId,
+        iniciadaEn: this.iniciadaEn,
+        estado: {
+          preguntaActual: this.preguntaActual,
+          respuestaSeleccionada: this.respuestaSeleccionada,
+          respuestasCorrectas: this.respuestasCorrectas,
+          respuestasUsuario: this.respuestasUsuario
+        }
+      })
+    },
+    // Devuelve false (y no toca nada) si la copia guardada no es coherente con las preguntas actuales.
+    restaurarEstado(e) {
+      const total = this.preguntas.length
+      const ids = new Set(this.preguntas.map(p => p.id))
+      if (
+        !e || !Number.isInteger(e.preguntaActual) || e.preguntaActual < 0 || e.preguntaActual >= total ||
+        !Number.isInteger(e.respuestasCorrectas) || e.respuestasCorrectas < 0 || e.respuestasCorrectas > total ||
+        !e.respuestasUsuario || typeof e.respuestasUsuario !== 'object' ||
+        !Object.keys(e.respuestasUsuario).every(id => ids.has(Number.isNaN(Number(id)) ? id : Number(id)) || ids.has(id))
+      ) return false
+      this.preguntaActual = e.preguntaActual
+      this.respuestaSeleccionada = e.respuestaSeleccionada === undefined ? null : e.respuestaSeleccionada
+      this.respuestasCorrectas = e.respuestasCorrectas
+      this.respuestasUsuario = e.respuestasUsuario
+      return true
     },
     seleccionarRespuesta(alternativaId) {
       if (this.respuestaSeleccionada !== null) return
@@ -269,7 +335,7 @@ export default {
         assessmentCode: assessment.code,
         answer: { selected: alternativaId },
         isCorrect: alternativaId === this.preguntaData.respuestaCorrecta
-      }).catch(error => {
+      }).then(() => this.guardarAvanceActual()).catch(error => {
         console.error('❌ No se pudo guardar la respuesta del Juego 4:', error)
       })
     },
@@ -310,6 +376,7 @@ export default {
       if (this.preguntaActual < this.totalPreguntas - 1) {
         this.preguntaActual++
         this.respuestaSeleccionada = null
+        this.retomado = false
       }
     },
     
@@ -325,6 +392,7 @@ export default {
       if (this.progressClosed || this.mostrarResultados) return
 
       this.progressClosed = true
+      borrarAvance(4, 'trivia') // partida terminada: ya no hay nada que retomar
       // Guardar progreso en gameManager
       this.gameManager.saveGameResult({
         gameId: 4,

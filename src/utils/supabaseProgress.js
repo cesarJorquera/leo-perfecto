@@ -49,7 +49,10 @@ async function guardarRespuesta(sessionId, response) {
     is_correct: response.isCorrect
   })
 
-  if (error) throw error
+  // MEJ-03: al retomar una partida puede que esa respuesta ya se haya guardado antes
+  // de la caída. La base la rechaza por (session_id, item_id, attempt_number) repetido
+  // (código 23505): significa "ya estaba guardada", no es un error.
+  if (error && error.code !== '23505') throw error
 }
 
 async function cerrarSesion(sessionId, status) {
@@ -68,8 +71,31 @@ async function cerrarSesion(sessionId, status) {
   if (error) throw error
 }
 
-export function createGameProgressTracker({ gameId, contentId, totalQuestions, mode }) {
-  const sessionPromise = crearSesion({ gameId, contentId, totalQuestions, mode })
+/**
+ * MEJ-03: ¿esa partida sigue abierta (in_progress)? Sirve para decidir si un
+ * alumno que recargó la página puede retomarla. Si la base ya la cerró
+ * (completada, abandonada o pasadas 24 horas), no se puede seguir escribiendo en ella.
+ */
+export async function sesionSigueEnCurso(sessionId) {
+  const client = requireSupabase()
+  const { data, error } = await client
+    .from('game_sessions')
+    .select('status')
+    .eq('id', sessionId)
+    .maybeSingle()
+  if (error) throw error
+  return data?.status === 'in_progress'
+}
+
+/**
+ * `resumeSessionId` (MEJ-03): si viene, NO se crea una partida nueva y las respuestas
+ * siguen guardándose en esa. Así una partida interrumpida (recarga, el celular cierra
+ * el navegador) no deja dos filas en game_sessions.
+ */
+export function createGameProgressTracker({ gameId, contentId, totalQuestions, mode, resumeSessionId }) {
+  const sessionPromise = resumeSessionId
+    ? Promise.resolve(resumeSessionId)
+    : crearSesion({ gameId, contentId, totalQuestions, mode })
   sessionPromise.catch(error => {
     console.error('❌ No se pudo iniciar la sesión de juego en Supabase:', error)
   })
@@ -77,6 +103,11 @@ export function createGameProgressTracker({ gameId, contentId, totalQuestions, m
   let closed = false
 
   return {
+    /** Identificador de la partida (para poder retomarla después). */
+    sessionId() {
+      return sessionPromise
+    },
+
     async record(response) {
       if (closed) throw new Error('La partida ya está cerrada.')
       if (!response.itemId || typeof response.isCorrect !== 'boolean') {

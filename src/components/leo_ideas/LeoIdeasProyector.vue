@@ -264,6 +264,7 @@
 <script>
 import QRCode from 'qrcode'
 import { supabase } from '../../utils/supabaseClient'
+import { registrarSalida, liberarSalida } from '../../utils/confirmarSalida'
 
 export default {
   name: 'LeoIdeasProyector',
@@ -368,10 +369,14 @@ export default {
     }
   },
   mounted() {
+    // MEJ-03: avisar antes de salir si hay una actividad en marcha (sala abierta o pregunta en curso)
+    this.avisoSalida = () => (['lobby', 'pregunta', 'mostrar'].includes(this.fase) ? { tipo: 'actividad' } : null)
+    registrarSalida(this.avisoSalida)
     this.detectarModoDemo()
     this.conectarCanalControl()
   },
   beforeUnmount() {
+    liberarSalida(this.avisoSalida)
     this.limpiarTimersDemo()
     this.desconectarTodo()
   },
@@ -531,7 +536,8 @@ export default {
         this.codigoSala = String(Math.floor(100000 + Math.random() * 900000))
       }
 
-      const urlDestino = `${window.location.origin}${window.location.pathname}?sala=${this.codigoSala}`
+      // MEJ-03: el alumno entra por /sala (antes era la ruta actual + ?sala=)
+      const urlDestino = `${window.location.origin}${this.$router.resolve({ name: 'sala', query: { sala: this.codigoSala } }).href}`
       try {
         this.qrDataUrl = await QRCode.toDataURL(urlDestino, {
           width: 260,
@@ -664,7 +670,10 @@ export default {
       }
     },
     salirProyector() {
-      this.desconectarTodo()
+      // MEJ-03: ya no se desconecta aquí. Antes se avisaba a la sala que la actividad terminó
+      // (desconectarTodo) y recién después se salía; ahora App/router piden confirmación primero
+      // y, si se confirma, beforeUnmount llama a desconectarTodo() con el mismo resultado.
+      // this.desconectarTodo()
       this.$emit('salir')
     }
   }
