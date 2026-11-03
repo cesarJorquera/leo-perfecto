@@ -181,6 +181,8 @@ export default {
             userProgress: this.userProgress || [],
             isReturningUser: this.isReturningUser
           }
+        case 'progreso':
+          return { playerName: this.playerName, userProgress: this.userProgress || [] }
         case 'docente':
           return { nombreDocente: this.playerName }
         case 'docente-proyector':

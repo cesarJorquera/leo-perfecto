@@ -27,6 +27,8 @@ import PantallaLanding from '../components/PantallaLanding.vue'
 import pant_login from '../components/pant_login.vue'
 import LeoIdeasAlumno from '../components/leo_ideas/LeoIdeasAlumno.vue'
 import MiProgreso from '../components/MiProgreso.vue'
+import PantallaProgreso from '../components/PantallaProgreso.vue'
+import PantallaLeoIA from '../components/PantallaLeoIA.vue'
 import SeccionEnConstruccion from '../components/menu/SeccionEnConstruccion.vue'
 import RutaAprendizaje from '../components/ruta/RutaAprendizaje.vue'
 import pant_reglas_game1 from '../components/pant_reglas_game1.vue'
@@ -77,9 +79,9 @@ const routes = [
 
   // --- Alumno ---
   { path: '/inicio', name: 'inicio', component: MiProgreso, meta: { ...APP, seccion: 'inicio', ancho: true } },
-  // UI-03: secciones del menú (el contenido real llega en UI-04)
-  { path: '/progreso', name: 'progreso', component: SeccionEnConstruccion, meta: { ...APP, seccion: 'progreso', titulo: 'Progreso y Ranking' } },
-  { path: '/leoia', name: 'leoia', component: SeccionEnConstruccion, meta: { ...APP, seccion: 'leoia', titulo: 'LeoIA' } },
+  // UI-03/UI-04: secciones del menú (Ajustes sigue provisional hasta UI-08)
+  { path: '/progreso', name: 'progreso', component: PantallaProgreso, meta: { ...APP, seccion: 'progreso', ancho: true } },
+  { path: '/leoia', name: 'leoia', component: PantallaLeoIA, meta: { ...APP, seccion: 'leoia', ancho: true } },
   { path: '/ajustes', name: 'ajustes', component: SeccionEnConstruccion, meta: { ...APP, seccion: 'ajustes', titulo: 'Ajustes' } },
   { path: '/ruta', name: 'ruta', component: RutaAprendizaje, meta: { ...APP, seccion: 'inicio' } },
   { path: '/juego/1/:textId/reglas', name: 'juego1-reglas', component: pant_reglas_game1, meta: { ...APP, seccion: 'inicio' }, beforeEnter: textoJuego1Valido },
