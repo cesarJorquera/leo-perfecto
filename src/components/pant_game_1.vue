@@ -1,5 +1,14 @@
 <template>
   <div class="space-y-6">
+    <!-- MEJ-03: aviso al retomar una partida interrumpida (se oculta al pasar a la siguiente pregunta) -->
+    <p
+      v-if="retomado"
+      class="bg-blue-50 border border-blue-200 text-blue-900 rounded-xl px-4 py-3 text-base"
+      role="status"
+    >
+      Retomaste tu partida donde la dejaste.
+    </p>
+
     <!-- Mensaje de error si no hay preguntas para este texto -->
     <div v-if="!hasValidQuestions" class="bg-white rounded-3xl shadow-xl p-8 text-center">
       <div class="text-6xl mb-4">⚠️</div>
@@ -158,6 +167,8 @@ import { getTextById } from '../data/game1_texts'
 import { getQuestionsByTextId } from '../data/quest_game_keyword'
 import { createGameManager } from '../utils/gameManager'
 import { createGameProgressTracker } from '../utils/supabaseProgress'
+import { guardarAvance, borrarAvance, tomarAvance } from '../utils/avanceJuego'
+import { registrarSalida, liberarSalida } from '../utils/confirmarSalida'
 import { keywordQuestionAssessment } from '../utils/assessment'
 import AudioLecturaViva from './AudioLecturaViva.vue'
 
@@ -203,7 +214,11 @@ export default {
       hasNextText: false,            // Si hay siguiente texto disponible
       nextTextId: null,              // ID del siguiente texto
       progressTracker: null,
-      progressClosed: false
+      progressClosed: false,
+      // MEJ-03: retomar una partida interrumpida (ver utils/avanceJuego.js)
+      iniciadaEn: null,           // cuándo empezó la partida (vigencia de 24 h)
+      sessionIdRetomada: null,    // partida de Supabase que se sigue usando al retomar
+      retomado: false             // true = se restauró el avance guardado
     }
   },
   
@@ -259,11 +274,26 @@ export default {
   // CICLO DE VIDA: MOUNTED
   // ============================================
   // Se ejecuta cuando el componente se monta en el DOM
+  created() {
+    // MEJ-03: si el alumno recargó a mitad de partida, volver a donde iba.
+    // El router ya comprobó que la partida sigue abierta en Supabase.
+    const avance = tomarAvance(1, this.textId)
+    if (avance && this.restaurarEstado(avance.estado)) {
+      this.sessionIdRetomada = avance.sessionId
+      this.iniciadaEn = avance.iniciadaEn
+      this.retomado = true
+    }
+  },
   mounted() {
+    // MEJ-03: avisar antes de salir si ya respondió algo y no terminó
+    this.avisoSalida = () => (this.answeredQuestions > 0 && !this.gameCompleted ? { tipo: 'juego' } : null)
+    registrarSalida(this.avisoSalida)
+    if (!this.iniciadaEn) this.iniciadaEn = Date.now()
     this.progressTracker = createGameProgressTracker({
       gameId: 1,
       contentId: this.textId,
-      totalQuestions: this.questions.length
+      totalQuestions: this.questions.length,
+      resumeSessionId: this.sessionIdRetomada || undefined // sigue en la misma partida (sin fila nueva)
     })
 
     // Guardar el nombre del jugador en localStorage
@@ -277,10 +307,12 @@ export default {
     }
   },
   beforeUnmount() {
+    liberarSalida(this.avisoSalida)
     if (this.progressTracker && !this.progressClosed) {
       this.progressTracker.abandon().catch(error => {
         console.error('❌ No se pudo registrar el abandono del Juego 1:', error)
       })
+      borrarAvance(1, this.textId) // abandonar la partida descarta su avance guardado
     }
   },
   
@@ -344,9 +376,46 @@ export default {
         assessmentCode: assessment.code,
         answer: { selected: answer },
         isCorrect: answer === this.currentQuestion.correct
-      }).catch(error => {
+      }).then(() => this.guardarAvanceActual()).catch(error => {
         console.error('❌ No se pudo guardar la respuesta del Juego 1:', error)
       })
+    },
+
+    // MEJ-03: avance de la partida para poder retomarla tras una recarga.
+    // Se guarda cuando la respuesta ya llegó a Supabase, para que ambos coincidan.
+    async guardarAvanceActual() {
+      if (this.progressClosed || this.gameCompleted) return
+      const sessionId = await this.progressTracker.sessionId()
+      guardarAvance(1, this.textId, {
+        sessionId,
+        iniciadaEn: this.iniciadaEn,
+        estado: {
+          currentQuestionIndex: this.currentQuestionIndex,
+          questionAnswered: this.questionAnswered,
+          selectedAnswer: this.selectedAnswer,
+          correctAnswers: this.correctAnswers,
+          answeredQuestions: this.answeredQuestions,
+          erroresJuego: this.erroresJuego
+        }
+      })
+    },
+    // Devuelve false (y no toca nada) si la copia guardada no es coherente con este texto.
+    restaurarEstado(e) {
+      const total = this.questions.length
+      const esEntero = n => Number.isInteger(n) && n >= 0
+      if (
+        !e || !esEntero(e.currentQuestionIndex) || e.currentQuestionIndex >= total ||
+        !esEntero(e.correctAnswers) || !esEntero(e.answeredQuestions) ||
+        e.correctAnswers > e.answeredQuestions || e.answeredQuestions > total ||
+        typeof e.questionAnswered !== 'boolean' || !Array.isArray(e.erroresJuego)
+      ) return false
+      this.currentQuestionIndex = e.currentQuestionIndex
+      this.questionAnswered = e.questionAnswered
+      this.selectedAnswer = e.questionAnswered ? e.selectedAnswer : null
+      this.correctAnswers = e.correctAnswers
+      this.answeredQuestions = e.answeredQuestions
+      this.erroresJuego = e.erroresJuego
+      return true
     },
     
     // Lectura Viva: pausa conservando la posición
@@ -380,6 +449,7 @@ export default {
       
       this.questionAnswered = false;
       this.selectedAnswer = null;
+      this.retomado = false;
       
       if (this.currentQuestionIndex < this.questions.length - 1) {
         this.currentQuestionIndex++;
@@ -452,6 +522,7 @@ export default {
 
         if (resultado.success) {
           this.progressClosed = true
+          borrarAvance(1, this.textId) // partida terminada: ya no hay nada que retomar
           this.progressTracker.complete().catch(error => {
             this.progressClosed = false
             console.error('❌ No se pudo cerrar la sesión del Juego 1:', error)

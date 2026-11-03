@@ -1,199 +1,83 @@
 <template>
   <div class="bg-gradient-to-br from-blue-50 to-purple-50 min-h-screen">
-    <!-- Proyector en pantalla grande para la sala (oculta la navbar común) -->
-    <LeoIdeasProyector
-      v-if="currentScreen === 'leoIdeasProyector' && esDocente"
-      :docente-id="usuario ? usuario.id : ''"
-      @salir="currentScreen = 'leoAula'"
-    />
-
-    <!-- Alumno en modo sala (oculta la navbar común) -->
-    <LeoIdeasAlumno
-      v-else-if="currentScreen === 'leoIdeasAlumno'"
-      :codigo-sala-inicial="codigoSalaUrl"
-      @volver-inicio="volverAlInicioDesdeSala"
-    />
-
-    <!-- UI-01: Landing Page (pantalla completa, sin navbar) -->
-    <PantallaLanding
-      v-else-if="currentScreen === 'landing'"
-      @entrar="currentScreen = 'login'"
-    />
-
-    <!-- CU-02 / UI-02: login con Google (pantalla completa, sin navbar) -->
-    <pant_login
-      v-else-if="currentScreen === 'login'"
-      :configurado="supabaseConfigurado"
-      :cargando="cargandoLogin"
-      :error="errorLogin"
-      @entrar-google="entrar"
-      @unirse-sala="handleUnirseSala"
-      @volver="currentScreen = 'landing'"
-    />
-
-    <template v-else>
-      <AppNavbar 
-      :show-progress-button="sesionIniciada && !showProgreso && currentScreen !== 'cargando'" 
-      :sesion-iniciada="sesionIniciada"
-      :mostrar-panel-docente="esDocente"
-      @go-progreso="goToProgreso" 
-      @go-panel-docente="irAlPanelDocente"
-      @cerrar-sesion="salir"
-    />
-    <div v-if="errorProgreso" class="max-w-4xl mx-auto px-4 pt-4">
-      <p class="rounded-xl border border-red-300 bg-red-50 p-4 text-red-800" role="alert">
-        No se pudo cargar tu progreso desde la nube. Tus datos no se han reemplazado.
-        Revisa tu conexión e intenta iniciar sesión nuevamente.
-      </p>
+    <!-- Mientras se revisa si hay una sesión guardada (evita mostrar el login un instante) -->
+    <!-- Con el nombre ya conocido, saluda mientras llega el progreso (sustituye a la pantalla
+         de bienvenida, que aparecía unos instantes al entrar y tenía un botón "continuar") -->
+    <div v-if="!$route.name" class="text-center text-gray-500 py-20" role="status" aria-live="polite">
+      <template v-if="playerName">
+        <p class="text-2xl font-bold text-gray-700 mb-2">¡Hola, {{ playerName }}! 👋</p>
+        <p class="animate-pulse">Cargando tu progreso…</p>
+      </template>
+      <p v-else class="animate-pulse">Cargando…</p>
     </div>
-    <div v-if="showProgreso">
-      <MiProgreso 
-        ref="miProgresoComponent"
-        :player-name="playerName"
-        :user-progress="userProgress || []"
-        :is-returning-user="isReturningUser"
-        @start-game1="handleStartGame1"
-        @start-game2="handleStartGame2"
-        @start-game3="handleStartGame3"
-        @start-game4="handleStartGame4"
-        @abrir-ruta="irARuta"
-      />
-    </div>
-    <div v-else class="container mx-auto px-4 py-6 max-w-4xl" style="margin-top: 150px;">
-      <!-- Mientras se revisa si hay una sesión guardada (evita mostrar el login un instante) -->
-      <div v-if="currentScreen === 'cargando'" class="text-center text-gray-500 py-20 animate-pulse">
-        Cargando…
-      </div>
 
-      <!-- CU-04 / JU-08: Espacio docente (reemplaza el "Próximamente" de CU-04) -->
-      <ElegirEspacio
-        v-if="currentScreen === 'elegirEspacio' && esDocente"
-        :nombre-docente="playerName"
-        @elegir-aula="currentScreen = 'leoAula'"
-        @elegir-dash="currentScreen = 'leoDash'"
-        @volver="goToProgreso"
+    <router-view v-else v-slot="{ Component, route }">
+      <!-- Pantalla completa, sin navbar: landing, login, sala de ideas y proyector -->
+      <component
+        :is="Component"
+        v-if="route.meta.layout === 'bare'"
+        :key="claveDe(route)"
+        v-bind="propsDe(route)"
+        v-on="eventosDe(route)"
       />
 
-      <LeoAula
-        v-if="currentScreen === 'leoAula' && esDocente"
-        @abrir-leo-ideas="abrirLeoIdeasProyector"
-        @volver="currentScreen = 'elegirEspacio'"
-      />
+      <!-- Con navbar -->
+      <template v-else>
+        <AppNavbar
+          :show-progress-button="sesionIniciada && route.name !== 'inicio'"
+          :sesion-iniciada="sesionIniciada"
+          :mostrar-panel-docente="esDocente"
+          @go-progreso="goToProgreso"
+          @go-panel-docente="irAlPanelDocente"
+          @cerrar-sesion="salir"
+        />
+        <div v-if="errorProgreso" class="max-w-4xl mx-auto px-4 pt-4">
+          <p class="rounded-xl border border-red-300 bg-red-50 p-4 text-red-800" role="alert">
+            No se pudo cargar tu progreso desde la nube. Tus datos no se han reemplazado.
+            Revisa tu conexión e intenta iniciar sesión nuevamente.
+          </p>
+        </div>
 
-      <LeoDash
-        v-if="currentScreen === 'leoDash' && esDocente"
-        @abrir-control-leo-ideas="abrirLeoIdeasControl"
-        @volver="currentScreen = 'elegirEspacio'"
-      />
+        <!-- Menú principal: ocupa todo el ancho -->
+        <component
+          :is="Component"
+          v-if="route.meta.ancho"
+          :key="claveDe(route)"
+          v-bind="propsDe(route)"
+          v-on="eventosDe(route)"
+        />
 
+        <div v-else class="container mx-auto px-4 py-6 max-w-4xl" style="margin-top: 150px;">
+          <component
+            :is="Component"
+            :key="claveDe(route)"
+            v-bind="propsDe(route)"
+            v-on="eventosDe(route)"
+          />
+          <mascota
+            v-if="route.meta.mascota"
+            current-screen="questions"
+          />
+        </div>
+      </template>
+    </router-view>
 
-      <LeoIdeasControl
-        v-if="currentScreen === 'leoIdeasControl' && esDocente"
-        :docente-id="usuario ? usuario.id : ''"
-        @volver="currentScreen = 'leoDash'"
-      />
-
-      <pant_bienvenida 
-        v-if="currentScreen === 'welcome'"
-        :player-name="playerName"
-        :user-progress="userProgress || []"
-        :is-returning-user="isReturningUser"
-        :completed-texts="completedTexts"
-        :next-text-id="currentTextId"
-        @continue="goToInstructions"
-      />
-
-      <pant_reglas_game1 
-        v-if="currentScreen === 'instructions'"
-        @start="startGame"
-      />
-
-      <pant_game_1 
-        v-if="currentScreen === 'questions'"
-        :key="currentTextId"
-        :player-name="playerName"
-        :text-id="currentTextId"
-        @continue="handleGame1Continue"
-        @restart="goToInstructions"
-        @try-next-text="handleTryNextText"
-        @go-to-progreso="goToProgreso"
-      />
-
-      <pant_reglas_game2
-        v-if="currentScreen === 'dragdropRules'"
-        :text-id="currentGame2TextId"
-        @continue="goToDragDrop"
-      />
-
-      <pant_game_2
-        v-if="currentScreen === 'dragdrop'"
-        :key="currentGame2TextId"
-        :current-screen="currentScreen"
-        :player-name="playerName"
-        :text-id="currentGame2TextId"
-        @continue="goToProgreso"
-        @restart-game2="goToDragDropRules"
-        @try-next-text="handleTryNextGame2Text"
-      />
-
-      <pant_game_3
-        v-if="currentScreen === 'game3'"
-        :key="currentGame3TextId"
-        :player-name="playerName"
-        @volver-menu="goToProgreso"
-      />
-
-      <!-- Juego 4: Trivia -->
-      <pant_reglas_game4
-        v-if="currentScreen === 'instructions_game4'"
-        @start-game="currentScreen = 'game4'"
-        @volver-menu="goToProgreso"
-      />
-
-      <pant_game_4
-        v-if="currentScreen === 'game4'"
-        :player-name="playerName"
-        @volver-menu="goToProgreso"
-        @reintentar="currentScreen = 'instructions_game4'"
-      />
-
-      <!-- RUTA (3/5): ruta de aprendizaje (feature/ruta-unidad1) -->
-      <RutaAprendizaje
-        v-if="currentScreen === 'ruta'"
-        @salir="goToProgreso"
-      />
-
-      <mascota 
-        v-if="currentScreen === 'questions'"
-        :current-screen="currentScreen"
-      />
-    </div>
-    </template>
+    <!-- MEJ-03: aviso de confirmación al salir de algo en curso (juego, actividad) -->
+    <ModalConfirmacion />
   </div>
 </template>
 
 <script>
 import AppNavbar from './components/Navbar.vue'
-import MiProgreso from './components/MiProgreso.vue'
-import pant_bienvenida from './components/pant_bienvenida.vue'
-import pant_reglas_game1 from './components/pant_reglas_game1.vue'
-import pant_game_1 from './components/pant_game_1.vue'
-import pant_game_2 from './components/pant_game_2.vue'
-import pant_game_3 from './components/pant_game_3.vue'
-import pant_reglas_game2 from './components/pant_reglas_game2.vue'
-import pant_reglas_game4 from './components/pant_reglas_game4.vue'
-import pant_game_4 from './components/pant_game_4.vue'
+// MEJ-03 — pant_bienvenida queda SIN USO y se deja comentado (no se borra):
+// antes se veía unos instantes al iniciar sesión (currentScreen = 'welcome') mientras
+// se descargaba el progreso, y su botón "continuar" abría las reglas del Juego 1.
+// Con el router, mientras se carga se muestra el saludo "¡Hola, {nombre}!" (ver el
+// <template> de arriba) y el menú se abre solo al terminar. El archivo
+// src/components/pant_bienvenida.vue sigue intacto por si se quiere reutilizar
+// (por ejemplo como ruta /bienvenida).
+// import pant_bienvenida from './components/pant_bienvenida.vue'
 import mascota from './components/mascota.vue'
-import pant_login from './components/pant_login.vue'
-import PantallaLanding from './components/PantallaLanding.vue'
-import ElegirEspacio from './components/docente/ElegirEspacio.vue'
-import LeoAula from './components/docente/LeoAula.vue'
-import LeoDash from './components/docente/LeoDash.vue'
-import LeoIdeasProyector from './components/leo_ideas/LeoIdeasProyector.vue'
-import LeoIdeasControl from './components/leo_ideas/LeoIdeasControl.vue'
-import LeoIdeasAlumno from './components/leo_ideas/LeoIdeasAlumno.vue'
-// RUTA (1/5): componente de la ruta de aprendizaje
-import RutaAprendizaje from './components/ruta/RutaAprendizaje.vue'
 import { supabaseConfigurado } from './utils/supabaseClient'
 import {
   entrarConGoogle,
@@ -207,45 +91,22 @@ import {
 import { getAllTextIds, getNextText } from './data/game1_texts'
 import { createGameManager } from './utils/gameManager'
 import { cargarProgresoNube } from './utils/supabaseProgress'
+import ModalConfirmacion from './components/ModalConfirmacion.vue'
+import { confirmarSiHayAvance, omitirConfirmacion } from './utils/confirmarSalida'
+import { TEXTOS_JUEGO2, rutaInicio, recordarDestino } from './router'
+import { estadoSesion, marcarSesionLista } from './router/estadoSesion'
 
 export default {
   name: 'App',
   components: {
     AppNavbar,
-    MiProgreso,
-    pant_bienvenida,
-    pant_reglas_game1,
-    pant_game_1,
-    pant_game_2,
-    pant_game_3,
-    pant_reglas_game2,
-    pant_reglas_game4,
-    pant_game_4,
     mascota,
-    pant_login,
-    PantallaLanding,
-    ElegirEspacio,
-    LeoAula,
-    LeoDash,
-    LeoIdeasProyector,
-    LeoIdeasControl,
-    LeoIdeasAlumno,
-    RutaAprendizaje // RUTA (2/5)
+    ModalConfirmacion
   },
   data() {
     return {
-      codigoSalaUrl: (/^\d{6}$/.test((new URLSearchParams(window.location.search).get('sala') || '').trim()))
-        ? (new URLSearchParams(window.location.search).get('sala') || '').trim()
-        : '',
-      currentScreen: (/^\d{6}$/.test((new URLSearchParams(window.location.search).get('sala') || '').trim()))
-        ? 'leoIdeasAlumno'
-        : 'cargando',
       playerName: '', // Ahora viene del perfil de Google, ya no se escribe a mano
-      currentTextId: 'text1', // ID del texto actual en juego 1
-      currentGame2TextId: 'drag1', // ID del texto actual en juego 2
-      currentGame3TextId: 'comp1', // ID del texto actual en juego 3
       completedTexts: [], // IDs de textos completados
-      showProgreso: false,
       userProgress: null, // Progreso cargado desde Supabase
       isReturningUser: false, // Flag para usuarios que regresan
       errorProgreso: false,
@@ -255,7 +116,8 @@ export default {
       perfil: null, // fila de la tabla profiles (incluye rol)
       cargandoLogin: false,
       errorLogin: '',
-      dejarDeEscucharSesion: null
+      dejarDeEscucharSesion: null,
+      promesaEntrada: null // carga de perfil y progreso en curso (evita cargarlos dos veces)
     }
   },
   computed: {
@@ -269,7 +131,11 @@ export default {
       return getAllTextIds()
     },
     hasMoreTexts() {
-      return getNextText(this.currentTextId) !== null
+      return getNextText(this.textIdRuta) !== null
+    },
+    // Texto que indica la URL (/juego/1/:textId, /juego/2/:textId)
+    textIdRuta() {
+      return this.$route.params.textId || ''
     }
   },
   mounted() {
@@ -280,11 +146,130 @@ export default {
   },
   methods: {
     // ============================================
+    // PANTALLAS: qué recibe y qué escucha cada ruta (MEJ-03)
+    // ============================================
+    // El router decide QUÉ pantalla se muestra; estas funciones le pasan
+    // a cada pantalla los datos y los eventos que ya usaba antes.
+    claveDe(route) {
+      // Cambiar de texto dentro de un juego vuelve a crear la pantalla
+      return route.name + (route.params.textId ? `:${route.params.textId}` : '')
+    },
+    propsDe(route) {
+      switch (route.name) {
+        case 'login':
+          return {
+            configurado: this.supabaseConfigurado,
+            cargando: this.cargandoLogin,
+            error: this.errorLogin
+          }
+        case 'sala':
+          return { codigoSalaInicial: String(route.query.sala || '').trim() }
+        case 'inicio':
+          return {
+            playerName: this.playerName,
+            userProgress: this.userProgress || [],
+            isReturningUser: this.isReturningUser
+          }
+        case 'docente':
+          return { nombreDocente: this.playerName }
+        case 'docente-proyector':
+        case 'docente-control':
+          return { docenteId: this.usuario ? this.usuario.id : '' }
+        case 'juego1':
+          return { playerName: this.playerName, textId: route.params.textId }
+        case 'juego2-reglas':
+          return { textId: route.params.textId }
+        case 'juego2':
+          return { currentScreen: 'dragdrop', playerName: this.playerName, textId: route.params.textId }
+        case 'juego3':
+        case 'juego4':
+          return { playerName: this.playerName }
+        default:
+          return {}
+      }
+    },
+    eventosDe(route) {
+      switch (route.name) {
+        case 'landing':
+          return { entrar: () => this.$router.push({ name: 'login' }) }
+        case 'login':
+          return {
+            'entrar-google': this.entrar,
+            'unirse-sala': this.handleUnirseSala,
+            volver: () => this.$router.push({ name: 'landing' })
+          }
+        case 'sala':
+          return { 'volver-inicio': this.volverAlInicioDesdeSala }
+        case 'inicio':
+          return {
+            'start-game1': this.handleStartGame1,
+            'start-game2': this.handleStartGame2,
+            'start-game3': this.handleStartGame3,
+            'start-game4': this.handleStartGame4,
+            'abrir-ruta': this.irARuta
+          }
+        case 'ruta':
+          return { salir: this.goToProgreso }
+        case 'docente':
+          return {
+            'elegir-aula': () => this.$router.push({ name: 'docente-aula' }),
+            'elegir-dash': () => this.$router.push({ name: 'docente-panel' }),
+            volver: this.goToProgreso
+          }
+        case 'docente-aula':
+          return {
+            'abrir-leo-ideas': () => this.$router.push({ name: 'docente-proyector' }),
+            volver: () => this.$router.push({ name: 'docente' })
+          }
+        case 'docente-proyector':
+          return { salir: () => this.$router.push({ name: 'docente-aula' }) }
+        case 'docente-panel':
+          return {
+            'abrir-control-leo-ideas': () => this.$router.push({ name: 'docente-control' }),
+            volver: () => this.$router.push({ name: 'docente' })
+          }
+        case 'docente-control':
+          return { volver: () => this.$router.push({ name: 'docente-panel' }) }
+        case 'juego1-reglas':
+          return { start: this.startGame }
+        case 'juego1':
+          return {
+            continue: this.handleGame1Continue,
+            restart: this.goToInstructions,
+            'try-next-text': this.handleTryNextText,
+            'go-to-progreso': this.goToProgreso
+          }
+        case 'juego2-reglas':
+          return { continue: this.goToDragDrop }
+        case 'juego2':
+          return {
+            continue: this.goToProgreso,
+            'restart-game2': this.goToDragDropRules,
+            'try-next-text': this.handleTryNextGame2Text
+          }
+        case 'juego3':
+          return { 'volver-menu': this.goToProgreso }
+        case 'juego4-reglas':
+          return {
+            'start-game': () => this.$router.push({ name: 'juego4' }),
+            'volver-menu': this.goToProgreso
+          }
+        case 'juego4':
+          return {
+            'volver-menu': this.goToProgreso,
+            reintentar: () => this.$router.push({ name: 'juego4-reglas' })
+          }
+        default:
+          return {}
+      }
+    },
+
+    // ============================================
     // CUENTAS Y ACCESO (CU-02, CU-03, CU-04)
     // ============================================
     async iniciarAutenticacion() {
       if (!this.supabaseConfigurado) {
-        if (!this.codigoSalaUrl) this.currentScreen = 'landing' // el login explica qué falta
+        marcarSesionLista() // sin sesión: el login explica qué falta
         return
       }
       // 1) Escuchar entradas y salidas (login con Google, logout, otra pestaña)
@@ -296,15 +281,18 @@ export default {
       try {
         const sesion = await obtenerSesion()
         if (sesion) await this.entrarConSesion(sesion)
-        else if (!this.usuario && !this.codigoSalaUrl) this.currentScreen = 'landing'
       } catch (error) {
         console.error('No se pudo revisar la sesión:', error)
-        if (!this.codigoSalaUrl) this.currentScreen = 'landing'
+      } finally {
+        // Con o sin sesión, el router ya puede decidir a qué pantalla ir
+        marcarSesionLista()
       }
     },
     async entrar() {
       this.errorLogin = ''
       this.cargandoLogin = true
+      // Google saca al navegador de la app: se recuerda a dónde quería ir
+      recordarDestino(this.$route.query.redirect)
       try {
         await entrarConGoogle() // el navegador se va a Google y vuelve
       } catch (error) {
@@ -313,13 +301,21 @@ export default {
         this.cargandoLogin = false
       }
     },
-    async entrarConSesion(sesion) {
+    entrarConSesion(sesion) {
       // Supabase puede avisar SIGNED_IN más de una vez (al volver a la pestaña,
-      // o junto con la sesión guardada): si ya entró este usuario, no hacer nada.
-      // Sin esto, un alumno a mitad de juego volvería al menú.
-      if (this.usuario && this.usuario.id === sesion.user.id) return
+      // o junto con la sesión guardada): si ya entró este usuario, no cargar de nuevo.
+      // Se devuelve la misma promesa para que quien llegó segundo espere a que
+      // el perfil y el progreso estén listos. Sin esto, un alumno a mitad de juego
+      // volvería al menú.
+      if (this.usuario && this.usuario.id === sesion.user.id) return this.promesaEntrada
       this.usuario = sesion.user
+      estadoSesion.usuario = sesion.user
+      this.promesaEntrada = this.cargarDatosDeSesion(sesion)
+      return this.promesaEntrada
+    },
+    async cargarDatosDeSesion(sesion) {
       this.perfil = await cargarPerfil(sesion.user.id)
+      estadoSesion.esDocente = this.esDocente
       // El nombre ya no se escribe: sale del perfil / cuenta de Google.
       // Se usa para mostrar el nombre; el progreso se identifica por el UUID de Auth.
       this.playerName = nombreVisible(this.perfil, sesion.user)
@@ -329,18 +325,17 @@ export default {
         console.warn('No se pudo guardar el nombre en localStorage:', error)
       }
       this.cargandoLogin = false
-      if (this.codigoSalaUrl) {
-        return
+      if (!this.esDocente) {
+        await this.cargarProgresoDelAlumno() // carga el progreso asociado a la cuenta
       }
-      if (this.esDocente) {
-        this.showProgreso = false
-        this.currentScreen = 'elegirEspacio'
-        return
+      // Si la sesión llegó estando en la landing o el login (p. ej. desde otra pestaña), ir al inicio
+      if (this.$route.meta.soloInvitado) {
+        this.$router.replace(rutaInicio())
       }
-      this.currentScreen = 'welcome'
-      await this.goToWelcome() // carga el progreso asociado a la cuenta y abre el menú
     },
     async salir() {
+      // MEJ-03: si hay una partida o actividad en curso, preguntar ANTES de cerrar la sesión
+      if (!(await confirmarSiHayAvance('cerrar-sesion'))) return
       try {
         await cerrarSesion()
       } catch (error) {
@@ -348,62 +343,46 @@ export default {
       }
       this.volverAlLogin() // no esperar al aviso de Supabase para cambiar de pantalla
     },
+    // Navega sin preguntar: la salida ya se confirmó, o no es voluntaria (la sesión se cerró en otra pestaña)
+    async irSinConfirmar(destino) {
+      omitirConfirmacion(true)
+      try {
+        await this.$router.push(destino)
+      } finally {
+        omitirConfirmacion(false)
+      }
+    },
     volverAlLogin() {
       this.usuario = null
       this.perfil = null
+      this.promesaEntrada = null
+      estadoSesion.usuario = null
+      estadoSesion.esDocente = false
       this.playerName = ''
       this.userProgress = null
       this.errorProgreso = false
       this.completedTexts = []
       this.isReturningUser = false
-      this.showProgreso = false
       this.cargandoLogin = false
-      if (this.codigoSalaUrl) {
-        return
-      }
-      this.currentScreen = 'landing'
+      // La sala de ideas y las pantallas públicas siguen donde están
+      if (this.$route.meta.publica) return
+      return this.irSinConfirmar({ name: 'landing' })
     },
     irAlPanelDocente() {
       if (!this.esDocente) return
-      this.showProgreso = false
-      this.currentScreen = 'elegirEspacio'
+      this.$router.push({ name: 'docente' })
     },
     // RUTA (5/5): abre la ruta de aprendizaje (desde la tarjeta Unidad 1 de MiProgreso)
     irARuta() {
-      this.showProgreso = false
-      this.currentScreen = 'ruta'
-    },
-    abrirLeoIdeasProyector() {
-      this.showProgreso = false
-      this.currentScreen = 'leoIdeasProyector'
-    },
-    abrirLeoIdeasControl() {
-      this.showProgreso = false
-      this.currentScreen = 'leoIdeasControl'
+      this.$router.push({ name: 'ruta' })
     },
     handleUnirseSala(codigo) {
       const limpio = String(codigo || '').trim()
       if (!/^\d{6}$/.test(limpio)) return
-      this.codigoSalaUrl = limpio
-      this.currentScreen = 'leoIdeasAlumno'
+      this.$router.push({ name: 'sala', query: { sala: limpio } })
     },
     volverAlInicioDesdeSala() {
-      if (window.location.search.includes('sala')) {
-        const url = new URL(window.location.href)
-        url.searchParams.delete('sala')
-        const nuevaUrl = url.pathname + (url.search ? url.search : '')
-        window.history.replaceState({}, document.title, nuevaUrl)
-      }
-      this.codigoSalaUrl = ''
-      if (this.usuario) {
-        if (this.esDocente) {
-          this.currentScreen = 'elegirEspacio'
-        } else {
-          this.goToWelcome()
-        }
-      } else {
-        this.currentScreen = 'landing'
-      }
+      this.$router.push(this.usuario ? rutaInicio() : { name: 'landing' })
     },
     async loadUserProgress(playerName) {
       const progress = await cargarProgresoNube()
@@ -419,155 +398,130 @@ export default {
         .map(item => item.textId)
       this.isReturningUser = completedProgress.length > 0
 
-      const nextTextId = this.getNextAvailableText()
-      if (nextTextId) this.currentTextId = nextTextId
-
       return this.isReturningUser
     },
     getNextAvailableText() {
       // Buscar el primer texto no completado
-      const allTexts = this.availableTextIds
-      const nextText = allTexts.find(textId => !this.completedTexts.includes(textId))
+      const nextText = this.availableTextIds.find(textId => !this.completedTexts.includes(textId))
       return nextText || 'text1' // Si todos están completados, volver al primero
     },
-    async goToWelcome() {
-      if (this.playerName.trim()) {
-        this.errorProgreso = false
-        try {
-          await this.loadUserProgress(this.playerName.trim())
-        } catch (error) {
-          console.error('No se pudo cargar el progreso desde Supabase:', error)
-          this.errorProgreso = true
-          this.userProgress = []
-          this.completedTexts = []
-          this.isReturningUser = false
-        }
-        
-        // Ir directamente a MiProgreso en lugar de pant_bienvenida
-        this.goToProgreso()
+    async cargarProgresoDelAlumno() {
+      if (!this.playerName.trim()) return
+      this.errorProgreso = false
+      try {
+        await this.loadUserProgress(this.playerName.trim())
+      } catch (error) {
+        console.error('No se pudo cargar el progreso desde Supabase:', error)
+        this.errorProgreso = true
+        this.userProgress = []
+        this.completedTexts = []
+        this.isReturningUser = false
       }
     },
-    showReturningUserWelcome() {
-      // Cambiar a pantalla de bienvenida con información del progreso
-      this.currentScreen = 'welcome'
+
+    // ============================================
+    // FUNCIONES SIN USO (comentadas, no borradas) — MEJ-03
+    // ============================================
+    // Ninguna de estas cuatro se llamaba desde App.vue ni desde otro componente
+    // (se buscó en todo src/). Además dependían de `currentScreen` y `showProgreso`,
+    // que con el router ya no existen: la pantalla la decide la URL. Se dejan
+    // comentadas como referencia; si se necesitan de nuevo, hay que reescribirlas
+    // con `this.$router.push({ name: '...' })`.
+    //
+    // showReturningUserWelcome() {
+    //   // Cambiar a pantalla de bienvenida con información del progreso
+    //   this.currentScreen = 'welcome'
+    // },
+    // goToQuestions() {
+    //   this.currentScreen = 'questions'
+    // },
+    // restartGame() {
+    //   this.currentScreen = 'login'
+    //   this.playerName = ''
+    //   this.currentTextId = 'text1'
+    //   this.completedTexts = []
+    // },
+    // closeProgreso() {
+    //   this.showProgreso = false;
+    // },
+
+    // ============================================
+    // NAVEGACIÓN ENTRE PANTALLAS DEL ALUMNO
+    // ============================================
+    goToProgreso() {
+      this.$router.push({ name: 'inicio' })
     },
+    // Juego 1
     goToInstructions() {
-      this.currentScreen = 'instructions'
-      // No resetear currentTextId aquí - ya está configurado correctamente por loadUserProgress
+      this.$router.push({ name: 'juego1-reglas', params: { textId: this.textIdRuta } })
     },
     startGame() {
-      this.currentScreen = 'questions'
-    },
-    goToQuestions() {
-      this.currentScreen = 'questions'
+      this.$router.push({ name: 'juego1', params: { textId: this.textIdRuta } })
     },
     handleGame1Continue() {
       // Marcar texto como completado
-      if (!this.completedTexts.includes(this.currentTextId)) {
-        this.completedTexts.push(this.currentTextId)
+      if (!this.completedTexts.includes(this.textIdRuta)) {
+        this.completedTexts.push(this.textIdRuta)
       }
-
       // Regresar a MiProgreso después de completar un texto
       this.goToProgreso()
     },
-    goToDragDropRules() {
-      this.currentScreen = 'dragdropRules'
-    },
-    goToDragDrop() {
-      this.currentScreen = 'dragdrop'
-    },
     handleTryNextText(nextTextId) {
       // Cambiar al siguiente texto disponible
-      this.currentTextId = nextTextId
-      this.goToInstructions()
-    },
-    restartGame() {
-      this.currentScreen = 'login'
-      this.playerName = ''
-      this.currentTextId = 'text1'
-      this.completedTexts = []
-    },
-    goToProgreso() {
-      this.showProgreso = true;
-      // Refrescar los datos del progreso después de que el componente se muestre
-      this.$nextTick(() => {
-        if (this.$refs.miProgresoComponent) {
-          this.$refs.miProgresoComponent.loadPlayerData();
-        }
-      });
-    },
-    closeProgreso() {
-      this.showProgreso = false;
+      this.$router.push({ name: 'juego1-reglas', params: { textId: nextTextId } })
     },
     handleStartGame1(gameInfo) {
-      // Cerrar el progreso y establecer el texto
-      this.showProgreso = false;
-      this.currentTextId = gameInfo.textId;
-      this.currentScreen = 'instructions'; // Ir a las reglas del juego 1
+      const textId = (gameInfo && gameInfo.textId) || this.getNextAvailableText()
+      this.$router.push({ name: 'juego1-reglas', params: { textId } })
+    },
+    // Juego 2
+    goToDragDropRules() {
+      this.$router.push({ name: 'juego2-reglas', params: { textId: this.textIdRuta } })
+    },
+    goToDragDrop() {
+      this.$router.push({ name: 'juego2', params: { textId: this.textIdRuta } })
     },
     handleStartGame2(gameInfo) {
-      // Cerrar el progreso y ir al juego 2
-      this.showProgreso = false;
-      
       // Si se especifica un textId, usarlo; si no, obtener el siguiente no completado
-      if (gameInfo && gameInfo.textId) {
-        this.currentGame2TextId = gameInfo.textId;
-      } else {
-        // Obtener el primer texto no completado del juego 2
-        this.currentGame2TextId = this.getNextGame2Text();
-      }
-      
-      this.currentScreen = 'dragdropRules'; // Ir a las reglas del juego 2
+      const textId = (gameInfo && gameInfo.textId) || this.getNextGame2Text()
+      this.$router.push({ name: 'juego2-reglas', params: { textId } })
     },
     getNextGame2Text() {
       // Obtener progreso del jugador para juego 2
       const playerName = this.playerName || localStorage.getItem('leo-perfecto-player') || 'anonimo';
       const progressKey = `leo-perfecto-progress-${playerName}`;
       const savedProgress = localStorage.getItem(progressKey);
-      
-      // IDs disponibles del juego 2
-      const availableGame2Texts = ['drag1', 'drag2', 'drag3'];
-      
+
       if (savedProgress) {
         try {
           const progress = JSON.parse(savedProgress);
           // Filtrar solo progreso del juego 2
           const game2Progress = progress.filter(p => p.gameId === 2);
           const completedTexts = game2Progress.map(p => p.textId);
-          
+
           // Buscar el primer texto no completado
-          const nextText = availableGame2Texts.find(textId => !completedTexts.includes(textId));
+          const nextText = TEXTOS_JUEGO2.find(textId => !completedTexts.includes(textId));
           return nextText || 'drag1'; // Si todos están completados, volver al primero
         } catch (error) {
           console.error('Error al obtener progreso:', error);
         }
       }
-      
+
       return 'drag1'; // Por defecto, el primer texto
     },
     handleTryNextGame2Text(nextTextId) {
       // Cambiar al siguiente texto y volver a las reglas
-      this.currentGame2TextId = nextTextId;
-      this.goToDragDropRules();
+      this.$router.push({ name: 'juego2-reglas', params: { textId: nextTextId } })
     },
+    // Juego 3 (maneja su propia selección de textos internamente)
+    // eslint-disable-next-line no-unused-vars
     handleStartGame3(gameInfo) {
-      // Cerrar el progreso y ir al juego 3
-      this.showProgreso = false;
-      
-      // El juego 3 maneja su propia selección de textos internamente
-      // pero podemos establecer un textId inicial si se proporciona
-      if (gameInfo && gameInfo.textId) {
-        this.currentGame3TextId = gameInfo.textId;
-      }
-      
-      this.currentScreen = 'game3'; // Ir directamente al juego 3 (sin pantalla de reglas)
+      this.$router.push({ name: 'juego3' })
     },
-    
+    // Juego 4 (Trivia)
     // eslint-disable-next-line no-unused-vars
     handleStartGame4(gameInfo) {
-      // Cerrar el progreso y ir al juego 4 (Trivia)
-      this.showProgreso = false;
-      this.currentScreen = 'instructions_game4'; // Ir a las reglas del juego 4
+      this.$router.push({ name: 'juego4-reglas' })
     }
   }
 }
