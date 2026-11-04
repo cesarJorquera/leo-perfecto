@@ -1,33 +1,73 @@
 <template>
-  <!-- Ranking Global (se movió aquí desde MiProgreso.vue en UI-04, sin cambios de contenido) -->
-      <div class="bg-white rounded-2xl shadow-xl p-6 md:p-8 border-2 border-amber-200">
-        <div class="flex items-center gap-3 mb-6">
-          <div class="bg-amber-100 text-amber-700 rounded-xl p-3 shadow-lg">
-            <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
-              <path fill-rule="evenodd" d="M5.166 2.621v.858c-1.035.148-2.059.33-3.071.543a.75.75 0 00-.584.859 6.753 6.753 0 006.138 5.6 6.73 6.73 0 002.743 1.346A6.707 6.707 0 019.279 15H8.54c-1.036 0-1.875.84-1.875 1.875V19.5h-.75a2.25 2.25 0 00-2.25 2.25c0 .414.336.75.75.75h15a.75.75 0 00.75-.75 2.25 2.25 0 00-2.25-2.25h-.75v-2.625c0-1.036-.84-1.875-1.875-1.875h-.739a6.706 6.706 0 01-1.112-3.173 6.73 6.73 0 002.743-1.347 6.753 6.753 0 006.139-5.6.75.75 0 00-.585-.858 47.077 47.077 0 00-3.07-.543V2.62a.75.75 0 00-.658-.744 49.22 49.22 0 00-6.093-.377c-2.063 0-4.096.128-6.093.377a.75.75 0 00-.657.744zm0 2.629c0 1.196.312 2.32.857 3.294A5.266 5.266 0 013.16 5.337a45.6 45.6 0 012.006-.343v.256zm13.5 0v-.256c.674.1 1.343.214 2.006.343a5.265 5.265 0 01-2.863 3.207 6.72 6.72 0 00.857-3.294z" clip-rule="evenodd" />
-            </svg>
-          </div>
-          <h2 class="text-3xl font-bold text-amber-700">
-            Ranking Global
-          </h2>
-        </div>
-        
-        <div class="bg-gradient-to-br from-amber-50 via-yellow-50 to-orange-50 rounded-xl p-8 border-2 border-amber-300 shadow-md">
-          <div class="flex flex-col items-center justify-center gap-4">
-            <div class="bg-yellow-200 rounded-full p-4 shadow-lg">
-              <svg class="w-12 h-12 text-yellow-600" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M10 1a4.5 4.5 0 00-4.5 4.5V9H5a2 2 0 00-2 2v6a2 2 0 002 2h10a2 2 0 002-2v-6a2 2 0 00-2-2h-.5V5.5A4.5 4.5 0 0010 1zm3 8V5.5a3 3 0 10-6 0V9h6z" clip-rule="evenodd" />
-              </svg>
-            </div>
-            <div class="text-center">
-              <p class="text-xl font-bold text-amber-800 mb-2">Próximamente</p>
-              <p class="text-sm text-gray-600">Función en desarrollo</p>
-            </div>
-          </div>
-        </div>
-      </div>
+  <!-- Ranking Global (se movió aquí desde MiProgreso.vue en UI-04, sin cambios de contenido).
+       UI-06: solo cambia el aspecto, para que combine con el resto de Progreso. La lógica y los
+       datos del ranking son tarea de otro integrante del equipo; aquí sigue el aviso "Próximamente". -->
+  <section class="ranking" aria-labelledby="ranking-titulo" data-test="ranking">
+    <div class="ranking__cabecera">
+      <span class="ranking__icono" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="#2568c4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20 V13 H9 V20 M9 20 V8 H15 V20 M15 20 V11 H20 V20 M2 20 H22" /></svg>
+      </span>
+      <h2 id="ranking-titulo" class="ranking__titulo">Ranking Global</h2>
+      <span class="ranking__etiqueta">
+        <svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="7" /><path d="M10 6 V10 L12.5 12" /></svg>
+        Próximamente
+      </span>
+    </div>
+    <p class="ranking__texto">Función en desarrollo.</p>
+  </section>
 </template>
 
 <script>
 export default { name: 'RankingGlobal' }
 </script>
+
+<style scoped>
+.ranking {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1.125rem;
+  background: #ffffff;
+  border: 1px solid #d9e4f1;
+  border-radius: 1.25rem;
+  box-shadow: 0 1px 2px rgba(20, 35, 59, 0.05);
+  text-align: left;
+  font-family: 'Atkinson Hyperlegible', system-ui, sans-serif;
+}
+.ranking__cabecera { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; }
+.ranking__icono {
+  width: 3rem;
+  height: 3rem;
+  flex-shrink: 0;
+  border-radius: 0.875rem;
+  background: #e4f0fb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.ranking__titulo {
+  flex: 1;
+  margin: 0;
+  font-family: 'Lexend', system-ui, sans-serif;
+  font-weight: 600;
+  font-size: 1.125rem;
+  color: #14233b;
+}
+.ranking__etiqueta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.25rem 0.625rem;
+  border-radius: 999px;
+  background: #fff3cf;
+  color: #8a5a00;
+  font-size: 0.8125rem;
+  font-weight: 700;
+}
+.ranking__texto { margin: 0; font-size: 0.9375rem; color: #52627a; }
+
+@media (min-width: 768px) {
+  .ranking { padding: 1.5rem; }
+  .ranking__titulo { font-size: 1.375rem; }
+}
+</style>

@@ -1,394 +1,246 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50">
-    <div class="container mx-auto px-4 py-8 max-w-7xl">
+  <!-- UI-06: Rework de Progreso. Misma familia visual que Inicio (UI-05): fondo plano,
+       tarjetas blancas, íconos SVG (sin emojis) y componentes base. Solo cambia lo visual;
+       el único cálculo que se tocó es el total del curso (ver `totalActividades`). -->
+  <div class="progreso" :class="{ 'progreso--entrada': conEntrada }">
 
-      <!-- Tu Progreso - Diseño Mejorado y Motivador -->
-      <div class="bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 rounded-3xl shadow-2xl p-6 md:p-10 mb-8 border-4 border-blue-300">
-        <!-- Header con Nivel del Jugador -->
-        <div class="flex items-center justify-between mb-6">
-          <div class="flex items-center gap-4">
-            <div class="bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl p-4 shadow-xl transform hover:scale-105 transition-all">
-              <svg class="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M11.7 2.805a.75.75 0 01.6 0A60.65 60.65 0 0122.83 8.72a.75.75 0 01-.231 1.337 49.949 49.949 0 00-9.902 3.912l-.003.002-.34.18a.75.75 0 01-.707 0A50.009 50.009 0 007.5 12.174v-.224c0-.131.067-.248.172-.311a54.614 54.614 0 014.653-2.52.75.75 0 00-.65-1.352 56.129 56.129 0 00-4.78 2.589 1.858 1.858 0 00-.859 1.228 49.803 49.803 0 00-4.634-1.527.75.75 0 01-.231-1.337A60.653 60.653 0 0111.7 2.805z" />
-                <path d="M13.06 15.473a48.45 48.45 0 017.666-3.282c.134 1.414.22 2.843.255 4.285a.75.75 0 01-.46.71 47.878 47.878 0 00-8.105 4.342.75.75 0 01-.832 0 47.877 47.877 0 00-8.104-4.342.75.75 0 01-.461-.71c.035-1.442.121-2.87.255-4.286A48.4 48.4 0 016 13.18v1.27a1.5 1.5 0 00-.14 2.508c-.09.38-.222.753-.397 1.11.452.213.901.434 1.346.661a6.729 6.729 0 00.551-1.608 1.5 1.5 0 00.14-2.67v-.645a48.549 48.549 0 013.44 1.668 2.25 2.25 0 002.12 0z" />
-              </svg>
-            </div>
-            <div>
-              <h2 class="text-4xl font-extrabold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
-                Tu Progreso
-              </h2>
-              <p class="text-lg font-semibold text-gray-600 mt-1">{{ nivelJugador }}</p>
-            </div>
-          </div>
-          
-          <!-- Badge de Nivel -->
-          <div class="bg-gradient-to-br from-orange-300 to-amber-400 rounded-2xl px-6 py-3 shadow-xl transform hover:rotate-3 transition-all border-2 border-orange-400">
-            <p class="text-sm text-orange-900 font-bold uppercase tracking-wide">Nivel</p>
-            <p class="text-5xl font-extrabold text-orange-800 drop-shadow-md">{{ nivel }}</p>
+    <header class="progreso__cabecera">
+      <h1 class="progreso__titulo">Tu progreso</h1>
+      <p class="progreso__bajada">{{ bajada }}</p>
+    </header>
+
+    <!-- Resumen + próximo logro -->
+    <div class="progreso__fila">
+      <LeoTarjeta como="section" class="resumen" aria-labelledby="resumen-titulo" data-test="resumen-nivel">
+        <div class="resumen__cabecera">
+          <span class="icono icono--grande" style="background: #e4f0fb">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#2568c4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path :d="iconoNivel" /></svg>
+          </span>
+          <div>
+            <p class="antetitulo" style="color: #1b4f9e">Tu nivel</p>
+            <h2 id="resumen-titulo" class="resumen__nivel" data-test="nivel">Nivel {{ nivel }} · {{ nivelNombre }}</h2>
           </div>
         </div>
+        <p class="resumen__mensaje">{{ mensajeMotivacional }}</p>
+        <div class="resumen__avance">
+          <div class="resumen__avance-fila">
+            <span class="resumen__avance-nombre">Avance del curso</span>
+            <span class="resumen__avance-dato" data-test="avance-curso">{{ textoAvanceCurso }}</span>
+          </div>
+          <LeoBarraProgreso
+            :valor="barrasLlenas ? juegosCompletados : 0"
+            :maximo="totalActividades"
+            :alto="12"
+            etiqueta="Avance del curso"
+          />
+          <span class="resumen__nota">Incluye los juegos y los pasos de tu ruta.</span>
+        </div>
+      </LeoTarjeta>
 
-        <!-- Mensaje Motivacional -->
-        <div class="bg-gradient-to-r from-purple-100 to-pink-100 rounded-2xl p-6 mb-6 border-2 border-purple-300 shadow-lg">
-          <div class="flex items-center justify-center gap-4">
-            <div class="flex-shrink-0 w-12 h-12 flex items-center justify-center bg-white rounded-xl shadow-md">
-              <span class="text-3xl">{{ emojiMotivacional }}</span>
-            </div>
-            <p class="text-center text-base font-semibold text-gray-800 leading-relaxed">
-              {{ mensajeMotivacional }}
-            </p>
+      <LeoTarjeta como="section" class="proximo" aria-labelledby="proximo-titulo" data-test="proximo-logro">
+        <p class="antetitulo" style="color: #8a5a00">Tu próximo logro</p>
+        <div v-if="proximoLogro" class="proximo__logro">
+          <span class="icono" style="background: #fff3cf">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#b07a00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path :d="proximoLogro.icono" /></svg>
+          </span>
+          <div>
+            <h2 id="proximo-titulo" class="proximo__nombre">{{ proximoLogro.nombre }}</h2>
+            <p class="proximo__falta" data-test="proximo-falta">{{ proximoLogro.falta }}</p>
           </div>
         </div>
-
-        <!-- Barra de Progreso General -->
-        <div class="mb-8">
-          <div class="flex justify-between items-center mb-3">
-            <span class="text-sm font-bold text-gray-700">Progreso Total del Curso</span>
-            <span class="text-sm font-bold text-purple-600">{{ progresoTotal }}%</span>
-          </div>
-          <div class="w-full bg-gray-200 rounded-full h-6 shadow-inner overflow-hidden">
-            <div 
-              class="h-6 rounded-full bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 transition-all duration-1000 ease-out flex items-center justify-end px-2"
-              :style="{ width: progresoTotal + '%' }"
-            >
-              <span v-if="progresoTotal > 10" class="text-xs font-bold text-white">{{ progresoTotal }}%</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Estadísticas Principales -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <!-- Juegos Completados -->
-          <div class="bg-gradient-to-br from-blue-300 via-blue-400 to-blue-500 rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all transform hover:scale-105">
-            <div class="flex flex-col items-center text-center">
-              <div class="bg-white bg-opacity-30 backdrop-blur-sm rounded-2xl p-4 mb-4 shadow-lg">
-                <svg class="w-12 h-12 text-white" fill="currentColor" viewBox="0 0 24 24">
-                  <path fill-rule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm13.36-1.814a.75.75 0 10-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z" clip-rule="evenodd" />
-                </svg>
-              </div>
-              <p class="text-5xl font-extrabold text-white mb-2">{{ juegosCompletados }}</p>
-              <p class="text-sm text-white font-bold uppercase tracking-wide">Juegos Completados</p>
-            </div>
-          </div>
-
-          <!-- Efectividad -->
-          <div class="bg-gradient-to-br from-blue-300 via-blue-400 to-indigo-500 rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all transform hover:scale-105">
-            <div class="flex flex-col items-center text-center">
-              <div class="bg-white bg-opacity-30 backdrop-blur-sm rounded-2xl p-4 mb-4 shadow-lg">
-                <svg class="w-12 h-12 text-white" fill="currentColor" viewBox="0 0 24 24">
-                  <path fill-rule="evenodd" d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.007 5.404.433c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.433 2.082-5.006z" clip-rule="evenodd" />
-                </svg>
-              </div>
-              <p class="text-5xl font-extrabold text-white mb-2">{{ efectividadSegura }}%</p>
-              <p class="text-sm text-white font-bold uppercase tracking-wide">Efectividad</p>
-            </div>
-          </div>
-
-          <!-- Racha Actual -->
-          <div class="bg-gradient-to-br from-indigo-300 via-blue-400 to-blue-500 rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all transform hover:scale-105">
-            <div class="flex flex-col items-center text-center">
-              <div class="bg-white bg-opacity-30 backdrop-blur-sm rounded-2xl p-4 mb-4 shadow-lg">
-                <svg class="w-12 h-12 text-white" fill="currentColor" viewBox="0 0 24 24">
-                  <path fill-rule="evenodd" d="M12.963 2.286a.75.75 0 00-1.071-.136 9.742 9.742 0 00-3.539 6.177A7.547 7.547 0 016.648 6.61a.75.75 0 00-1.152-.082A9 9 0 1015.68 4.534a7.46 7.46 0 01-2.717-2.248zM15.75 14.25a3.75 3.75 0 11-7.313-1.172c.628.465 1.35.81 2.133 1a5.99 5.99 0 011.925-3.545 3.75 3.75 0 013.255 3.717z" clip-rule="evenodd" />
-                </svg>
-              </div>
-              <p class="text-5xl font-extrabold text-white mb-2">{{ rachaActual }}</p>
-              <p class="text-sm text-white font-bold uppercase tracking-wide">Racha de Días</p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Sistema de Logros/Insignias MEJORADO -->
-        <div class="bg-white rounded-2xl p-6 shadow-lg border-2 border-purple-200 mb-6">
-          <div class="flex items-center gap-3 mb-5">
-            <div class="bg-yellow-500 rounded-xl p-3 shadow-md">
-              <span class="text-4xl">🏆</span>
-            </div>
-            <h3 class="text-2xl font-bold text-gray-800">
-              Logros Desbloqueados
-            </h3>
-          </div>
-          
-          <!-- Carousel de Logros -->
-          <div class="relative">
-            <!-- Contenedor con scroll horizontal -->
-            <div class="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-thin scrollbar-thumb-purple-400 scrollbar-track-gray-100" style="scroll-behavior: smooth;">
-            <!-- Logro: Primer Paso -->
-            <div :class="[
-              'rounded-xl p-5 text-center transition-all transform hover:scale-105 cursor-pointer border-2 flex-shrink-0 w-40 snap-center',
-              juegosCompletados >= 1 
-                ? 'bg-gradient-to-b from-emerald-400 to-emerald-200 shadow-lg border-emerald-300' 
-                : 'bg-white border-gray-300 shadow-md'
-            ]">
-              <div class="text-5xl mb-2">{{ juegosCompletados >= 1 ? '🎯' : '🔒' }}</div>
-              <p :class="['text-sm font-extrabold mb-1', juegosCompletados >= 1 ? 'text-gray-800' : 'text-gray-700']">
-                Primer Paso
-              </p>
-              <p :class="['text-xs font-semibold', juegosCompletados >= 1 ? 'text-gray-700' : 'text-gray-600']">
-                Completa 1 juego
-              </p>
-            </div>
-
-            <!-- Logro: En Camino -->
-            <div :class="[
-              'rounded-xl p-5 text-center transition-all transform hover:scale-105 cursor-pointer border-2 flex-shrink-0 w-40 snap-center',
-              juegosCompletados >= 3 
-                ? 'bg-gradient-to-b from-blue-400 to-blue-200 shadow-lg border-blue-300' 
-                : 'bg-white border-gray-300 shadow-md'
-            ]">
-              <div class="text-5xl mb-2">{{ juegosCompletados >= 3 ? '🚀' : '🔒' }}</div>
-              <p :class="['text-sm font-extrabold mb-1', juegosCompletados >= 3 ? 'text-gray-800' : 'text-gray-700']">
-                En Camino
-              </p>
-              <p :class="['text-xs font-semibold', juegosCompletados >= 3 ? 'text-gray-700' : 'text-gray-600']">
-                Completa 3 juegos
-              </p>
-            </div>
-
-            <!-- Logro: Persistente -->
-            <div :class="[
-              'rounded-xl p-5 text-center transition-all transform hover:scale-105 cursor-pointer border-2 flex-shrink-0 w-40 snap-center',
-              juegosCompletados >= 5 
-                ? 'bg-gradient-to-b from-purple-400 to-purple-200 shadow-lg border-purple-300' 
-                : 'bg-white border-gray-300 shadow-md'
-            ]">
-              <div class="text-5xl mb-2">{{ juegosCompletados >= 5 ? '💪' : '🔒' }}</div>
-              <p :class="['text-sm font-extrabold mb-1', juegosCompletados >= 5 ? 'text-gray-800' : 'text-gray-700']">
-                Persistente
-              </p>
-              <p :class="['text-xs font-semibold', juegosCompletados >= 5 ? 'text-gray-700' : 'text-gray-600']">
-                Completa 5 juegos
-              </p>
-            </div>
-
-            <!-- Logro: Maestro -->
-            <div :class="[
-              'rounded-xl p-5 text-center transition-all transform hover:scale-105 cursor-pointer border-2 flex-shrink-0 w-40 snap-center',
-              juegosCompletados >= 10 
-                ? 'bg-gradient-to-b from-orange-400 to-orange-200 shadow-lg border-orange-300' 
-                : 'bg-white border-gray-300 shadow-md'
-            ]">
-              <div class="text-5xl mb-2">{{ juegosCompletados >= 10 ? '🎖️' : '🔒' }}</div>
-              <p :class="['text-sm font-extrabold mb-1', juegosCompletados >= 10 ? 'text-gray-800' : 'text-gray-700']">
-                Maestro
-              </p>
-              <p :class="['text-xs font-semibold', juegosCompletados >= 10 ? 'text-gray-700' : 'text-gray-600']">
-                Completa 10 juegos
-              </p>
-            </div>
-
-            <!-- Logro: Experto -->
-            <div :class="[
-              'rounded-xl p-5 text-center transition-all transform hover:scale-105 cursor-pointer border-2 flex-shrink-0 w-40 snap-center',
-              efectividadSegura >= 80 
-                ? 'bg-gradient-to-b from-cyan-400 to-cyan-200 shadow-lg border-cyan-300' 
-                : 'bg-white border-gray-300 shadow-md'
-            ]">
-              <div class="text-5xl mb-2">{{ efectividadSegura >= 80 ? '⭐' : '🔒' }}</div>
-              <p :class="['text-sm font-extrabold mb-1', efectividadSegura >= 80 ? 'text-gray-800' : 'text-gray-700']">
-                Experto
-              </p>
-              <p :class="['text-xs font-semibold', efectividadSegura >= 80 ? 'text-gray-700' : 'text-gray-600']">
-                80% efectividad
-              </p>
-            </div>
-
-            <!-- Logro: Perfección -->
-            <div :class="[
-              'rounded-xl p-5 text-center transition-all transform hover:scale-105 cursor-pointer border-2 flex-shrink-0 w-40 snap-center',
-              efectividadSegura >= 95 
-                ? 'bg-gradient-to-b from-amber-400 to-amber-200 shadow-lg border-amber-300' 
-                : 'bg-white border-gray-300 shadow-md'
-            ]">
-              <div class="text-5xl mb-2">{{ efectividadSegura >= 95 ? '👑' : '🔒' }}</div>
-              <p :class="['text-sm font-extrabold mb-1', efectividadSegura >= 95 ? 'text-gray-800' : 'text-gray-700']">
-                Perfección
-              </p>
-              <p :class="['text-xs font-semibold', efectividadSegura >= 95 ? 'text-gray-700' : 'text-gray-600']">
-                95% efectividad
-              </p>
-            </div>
-
-            <!-- Logro: Racha de Fuego -->
-            <div :class="[
-              'rounded-xl p-5 text-center transition-all transform hover:scale-105 cursor-pointer border-2 flex-shrink-0 w-40 snap-center',
-              rachaActual >= 3 
-                ? 'bg-gradient-to-b from-red-400 to-red-200 shadow-lg border-red-300' 
-                : 'bg-white border-gray-300 shadow-md'
-            ]">
-              <div class="text-5xl mb-2">{{ rachaActual >= 3 ? '🔥' : '🔒' }}</div>
-              <p :class="['text-sm font-extrabold mb-1', rachaActual >= 3 ? 'text-gray-800' : 'text-gray-700']">
-                Racha de Fuego
-              </p>
-              <p :class="['text-xs font-semibold', rachaActual >= 3 ? 'text-gray-700' : 'text-gray-600']">
-                3 días seguidos
-              </p>
-            </div>
-
-            <!-- Logro: Velocista -->
-            <div :class="[
-              'rounded-xl p-5 text-center transition-all transform hover:scale-105 cursor-pointer border-2 flex-shrink-0 w-40 snap-center',
-              tiempoPromedioRapido 
-                ? 'bg-gradient-to-b from-lime-400 to-lime-200 shadow-lg border-lime-300' 
-                : 'bg-white border-gray-300 shadow-md'
-            ]">
-              <div class="text-5xl mb-2">{{ tiempoPromedioRapido ? '⚡' : '🔒' }}</div>
-              <p :class="['text-sm font-extrabold mb-1', tiempoPromedioRapido ? 'text-gray-800' : 'text-gray-700']">
-                Velocista
-              </p>
-              <p :class="['text-xs font-semibold', tiempoPromedioRapido ? 'text-gray-700' : 'text-gray-600']">
-                Respuestas rápidas
-              </p>
-            </div>
-
-            <!-- Logro: Sin Errores -->
-            <div :class="[
-              'rounded-xl p-5 text-center transition-all transform hover:scale-105 cursor-pointer border-2 flex-shrink-0 w-40 snap-center',
-              juegosPerfectos >= 1 
-                ? 'bg-gradient-to-b from-pink-400 to-pink-200 shadow-lg border-pink-300' 
-                : 'bg-white border-gray-300 shadow-md'
-            ]">
-              <div class="text-5xl mb-2">{{ juegosPerfectos >= 1 ? '💎' : '🔒' }}</div>
-              <p :class="['text-sm font-extrabold mb-1', juegosPerfectos >= 1 ? 'text-gray-800' : 'text-gray-700']">
-                Sin Errores
-              </p>
-              <p :class="['text-xs font-semibold', juegosPerfectos >= 1 ? 'text-gray-700' : 'text-gray-600']">
-                100% en un juego
-              </p>
-            </div>
-
-            <!-- Logro: Dedicado -->
-            <div :class="[
-              'rounded-xl p-5 text-center transition-all transform hover:scale-105 cursor-pointer border-2 flex-shrink-0 w-40 snap-center',
-              rachaActual >= 7 
-                ? 'bg-gradient-to-b from-indigo-400 to-indigo-200 shadow-lg border-indigo-300' 
-                : 'bg-white border-gray-300 shadow-md'
-            ]">
-              <div class="text-5xl mb-2">{{ rachaActual >= 7 ? '🌟' : '🔒' }}</div>
-              <p :class="['text-sm font-extrabold mb-1', rachaActual >= 7 ? 'text-gray-800' : 'text-gray-700']">
-                Dedicado
-              </p>
-              <p :class="['text-xs font-semibold', rachaActual >= 7 ? 'text-gray-700' : 'text-gray-600']">
-                7 días de racha
-              </p>
-            </div>
-          </div>
-          </div>
-        </div>
-
-        <!-- Fortalezas y Áreas de Mejora REDISEÑADAS -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <!-- Fortalezas -->
-          <div class="bg-gradient-to-br from-emerald-100 via-green-50 to-teal-100 rounded-2xl p-6 border-3 border-emerald-400 shadow-xl">
-            <div class="flex items-center gap-3 mb-5">
-              <div class="bg-gradient-to-br from-emerald-600 to-green-700 rounded-xl p-3 shadow-lg">
-                <svg class="w-7 h-7 text-yellow-300 drop-shadow-md" fill="currentColor" viewBox="0 0 24 24">
-                  <path fill-rule="evenodd" d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.007 5.404.433c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.433 2.082-5.006z" clip-rule="evenodd" />
-                </svg>
-              </div>
-              <h3 class="text-xl font-extrabold text-emerald-800 flex items-center gap-2">
-                <svg class="w-6 h-6 text-emerald-700" fill="currentColor" viewBox="0 0 20 20">
-                  <path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-                </svg>
-                <span>Tus Fortalezas</span>
-              </h3>
-            </div>
-            <div v-if="fortalezas.length > 0" class="space-y-3">
-              <div v-for="(fortaleza, index) in fortalezas" :key="index" 
-                class="bg-white rounded-xl p-4 border-2 border-emerald-300 shadow-md hover:shadow-lg transition-all transform hover:scale-102">
-                <div class="flex items-start gap-3">
-                  <span class="text-2xl">{{ fortaleza.emoji }}</span>
-                  <div class="flex-1">
-                    <p class="text-sm font-bold text-green-800 mb-1">{{ fortaleza.titulo }}</p>
-                    <p class="text-xs text-gray-700 leading-relaxed">{{ fortaleza.descripcion }}</p>
-                    <div class="mt-2 flex items-center gap-2">
-                      <div class="bg-green-100 rounded-full px-3 py-1">
-                        <p class="text-xs font-bold text-green-700">{{ fortaleza.porcentaje }}%</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div v-else class="bg-white rounded-xl p-8 border-2 border-green-200 text-center shadow-md">
-              <div class="flex justify-center mb-3">
-                <svg class="w-20 h-20 text-green-400" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.007 5.404.433c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.433 2.082-5.006z" />
-                </svg>
-              </div>
-              <p class="text-sm font-semibold text-gray-700 mb-2">¡Empieza a descubrir tus fortalezas!</p>
-              <p class="text-xs text-gray-500">Completa ejercicios para ver en qué destacas</p>
-            </div>
-          </div>
-
-          <!-- Áreas de Mejora -->
-          <div class="bg-gradient-to-br from-red-100 via-rose-50 to-pink-100 rounded-2xl p-6 border-3 border-red-200 shadow-xl">
-            <div class="flex items-center gap-3 mb-5">
-              <div class="bg-gradient-to-br from-red-500 to-rose-600 rounded-xl p-3 shadow-lg">
-                <svg class="w-8 h-8 text-white drop-shadow-lg" fill="currentColor" viewBox="0 0 24 24">
-                  <path fill-rule="evenodd" d="M11.484 2.17a.75.75 0 011.032 0 11.209 11.209 0 007.877 3.08.75.75 0 01.722.515 12.74 12.74 0 01.635 3.985c0 5.942-4.064 10.933-9.563 12.348a.749.749 0 01-.374 0C6.314 20.683 2.25 15.692 2.25 9.75c0-1.39.223-2.73.635-3.985a.75.75 0 01.722-.516l.143.001c2.996 0 5.718-1.17 7.734-3.08zM12 8.25a.75.75 0 01.75.75v3.75a.75.75 0 01-1.5 0V9a.75.75 0 01.75-.75zM12 15a.75.75 0 00-.75.75v.008c0 .414.336.75.75.75h.008a.75.75 0 00.75-.75v-.008a.75.75 0 00-.75-.75H12z" clip-rule="evenodd" />
-                </svg>
-              </div>
-              <h3 class="text-xl font-extrabold text-red-800 flex items-center gap-2">
-                <svg class="w-7 h-7 text-red-700" fill="currentColor" viewBox="0 0 24 24">
-                  <path fill-rule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zm-1.72 6.97a.75.75 0 10-1.06 1.06L10.94 12l-1.72 1.72a.75.75 0 101.06 1.06L12 13.06l1.72 1.72a.75.75 0 101.06-1.06L13.06 12l1.72-1.72a.75.75 0 10-1.06-1.06L12 10.94l-1.72-1.72z" clip-rule="evenodd" />
-                </svg>
-                <span>Áreas de Mejora</span>
-              </h3>
-            </div>
-            <div v-if="debilidades.length > 0" class="space-y-3">
-              <div v-for="(debilidad, index) in debilidades" :key="index" 
-                class="bg-white rounded-xl p-4 border-2 border-red-200 shadow-md hover:shadow-lg transition-all transform hover:scale-102">
-                <div class="flex items-start gap-3">
-                  <span class="text-2xl">{{ debilidad.emoji }}</span>
-                  <div class="flex-1">
-                    <p class="text-sm font-bold text-red-800 mb-1">{{ debilidad.titulo }}</p>
-                    <p class="text-xs text-gray-700 leading-relaxed">{{ debilidad.descripcion }}</p>
-                    <div class="mt-2 flex items-center gap-2">
-                      <div class="bg-red-100 rounded-full px-3 py-1">
-                        <p class="text-xs font-bold text-red-700">{{ debilidad.porcentaje }}%</p>
-                      </div>
-                      <div class="bg-blue-100 rounded-full px-3 py-1 flex items-center gap-1">
-                        <svg class="w-3 h-3 text-blue-700" fill="currentColor" viewBox="0 0 20 20">
-                          <path d="M11 3a1 1 0 10-2 0v1a1 1 0 102 0V3zM15.657 5.757a1 1 0 00-1.414-1.414l-.707.707a1 1 0 001.414 1.414l.707-.707zM18 10a1 1 0 01-1 1h-1a1 1 0 110-2h1a1 1 0 011 1zM5.05 6.464A1 1 0 106.464 5.05l-.707-.707a1 1 0 00-1.414 1.414l.707.707zM5 10a1 1 0 01-1 1H3a1 1 0 110-2h1a1 1 0 011 1zM8 16v-1h4v1a2 2 0 11-4 0zM12 14c.015-.34.208-.646.477-.859a4 4 0 10-4.954 0c.27.213.462.519.476.859h4.002z" />
-                        </svg>
-                        <p class="text-xs font-semibold text-blue-700">{{ debilidad.consejo }}</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div v-else class="bg-white rounded-xl p-8 border-2 border-rose-200 text-center shadow-md">
-              <div class="flex justify-center mb-3">
-                <svg class="w-16 h-16 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M10.75 16.82A7.462 7.462 0 0115 15.5c.71 0 1.396.098 2.046.282A.75.75 0 0018 15.06v-11a.75.75 0 00-.546-.721A9.006 9.006 0 0015 3a8.963 8.963 0 00-4.25 1.065V16.82zM9.25 4.065A8.963 8.963 0 005 3c-.85 0-1.673.118-2.454.339A.75.75 0 002 4.06v11a.75.75 0 00.954.721A7.506 7.506 0 015 15.5c1.579 0 3.042.487 4.25 1.32V4.065z" />
-                </svg>
-              </div>
-              <p class="text-sm font-semibold text-gray-700 mb-2">¡Todo marcha bien!</p>
-              <p class="text-xs text-gray-500">Completa más ejercicios para recibir retroalimentación personalizada</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Ranking Global (trabajo de otro compañero: solo se reubicó aquí) -->
-      <RankingGlobal />
-
+        <h2 v-else id="proximo-titulo" class="proximo__nombre">Lograste todo lo disponible</h2>
+        <LeoBurbuja
+          class="proximo__leo"
+          :mensaje="mensajeLeo"
+          disposicion="lado"
+          :tamano="esAncho ? 88 : 76"
+        />
+      </LeoTarjeta>
     </div>
+
+    <!-- Tres cifras -->
+    <div class="cifras">
+      <LeoTarjeta v-for="c in cifras" :key="c.id" como="section" class="cifra" :data-test="`cifra-${c.id}`">
+        <span class="icono icono--cifra" :style="{ background: c.tint }">
+          <svg viewBox="0 0 24 24" fill="none" :stroke="c.ink" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path :d="c.icono" /></svg>
+        </span>
+        <div class="cifra__textos">
+          <p class="cifra__valor">{{ c.valor }}</p>
+          <p class="cifra__nombre">{{ c.nombre }}</p>
+          <p class="cifra__nota">{{ c.nota }}</p>
+        </div>
+      </LeoTarjeta>
+    </div>
+
+    <!-- Logros -->
+    <section class="logros" aria-labelledby="logros-titulo">
+      <div class="seccion__cabecera">
+        <h2 id="logros-titulo" class="seccion__titulo">Logros</h2>
+        <span class="seccion__dato" data-test="logros-resumen">{{ resumenLogros }}</span>
+      </div>
+      <ul class="logros__grilla">
+        <li v-for="l in logros" :key="l.id">
+          <button
+            type="button"
+            class="logro"
+            :class="{ 'logro--bloqueado': !l.desbloqueado, 'logro--brilla': brillando === l.id }"
+            :data-test="`logro-${l.id}`"
+            :aria-label="`${l.nombre}: ${l.desbloqueado ? 'desbloqueado' : l.estado}`"
+            @click="abrirLogro(l)"
+          >
+            <span class="logro__cabecera">
+              <span class="icono logro__icono" :style="{ background: l.desbloqueado ? l.tint : '#eef2f7' }">
+                <svg viewBox="0 0 24 24" fill="none" :stroke="l.desbloqueado ? l.ink : '#8a99ad'" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path :d="l.icono" /></svg>
+              </span>
+              <span v-if="nuevos.includes(l.id)" class="logro__nuevo" data-test="logro-nuevo">Nuevo</span>
+            </span>
+            <span class="logro__textos">
+              <span class="logro__nombre">{{ l.nombre }}</span>
+              <span class="logro__desc">{{ l.desc }}</span>
+            </span>
+            <span class="logro__pie">
+              <span v-if="!l.desbloqueado && l.meta" class="logro__barra" aria-hidden="true">
+                <span class="logro__relleno" :style="{ width: (barrasLlenas ? l.pct : 0) + '%' }"></span>
+              </span>
+              <span class="logro__estado" :class="{ 'logro__estado--ok': l.desbloqueado }">{{ l.desbloqueado ? 'Desbloqueado' : l.estado }}</span>
+            </span>
+          </button>
+        </li>
+      </ul>
+    </section>
+
+    <!-- Fortalezas y Para seguir creciendo -->
+    <div class="analisis">
+      <LeoTarjeta como="section" class="analisis__tarjeta" aria-labelledby="fortalezas-titulo" data-test="fortalezas">
+        <div class="analisis__cabecera">
+          <span class="icono" style="background: #e3f3ea">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#1f7a47" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path :d="iconos.estrella" /></svg>
+          </span>
+          <h2 id="fortalezas-titulo" class="seccion__titulo">Tus fortalezas</h2>
+        </div>
+        <ul v-if="fortalezas.length" class="analisis__lista">
+          <li v-for="(f, i) in fortalezas" :key="i" class="analisis__item">
+            <p class="analisis__item-titulo">{{ f.titulo }}</p>
+            <p class="analisis__item-texto">{{ f.descripcion }}</p>
+            <div class="analisis__item-barra">
+              <LeoBarraProgreso :valor="barrasLlenas ? f.porcentaje : 0" color="verde" :etiqueta="f.titulo" />
+              <span class="analisis__item-dato">{{ f.porcentaje }}%</span>
+            </div>
+          </li>
+        </ul>
+        <div v-else class="analisis__vacio">
+          <p class="analisis__item-titulo">Aquí aparecerá en qué destacas</p>
+          <p class="analisis__item-texto">Completa algunas actividades y Leo te mostrará tus puntos fuertes.</p>
+        </div>
+      </LeoTarjeta>
+
+      <LeoTarjeta como="section" class="analisis__tarjeta" aria-labelledby="crecer-titulo" data-test="seguir-creciendo">
+        <div class="analisis__cabecera">
+          <span class="icono" style="background: #fff3cf">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#b07a00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path :d="iconos.brote" /></svg>
+          </span>
+          <h2 id="crecer-titulo" class="seccion__titulo">Para seguir creciendo</h2>
+        </div>
+        <ul v-if="debilidades.length" class="analisis__lista">
+          <!-- Sin porcentajes aquí: el consejo dice qué hacer, sin marcar lo que falta -->
+          <li v-for="(d, i) in debilidades" :key="i" class="analisis__item">
+            <p class="analisis__item-titulo">{{ d.titulo }}</p>
+            <p class="analisis__item-texto">{{ d.descripcion }}</p>
+            <p v-if="d.consejo" class="analisis__consejo">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path :d="iconos.ampolleta" /></svg>
+              {{ d.consejo }}
+            </p>
+          </li>
+        </ul>
+        <div v-else class="analisis__vacio">
+          <p class="analisis__item-titulo">¡Todo marcha bien!</p>
+          <p class="analisis__item-texto">Cuando tengas más actividades, aquí verás consejos para seguir mejorando.</p>
+        </div>
+      </LeoTarjeta>
+    </div>
+
+    <!-- Ranking Global (trabajo de otro compañero: solo cambia su aspecto) -->
+    <RankingGlobal />
+
+    <!-- Detalle de un logro -->
+    <LeoPanelDetalle
+      :abierto="!!logroAbierto"
+      :titulo="logroAbierto ? logroAbierto.nombre : ''"
+      antetitulo="Logro"
+      :color-antetitulo="'#8a5a00'"
+      @cerrar="logroAbierto = null"
+    >
+      <template #icono>
+        <span v-if="logroAbierto" class="icono icono--grande" :style="{ background: logroAbierto.desbloqueado ? logroAbierto.tint : '#eef2f7' }">
+          <svg viewBox="0 0 24 24" fill="none" :stroke="logroAbierto.desbloqueado ? logroAbierto.ink : '#8a99ad'" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path :d="logroAbierto.icono" /></svg>
+        </span>
+      </template>
+      <template v-if="logroAbierto">
+        <p class="detalle__como">{{ logroAbierto.como }}</p>
+        <p v-if="logroAbierto.desbloqueado" class="detalle__logrado">¡Lo lograste! Este logro ya es tuyo.</p>
+        <div v-else-if="logroAbierto.meta" class="detalle__avance">
+          <LeoBarraProgreso :valor="logroAbierto.valor" :maximo="logroAbierto.meta" color="ambar" :etiqueta="`Avance de ${logroAbierto.nombre}`" />
+          <span class="detalle__dato">{{ logroAbierto.estado }}</span>
+        </div>
+        <p v-else class="detalle__dato">{{ logroAbierto.estado }}</p>
+      </template>
+      <template v-if="logroAbierto && !logroAbierto.desbloqueado" #pie>
+        <LeoBoton ancho data-test="logro-practicar" @click="irAPracticar">Seguir practicando</LeoBoton>
+      </template>
+    </LeoPanelDetalle>
   </div>
 </template>
 
 <script>
 // UI-04: sección "Progreso". Aquí viven el bloque "Tu Progreso" y el Ranking Global, que antes estaban
 // al final de MiProgreso.vue (hoy solo Inicio). La lógica de estadísticas se movió tal cual desde allí.
-import { createGameManager } from '../utils/gameManager'
+// UI-06: rework visual con los componentes base de UI-05. Las estadísticas (nivel, efectividad,
+// racha, fortalezas, áreas de mejora) se calculan igual que antes; solo cambió el total del curso.
+import { createGameManager, UNIDADES_CONFIG } from '../utils/gameManager'
 import RankingGlobal from './RankingGlobal.vue'
+import LeoBoton from './base/LeoBoton.vue'
+import LeoTarjeta from './base/LeoTarjeta.vue'
+import LeoBarraProgreso from './base/LeoBarraProgreso.vue'
+import LeoBurbuja from './base/LeoBurbuja.vue'
+import LeoPanelDetalle from './base/LeoPanelDetalle.vue'
+import unidad1 from '../data/ruta/unidad1'
+import { estadoSesion } from '../router/estadoSesion'
+import { animacionesActivas } from '../utils/preferencias'
+
+// UI-06: íconos de trazo (24x24) para niveles, cifras y logros. Reemplazan a los emojis.
+const ICONOS = {
+  brote: 'M12 20 V11 M12 11 C12 7 9 5 5 5 C5 9 8 11 12 11 M12 13 C12 10 14.5 8 19 8 C19 11.5 16 13 12 13',
+  libro: 'M3 6 C6 5 9 5 12 7 C15 5 18 5 21 6 V19 C18 18 15 18 12 20 C9 18 6 18 3 19 Z M12 7 V20',
+  libros: 'M4 4 H8 V20 H4 Z M10 4 H14 V20 H10 Z M16.5 5 L20 4.2 L22.5 19 L19 19.8 Z',
+  birrete: 'M2 9 L12 4 L22 9 L12 14 Z M6 11 V16 C9 18.5 15 18.5 18 16 V11',
+  corona: 'M3 8 L7.5 12 L12 5 L16.5 12 L21 8 L19 19 H5 Z',
+  check: 'M3 12 a9 9 0 1 0 18 0 a9 9 0 1 0 -18 0 M8 12 L11 15 L16 9',
+  diana: 'M3 12 a9 9 0 1 0 18 0 a9 9 0 1 0 -18 0 M7 12 a5 5 0 1 0 10 0 a5 5 0 1 0 -10 0 M11 12 a1 1 0 1 0 2 0 a1 1 0 1 0 -2 0',
+  calendario: 'M4 6 H20 V20 H4 Z M4 10 H20 M8 3 V7 M16 3 V7 M9 15 L11 17 L15 13',
+  bandera: 'M5 21 V4 M5 4 H16 L14 8 L16 12 H5',
+  sube: 'M4 18 L10 12 L14 15 L20 7 M15 7 H20 V12',
+  capas: 'M12 4 L20 8 L12 12 L4 8 Z M4 12 L12 16 L20 12 M4 16 L12 20 L20 16',
+  diamante: 'M6 4 H18 L22 9 L12 21 L2 9 Z M2 9 H22 M9 4 L12 9 L15 4',
+  rayo: 'M13 2 L4 14 H12 L11 22 L20 10 H12 Z',
+  estrellaCal: 'M4 6 H20 V20 H4 Z M4 10 H20 M8 3 V7 M16 3 V7 M12 12.5 L13.2 15 L15.8 15.3 L13.9 17 L14.4 19.5 L12 18.2 L9.6 19.5 L10.1 17 L8.2 15.3 L10.8 15 Z',
+  estrella: 'M12 3 L14.6 8.6 L20.6 9.2 L16 13.3 L17.4 19.3 L12 16.2 L6.6 19.3 L8 13.3 L3.4 9.2 L9.4 8.6 Z',
+  ampolleta: 'M9 18 H15 M10 21 H14 M12 3 C8.7 3 6 5.6 6 8.9 C6 11.1 7.2 12.6 8.5 13.8 C9.1 14.4 9.5 15.2 9.5 16 H14.5 C14.5 15.2 14.9 14.4 15.5 13.8 C16.8 12.6 18 11.1 18 8.9 C18 5.6 15.3 3 12 3 Z'
+}
+const NIVEL_ICONO = { 1: ICONOS.brote, 2: ICONOS.libro, 3: ICONOS.libros, 4: ICONOS.birrete, 5: ICONOS.corona }
+const NIVEL_NOMBRE = { 1: 'Aprendiz', 2: 'Estudiante', 3: 'Lector Avanzado', 4: 'Experto', 5: 'Maestro de la Lectura' }
+const COLOR = {
+  azul: { tint: '#e4f0fb', ink: '#2568c4' },
+  verde: { tint: '#e3f3ea', ink: '#1f7a47' },
+  ambar: { tint: '#fff3cf', ink: '#b07a00' }
+}
+// Logros de racha: siguen en la grilla, pero "Tu próximo logro" no los propone (sin presión por jugar a diario)
+const LOGROS_DE_RACHA = ['racha3', 'racha7']
+const CLAVE_ENTRADA = 'leo-perfecto-progreso-animado'
 
 export default {
   name: 'PantallaProgreso',
 
-  components: { RankingGlobal },
+  components: { RankingGlobal, LeoBoton, LeoTarjeta, LeoBarraProgreso, LeoBurbuja, LeoPanelDetalle },
 
   props: {
     playerName: {
@@ -413,10 +265,130 @@ export default {
       tiempoPromedioRapido: false,
 
       // Gestor de juegos
-      gameManager: null
+      gameManager: null,
+
+      // --- UI-06 ---
+      iconos: ICONOS,
+      logroAbierto: null,
+      nuevos: [], // ids de logros desbloqueados que el alumno ve por primera vez
+      brillando: null, // id del logro que hace el brillo al tocarlo
+      temporizadorBrillo: null,
+      conEntrada: false,
+      barrasLlenas: true, // con la animación de entrada, parten en 0 y se llenan una vez
+      esAncho: false,
+      consultaAncho: null,
+      alCambiarAncho: null
     }
   },
   computed: {
+    // ============================================
+    // UI-06: TOTAL DEL CURSO
+    // ============================================
+    // Antes era un número fijo (32 = 12 + 10 + 10) que ya no calzaba con los juegos que existen
+    // ni contaba los pasos de la ruta. Ahora se cuenta desde los datos: todos los juegos
+    // configurados (UNIDADES_CONFIG: 53 hoy) + los pasos de la ruta de la Unidad 1 (8).
+    // `juegosCompletados` (getEstadisticas) ya cuenta los pasos de la ruta, porque la copia local
+    // del progreso se baja de Supabase con todas las partidas completadas.
+    totalActividades() {
+      const juegos = new Set()
+      Object.values(UNIDADES_CONFIG).forEach(u => (u.juegos || []).forEach(j => juegos.add(`${j.gameId}-${j.textId}`)))
+      return juegos.size + unidad1.nodos.length
+    },
+    porcentajeCurso() {
+      if (!this.totalActividades) return 0
+      return Math.min(Math.round((this.juegosCompletados / this.totalActividades) * 100), 100)
+    },
+    textoAvanceCurso() {
+      if (!this.juegosCompletados) return 'Listo para empezar'
+      return `${this.juegosCompletados} de ${this.totalActividades} actividades · ${this.porcentajeCurso}%`
+    },
+
+    // ============================================
+    // UI-06: TEXTOS E ÍCONOS DE LA VISTA
+    // ============================================
+    nivelNombre() {
+      return NIVEL_NOMBRE[this.nivel] || NIVEL_NOMBRE[1]
+    },
+    iconoNivel() {
+      return NIVEL_ICONO[this.nivel] || NIVEL_ICONO[1]
+    },
+    bajada() {
+      return this.juegosCompletados
+        ? 'Mira cuánto has avanzado. Cada paso cuenta.'
+        : 'Aquí verás cómo avanzas. Tu primer paso está a un toque.'
+    },
+    cifras() {
+      const hay = this.juegosCompletados > 0
+      return [
+        { id: 'actividades', valor: String(this.juegosCompletados), nombre: 'Actividades completadas', nota: 'Juegos y pasos de tu ruta', icono: ICONOS.check, ...COLOR.azul },
+        { id: 'efectividad', valor: hay ? `${this.efectividadSegura}%` : '—', nombre: 'Efectividad', nota: hay ? 'Respuestas correctas' : 'Aparece tras tu primera actividad', icono: ICONOS.diana, ...COLOR.verde },
+        { id: 'racha', valor: hay ? String(this.rachaActual) : '—', nombre: 'Días seguidos', nota: 'Practica a tu ritmo', icono: ICONOS.calendario, ...COLOR.ambar }
+      ]
+    },
+
+    // Los mismos 10 logros y condiciones de antes; ahora con avance (valor / meta) para mostrar
+    // cuánto falta. "juegos" pasa a decir "actividades" porque también cuentan los pasos de la ruta.
+    logros() {
+      const n = this.juegosCompletados
+      const ef = this.efectividadSegura
+      const racha = this.rachaActual
+      const lista = [
+        { id: 'paso1', nombre: 'Primer Paso', desc: 'Completa 1 actividad', icono: ICONOS.bandera, color: 'verde', valor: n, meta: 1, unidad: 'actividades' },
+        { id: 'camino', nombre: 'En Camino', desc: 'Completa 3 actividades', icono: ICONOS.sube, color: 'azul', valor: n, meta: 3, unidad: 'actividades' },
+        { id: 'persistente', nombre: 'Persistente', desc: 'Completa 5 actividades', icono: ICONOS.capas, color: 'ambar', valor: n, meta: 5, unidad: 'actividades' },
+        { id: 'maestro', nombre: 'Maestro', desc: 'Completa 10 actividades', icono: ICONOS.birrete, color: 'azul', valor: n, meta: 10, unidad: 'actividades' },
+        { id: 'experto', nombre: 'Experto', desc: '80% de efectividad', icono: ICONOS.diana, color: 'verde', valor: ef, meta: 80, unidad: '%' },
+        { id: 'perfeccion', nombre: 'Perfección', desc: '95% de efectividad', icono: ICONOS.diamante, color: 'ambar', valor: ef, meta: 95, unidad: '%' },
+        { id: 'racha3', nombre: 'Racha de Fuego', desc: 'Practica 3 días seguidos', icono: ICONOS.calendario, color: 'azul', valor: racha, meta: 3, unidad: 'días' },
+        { id: 'velocista', nombre: 'Velocista', desc: 'Respuestas rápidas', icono: ICONOS.rayo, color: 'verde', valor: this.tiempoPromedioRapido ? 1 : 0, meta: null, unidad: '' },
+        { id: 'sinerrores', nombre: 'Sin Errores', desc: '100% en una actividad', icono: ICONOS.check, color: 'ambar', valor: this.juegosPerfectos, meta: 1, unidad: 'actividades' },
+        { id: 'racha7', nombre: 'Dedicado', desc: 'Practica 7 días seguidos', icono: ICONOS.estrellaCal, color: 'azul', valor: racha, meta: 7, unidad: 'días' }
+      ]
+      return lista.map(l => {
+        const desbloqueado = l.meta ? l.valor >= l.meta : l.valor > 0
+        const pct = l.meta ? Math.min(Math.round((l.valor / l.meta) * 100), 100) : 0
+        let estado = 'Por descubrir'
+        if (!desbloqueado && l.meta && l.valor > 0) {
+          estado = l.unidad === '%' ? `Llevas ${l.valor} de ${l.meta}%` : `Llevas ${l.valor} de ${l.meta}${l.unidad === 'días' ? ' días' : ''}`
+        }
+        const como = l.meta
+          ? `${l.desc}.`
+          : 'Responde con rapidez en tus actividades.'
+        return { ...l, ...COLOR[l.color], desbloqueado, pct, estado, como }
+      })
+    },
+    desbloqueados() {
+      return this.logros.filter(l => l.desbloqueado).map(l => l.id)
+    },
+    resumenLogros() {
+      const total = this.logros.length
+      const listos = this.desbloqueados.length
+      return listos ? `${listos} de ${total} desbloqueados` : `${total} por descubrir`
+    },
+    // El más cercano que se pueda medir, sin los de racha
+    proximoLogro() {
+      const candidatos = this.logros.filter(l => !l.desbloqueado && l.meta && !LOGROS_DE_RACHA.includes(l.id))
+      if (!candidatos.length) return null
+      // Primero los que se ganan completando actividades (lo que el alumno controla); los de
+      // efectividad solo si ya no quedan de esos: un 80 de 95% "parece" cerca, pero no lo está.
+      const porActividades = candidatos.filter(l => l.unidad === 'actividades')
+      const lista = porActividades.length ? porActividades : candidatos
+      const elegido = lista.reduce((a, b) => (b.valor / b.meta > a.valor / a.meta ? b : a))
+      const falta = elegido.meta - elegido.valor
+      let texto
+      if (elegido.unidad === '%') texto = `Llega a ${elegido.meta}% de efectividad`
+      else if (elegido.valor === 0 && elegido.meta === 1) texto = elegido.id === 'paso1' ? 'Completa tu primera actividad' : 'Haz una actividad sin errores'
+      else texto = falta === 1 ? 'Te falta 1 actividad' : `Te faltan ${falta} actividades`
+      return { ...elegido, falta: texto }
+    },
+    mensajeLeo() {
+      const p = this.proximoLogro
+      if (!p) return '¡Lo lograste! Sigue practicando a tu ritmo.'
+      if (!this.juegosCompletados) return 'Empecemos juntos. Es corto.'
+      if (p.valor / p.meta >= 0.5) return '¡Vas muy bien! Ya llevas más de la mitad.'
+      return 'Cada actividad suma. Vamos de a poco.'
+    },
+
     // Calcular nivel del jugador basado en juegos completados y efectividad
     nivel() {
       const puntosTotales = (this.juegosCompletados * 10) + (this.efectividadSegura / 10);
@@ -428,6 +400,7 @@ export default {
     },
     
     // Título del nivel
+    // UI-06: ya no se muestra (traía emoji); la vista usa `nivelNombre` e `iconoNivel`. Se deja por si se reutiliza.
     nivelJugador() {
       const niveles = {
         1: '🌱 Aprendiz',
@@ -440,6 +413,8 @@ export default {
     },
     
     // Calcular progreso total del curso (32 juegos en total: 12 texto + 10 drag + 10 comprensión)
+    // UI-06: reemplazado por `porcentajeCurso` (el 32 fijo no contaba la ruta ni todos los juegos de hoy).
+    // Se deja por si otra parte lo necesita.
     progresoTotal() {
       const TOTAL_JUEGOS_CURSO = 32 // 12 textos + 10 drag & drop + 10 comprensión
       const porcentaje = Math.min(
@@ -450,6 +425,7 @@ export default {
     },
     
     // Emoji motivacional según rendimiento REAL (efectividad + ejercicios)
+    // UI-06: ya no se muestra (la vista no usa emojis). Se deja por si se reutiliza.
     emojiMotivacional() {
       if (this.efectividadSegura >= 95 && this.juegosCompletados >= 15) return '🏆'
       if (this.efectividadSegura >= 90 && this.juegosCompletados >= 10) return '🌟'
@@ -498,12 +474,85 @@ export default {
     try {
       this.gameManager = createGameManager(this.playerName)
       this.loadPlayerData()
+      // UI-06: animación de entrada, barras que se llenan y logros nuevos
+      this.prepararVista()
     } catch (error) {
       console.error('❌ Error al inicializar la sección Progreso:', error)
     }
   },
 
+  beforeUnmount() {
+    clearTimeout(this.temporizadorBrillo)
+    try {
+      if (this.consultaAncho && this.alCambiarAncho) {
+        if (this.consultaAncho.removeEventListener) this.consultaAncho.removeEventListener('change', this.alCambiarAncho)
+        else this.consultaAncho.removeListener(this.alCambiarAncho)
+      }
+    } catch (error) {
+      // nada que limpiar
+    }
+  },
+
   methods: {
+    // ============================================
+    // UI-06: VISTA
+    // ============================================
+    prepararVista() {
+      this.medirAncho()
+      this.marcarNuevos()
+      if (!animacionesActivas()) return
+      try {
+        if (sessionStorage.getItem(CLAVE_ENTRADA)) return
+        sessionStorage.setItem(CLAVE_ENTRADA, '1')
+      } catch (error) {
+        return
+      }
+      // Primera vez en la sesión: las tarjetas aparecen y las barras se llenan desde cero
+      this.conEntrada = true
+      this.barrasLlenas = false
+      setTimeout(() => { this.barrasLlenas = true }, 150)
+    },
+    medirAncho() {
+      try {
+        this.consultaAncho = window.matchMedia('(min-width: 768px)')
+        this.esAncho = this.consultaAncho.matches
+        this.alCambiarAncho = e => { this.esAncho = e.matches }
+        if (this.consultaAncho.addEventListener) this.consultaAncho.addEventListener('change', this.alCambiarAncho)
+        else this.consultaAncho.addListener(this.alCambiarAncho)
+      } catch (error) {
+        this.esAncho = false
+      }
+    },
+    // "Nuevo": logros desbloqueados que este alumno aún no había visto en este navegador.
+    // Se guarda en localStorage (por usuario); si no se puede guardar, simplemente no se marca nada.
+    marcarNuevos() {
+      const usuarioId = estadoSesion.usuario && estadoSesion.usuario.id
+      if (!usuarioId) return
+      const clave = `leo-perfecto-logros-vistos:${usuarioId}`
+      try {
+        const vistos = JSON.parse(localStorage.getItem(clave) || '[]')
+        this.nuevos = this.desbloqueados.filter(id => !vistos.includes(id))
+        localStorage.setItem(clave, JSON.stringify([...new Set([...vistos, ...this.desbloqueados])]))
+      } catch (error) {
+        this.nuevos = []
+      }
+    },
+    abrirLogro(logro) {
+      if (logro.desbloqueado) {
+        this.brillando = null
+        clearTimeout(this.temporizadorBrillo)
+        this.$nextTick(() => {
+          this.brillando = logro.id
+          this.temporizadorBrillo = setTimeout(() => { this.brillando = null }, 900)
+        })
+      }
+      this.logroAbierto = logro
+    },
+    irAPracticar() {
+      this.logroAbierto = null
+      this.$router.push({ name: 'inicio' })
+    },
+
     /**
      * Carga todos los datos del jugador desde localStorage
      * OPTIMIZADO: Usa el mejor puntaje de cada juego, no el promedio de intentos
@@ -748,22 +797,270 @@ export default {
 </script>
 
 <style scoped>
-/* Estilos para el carousel de logros (se movieron junto con el bloque) */
-.overflow-x-auto::-webkit-scrollbar {
-  height: 8px;
+/* UI-06: el carrusel de logros se reemplazó por una grilla; sus estilos quedan comentados.
+.overflow-x-auto::-webkit-scrollbar { height: 8px; }
+.overflow-x-auto::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
+.overflow-x-auto::-webkit-scrollbar-thumb { background: #a78bfa; border-radius: 10px; }
+.overflow-x-auto::-webkit-scrollbar-thumb:hover { background: #8b5cf6; } */
+
+.progreso {
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: 1.25rem 1rem 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  text-align: left;
+  font-family: 'Atkinson Hyperlegible', system-ui, sans-serif;
+  color: #3a4960;
+}
+.progreso__titulo {
+  margin: 0;
+  font-family: 'Lexend', system-ui, sans-serif;
+  font-weight: 600;
+  font-size: 1.625rem;
+  line-height: 1.2;
+  color: #14233b;
+}
+.progreso__bajada { margin: 0.25rem 0 0; font-size: 1rem; color: #52627a; }
+.progreso__fila { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1rem; }
+
+.antetitulo {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
 }
 
-.overflow-x-auto::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: 10px;
+/* Ícono en recuadro de color pálido (mismo patrón que las unidades de Inicio) */
+.icono {
+  flex-shrink: 0;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 0.875rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.icono svg { width: 1.625rem; height: 1.625rem; }
+.icono--grande { width: 3.5rem; height: 3.5rem; border-radius: 1rem; }
+.icono--grande svg { width: 1.875rem; height: 1.875rem; }
+
+/* Resumen */
+.resumen { display: flex; flex-direction: column; gap: 1rem; padding: 1.125rem; }
+.resumen__cabecera { display: flex; align-items: center; gap: 0.875rem; }
+.resumen__nivel {
+  margin: 0.125rem 0 0;
+  font-family: 'Lexend', system-ui, sans-serif;
+  font-weight: 600;
+  font-size: 1.25rem;
+  color: #14233b;
+}
+.resumen__mensaje { margin: 0; font-size: 1rem; line-height: 1.45; color: #3a4960; }
+.resumen__avance { display: flex; flex-direction: column; gap: 0.4375rem; }
+.resumen__avance-fila { display: flex; align-items: baseline; justify-content: space-between; gap: 0.5rem; flex-wrap: wrap; }
+.resumen__avance-nombre { font-size: 0.875rem; font-weight: 700; color: #14233b; }
+.resumen__avance-dato { font-size: 0.875rem; font-weight: 700; color: #3a4960; }
+.resumen__nota { font-size: 0.8125rem; color: #52627a; }
+
+/* Próximo logro */
+.proximo { display: flex; flex-direction: column; gap: 0.75rem; padding: 1.125rem; }
+.proximo__logro { display: flex; align-items: center; gap: 0.75rem; }
+.proximo__nombre {
+  margin: 0;
+  font-family: 'Lexend', system-ui, sans-serif;
+  font-weight: 600;
+  font-size: 1.0625rem;
+  color: #14233b;
+}
+.proximo__falta { margin: 0.125rem 0 0; font-size: 0.875rem; color: #52627a; }
+.proximo__leo { margin-top: auto; }
+
+/* Cifras */
+.cifras { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.625rem; }
+.cifra { display: flex; flex-direction: column; align-items: flex-start; gap: 0.5rem; padding: 0.875rem 0.625rem; border-radius: 1rem; }
+.icono--cifra { width: 2.25rem; height: 2.25rem; border-radius: 0.6875rem; }
+.icono--cifra svg { width: 1.25rem; height: 1.25rem; }
+.cifra__valor {
+  margin: 0;
+  font-family: 'Lexend', system-ui, sans-serif;
+  font-weight: 600;
+  font-size: 1.375rem;
+  line-height: 1.1;
+  color: #14233b;
+}
+.cifra__nombre { margin: 0.125rem 0 0; font-size: 0.8125rem; font-weight: 700; line-height: 1.25; color: #3a4960; }
+.cifra__nota { display: none; margin: 0.125rem 0 0; font-size: 0.8125rem; color: #52627a; }
+
+/* Encabezado de sección */
+.seccion__cabecera { display: flex; align-items: baseline; justify-content: space-between; gap: 0.5rem; }
+.seccion__titulo {
+  margin: 0;
+  font-family: 'Lexend', system-ui, sans-serif;
+  font-weight: 600;
+  font-size: 1.125rem;
+  color: #14233b;
+}
+.seccion__dato { font-size: 0.875rem; font-weight: 700; color: #3a4960; }
+
+/* Logros */
+.logros { display: flex; flex-direction: column; gap: 0.625rem; }
+.logros__grilla {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.625rem;
+}
+.logros__grilla li { display: flex; }
+.logro {
+  width: 100%;
+  min-height: 9.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.875rem;
+  border: 1px solid #d9e4f1;
+  border-radius: 1rem;
+  background: #ffffff;
+  text-align: left;
+  font-family: inherit;
+  color: inherit;
+  cursor: pointer;
+  transition: transform 0.1s ease;
+}
+.logro:active { transform: scale(0.98); }
+.logro:focus-visible { outline: 3px solid #14233b; outline-offset: 2px; }
+.logro--bloqueado { background: #f6f8fb; }
+.logro__cabecera { display: flex; align-items: flex-start; justify-content: space-between; width: 100%; }
+.logro__icono { width: 2.5rem; height: 2.5rem; border-radius: 0.75rem; }
+.logro__icono svg { width: 1.375rem; height: 1.375rem; }
+.logro__nuevo {
+  padding: 0.1875rem 0.5rem;
+  border-radius: 999px;
+  background: #2568c4;
+  color: #ffffff;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+.logro__textos { display: flex; flex-direction: column; gap: 0.125rem; }
+.logro__nombre { font-family: 'Lexend', system-ui, sans-serif; font-weight: 600; font-size: 0.9375rem; color: #14233b; }
+.logro__desc { font-size: 0.8125rem; color: #52627a; }
+.logro__pie { margin-top: auto; display: flex; flex-direction: column; gap: 0.3125rem; width: 100%; }
+.logro__barra { display: block; height: 6px; border-radius: 999px; background: #dfe8f3; overflow: hidden; }
+.logro__relleno { display: block; height: 100%; border-radius: 999px; background: #8a99ad; transition: width 0.5s ease; }
+.logro__estado { font-size: 0.8125rem; font-weight: 700; color: #52627a; }
+.logro__estado--ok { color: #1f6b40; }
+
+/* Brillo al tocar un logro desbloqueado */
+.logro--brilla .logro__icono { animation: logro-brillo 0.9s ease-out; }
+@keyframes logro-brillo {
+  0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 193, 7, 0.55); }
+  35% { transform: scale(1.12); box-shadow: 0 0 0 8px rgba(255, 193, 7, 0.25); }
+  100% { transform: scale(1); box-shadow: 0 0 0 14px rgba(255, 193, 7, 0); }
 }
 
-.overflow-x-auto::-webkit-scrollbar-thumb {
-  background: #a78bfa;
-  border-radius: 10px;
+/* Fortalezas y Para seguir creciendo */
+.analisis { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1rem; }
+.analisis__tarjeta { display: flex; flex-direction: column; gap: 0.875rem; padding: 1.125rem; }
+.analisis__cabecera { display: flex; align-items: center; gap: 0.75rem; }
+.analisis__lista { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.875rem; }
+.analisis__item { display: flex; flex-direction: column; gap: 0.25rem; padding-top: 0.875rem; border-top: 1px solid #e8eef6; }
+.analisis__item:first-child { padding-top: 0; border-top: 0; }
+.analisis__item-titulo { margin: 0; font-weight: 700; font-size: 1rem; color: #14233b; }
+.analisis__item-texto { margin: 0; font-size: 0.9375rem; line-height: 1.4; color: #3a4960; }
+.analisis__item-barra { display: flex; align-items: center; gap: 0.75rem; margin-top: 0.25rem; }
+.analisis__item-dato { font-size: 0.875rem; font-weight: 700; color: #3a4960; }
+.analisis__consejo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  align-self: flex-start;
+  margin: 0.25rem 0 0;
+  padding: 0.25rem 0.625rem;
+  border-radius: 999px;
+  background: #fff3cf;
+  color: #8a5a00;
+  font-size: 0.8125rem;
+  font-weight: 700;
+}
+.analisis__vacio { display: flex; flex-direction: column; gap: 0.25rem; }
+
+/* Panel de un logro */
+.detalle__como { margin: 0; font-size: 1.0625rem; line-height: 1.5; color: #3a4960; }
+.detalle__logrado { margin: 0; font-weight: 700; color: #1f6b40; }
+.detalle__avance { display: flex; flex-direction: column; gap: 0.375rem; }
+.detalle__dato { margin: 0; font-size: 0.9375rem; font-weight: 700; color: #3a4960; }
+
+/* Tablet */
+@media (min-width: 768px) {
+  .progreso { padding: 1.75rem 1.5rem 2.5rem; gap: 1.5rem; }
+  .progreso__titulo { font-size: 2rem; }
+  .progreso__bajada { font-size: 1.125rem; }
+  .progreso__fila { grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr); gap: 1.25rem; }
+  .resumen { padding: 1.5rem 1.75rem; }
+  .resumen__nivel { font-size: 1.5rem; }
+  .resumen__mensaje { font-size: 1.0625rem; }
+  .proximo { padding: 1.375rem 1.5rem; }
+  .proximo__nombre { font-size: 1.1875rem; }
+  .cifras { gap: 1.25rem; }
+  .cifra { flex-direction: row; align-items: center; gap: 1rem; padding: 1.125rem 1.25rem; border-radius: 1.25rem; }
+  .icono--cifra { width: 3rem; height: 3rem; border-radius: 0.875rem; }
+  .icono--cifra svg { width: 1.625rem; height: 1.625rem; }
+  .cifra__valor { font-size: 1.75rem; }
+  .cifra__nombre { font-size: 0.9375rem; }
+  .cifra__nota { display: block; }
+  .seccion__titulo { font-size: 1.375rem; }
+  .logros__grilla { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; }
+  .logro { min-height: 10.5rem; padding: 1rem; border-radius: 1.125rem; }
+  .analisis { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.25rem; }
+  .analisis__tarjeta { padding: 1.5rem; }
+}
+/* Escritorio */
+@media (min-width: 1024px) {
+  .progreso { padding: 1.5rem 2.5rem 2.5rem 1.5rem; }
+  .logros__grilla { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+}
+/* En la columna más angosta de tablet, las cifras se apilan para que quepan */
+@media (min-width: 768px) and (max-width: 1199px) {
+  .cifra { flex-direction: column; align-items: flex-start; }
 }
 
-.overflow-x-auto::-webkit-scrollbar-thumb:hover {
-  background: #8b5cf6;
+/* Entrada: las tarjetas aparecen una vez por sesión (se apaga con las preferencias) */
+.progreso--entrada .progreso__cabecera,
+.progreso--entrada .progreso__fila,
+.progreso--entrada .cifras,
+.progreso--entrada .logros,
+.progreso--entrada .analisis {
+  animation: progreso-aparece 0.45s ease-out both;
 }
+.progreso--entrada .progreso__fila { animation-delay: 0.05s; }
+.progreso--entrada .cifras { animation-delay: 0.1s; }
+.progreso--entrada .logros { animation-delay: 0.15s; }
+.progreso--entrada .analisis { animation-delay: 0.2s; }
+@keyframes progreso-aparece {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .progreso--entrada .progreso__cabecera,
+  .progreso--entrada .progreso__fila,
+  .progreso--entrada .cifras,
+  .progreso--entrada .logros,
+  .progreso--entrada .analisis,
+  .logro--brilla .logro__icono { animation: none; }
+  .logro, .logro__relleno { transition: none; }
+  .logro:active { transform: none; }
+}
+html[data-animaciones="off"] .progreso--entrada .progreso__cabecera,
+html[data-animaciones="off"] .progreso--entrada .progreso__fila,
+html[data-animaciones="off"] .progreso--entrada .cifras,
+html[data-animaciones="off"] .progreso--entrada .logros,
+html[data-animaciones="off"] .progreso--entrada .analisis,
+html[data-animaciones="off"] .logro--brilla .logro__icono { animation: none; }
+html[data-animaciones="off"] .logro,
+html[data-animaciones="off"] .logro__relleno { transition: none; }
 </style>
