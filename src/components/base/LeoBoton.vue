@@ -91,6 +91,9 @@ export default {
 
 .leo-boton:active { transform: translateY(3px); border-bottom-width: 1px; }
 .leo-boton:focus-visible { outline: 3px solid #14233b; outline-offset: 3px; }
+/* UI-07: estado desactivado (botones "Siguiente" y "Ver mi diagnóstico" del test) */
+.leo-boton:disabled { opacity: 0.5; cursor: not-allowed; filter: none; }
+.leo-boton:disabled:active { transform: none; border-bottom-width: 4px; }
 
 @media (prefers-reduced-motion: reduce) {
   .leo-boton { transition: none; }

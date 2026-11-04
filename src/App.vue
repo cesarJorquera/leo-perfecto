@@ -190,6 +190,9 @@ export default {
           }
         case 'progreso':
           return { playerName: this.playerName, userProgress: this.userProgress || [] }
+        case 'leoia':
+          // UI-07: el nombre es solo para el saludo de Leo
+          return { playerName: this.playerName }
         case 'docente':
           return { nombreDocente: this.playerName }
         case 'docente-proyector':

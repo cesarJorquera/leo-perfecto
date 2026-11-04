@@ -1,473 +1,441 @@
 <template>
-  <div class="bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 rounded-3xl shadow-2xl p-8 border-4 border-indigo-200 mb-8">
-    
-    <!-- Título -->
-    <div class="flex items-center gap-4 mb-6">
-      <div class="bg-gradient-to-br from-purple-400 to-pink-500 rounded-full p-4 shadow-xl">
-        <img src="@/assets/icons/libro-sin-fondo-feliz.png" alt="Leo IA" class="w-14 h-14" />
-      </div>
-      <div>
-        <h2 class="text-3xl font-extrabold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-          🤖 Leo IA - Asistente Inteligente
-        </h2>
-        <p class="text-sm text-gray-600 font-medium mt-1">Potenciado por Google Gemini</p>
-      </div>
-    </div>
+  <!-- UI-07: Rework de LeoIA. Misma familia visual que Inicio (UI-05) y Progreso (UI-06):
+       fondo plano, tarjetas blancas, íconos SVG (sin emojis ni degradados) y componentes base.
+       Las llamadas a Gemini, los prompts y el test (data/test_diagnostico.js) no cambian;
+       no se toca la base de datos. Lo nuevo es solo de pantalla: el test muestra una pregunta
+       por vez, los errores se muestran dentro de la app (antes eran alert) y sin API key
+       se ve un aviso neutro para el alumno. -->
+  <div class="leoia" :class="{ 'leoia--con-chat': chatAbierto && esAncho }">
 
-    <!-- Verificar API Key -->
-    <div v-if="!apiKeyValida" class="bg-yellow-50 border-2 border-yellow-300 rounded-xl p-4 mb-6">
-      <div class="flex items-start gap-3">
-        <svg class="w-6 h-6 text-yellow-600 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-          <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
-        </svg>
+    <div class="leoia__columna">
+      <header>
+        <h1 class="leoia__titulo">LeoIA</h1>
+        <p class="leoia__bajada">Tu asistente para practicar lectura.</p>
+      </header>
+
+      <!-- Bienvenida de Leo -->
+      <LeoTarjeta como="section" class="bienvenida" aria-label="Bienvenida de Leo" data-test="bienvenida">
+        <LeoBurbuja :mensaje="saludo" disposicion="lado" :tamano="esAncho ? 84 : 72" />
+      </LeoTarjeta>
+
+      <!-- Sin API key: aviso neutro para el alumno. La instrucción técnica (.env.local)
+           queda en la consola y en el comentario de verificarAPIKey, para quien desarrolla. -->
+      <div v-if="!apiKeyValida" class="aviso aviso--ambar" role="status" data-test="aviso-ia">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#8a5a00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12 a9 9 0 1 0 18 0 a9 9 0 1 0 -18 0 M12 7.5 V12.5 M12 16 h0.01" /></svg>
         <div>
-          <p class="font-bold text-yellow-800 mb-1">⚠️ API Key no configurada</p>
-          <p class="text-sm text-yellow-700 mb-2">
-            Para usar Leo IA, configura tu API Key de Gemini en el archivo <code class="bg-yellow-100 px-2 py-1 rounded font-mono">.env.local</code>
-          </p>
-          <a href="https://makersuite.google.com/app/apikey" target="_blank" 
-             class="text-sm text-indigo-600 hover:text-indigo-800 font-bold inline-block">
-            🔗 Obtener API Key gratis →
-          </a>
+          <p class="aviso__titulo">Leo IA no está disponible por ahora</p>
+          <p class="aviso__texto">Mientras tanto, puedes seguir practicando desde Inicio.</p>
         </div>
       </div>
+
+      <!-- Tres opciones, con la misma forma que las unidades de Inicio -->
+      <section class="opciones" aria-label="Qué puedes hacer con Leo">
+        <button
+          ref="opcionChat"
+          type="button"
+          class="opcion"
+          :class="{ 'opcion--activa': chatAbierto }"
+          :disabled="!apiKeyValida"
+          :aria-pressed="chatAbierto ? 'true' : 'false'"
+          data-test="opcion-chat"
+          @click="abrirChat"
+        >
+          <span class="icono" style="background: #e4f0fb">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#2568c4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path :d="ICONOS.chat" /></svg>
+          </span>
+          <span class="opcion__textos">
+            <span class="opcion__nombre">Chat con Leo</span>
+            <span class="opcion__desc">Pregunta lo que quieras sobre lectura.</span>
+          </span>
+          <LeoEtiqueta v-if="chatAbierto && esAncho" tono="azul">Abierto</LeoEtiqueta>
+          <svg v-else class="opcion__flecha" viewBox="0 0 24 24" fill="none" stroke="#52627a" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6 L15 12 L9 18" /></svg>
+        </button>
+
+        <button
+          type="button"
+          class="opcion"
+          :disabled="!apiKeyValida"
+          data-test="opcion-test"
+          @click="generarTest"
+        >
+          <span class="icono" style="background: #e3f3ea">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#1f7a47" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path :d="ICONOS.test" /></svg>
+          </span>
+          <span class="opcion__textos">
+            <span class="opcion__nombre">Test diagnóstico</span>
+            <span class="opcion__desc">{{ cantidadPreguntasTest }} preguntas para conocer tu nivel.</span>
+          </span>
+          <svg class="opcion__flecha" viewBox="0 0 24 24" fill="none" stroke="#52627a" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6 L15 12 L9 18" /></svg>
+        </button>
+
+        <button
+          type="button"
+          class="opcion"
+          :disabled="!apiKeyValida || cargandoIA"
+          :aria-busy="cargandoIA && !modalEjercicioVisible ? 'true' : 'false'"
+          data-test="opcion-ejercicio"
+          @click="generarEjercicio"
+        >
+          <span class="icono" style="background: #fff3cf">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#b07a00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path :d="ICONOS.dado" /></svg>
+          </span>
+          <span class="opcion__textos">
+            <span class="opcion__nombre">Ejercicio aleatorio</span>
+            <span class="opcion__desc">{{ cargandoIA && !modalEjercicioVisible ? 'Leo está preparando tu ejercicio…' : 'Una práctica nueva, creada para ti.' }}</span>
+          </span>
+          <svg v-if="cargandoIA && !modalEjercicioVisible" class="opcion__flecha giro" viewBox="0 0 24 24" fill="none" stroke="#2568c4" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 3 a9 9 0 1 1 -9 9" /></svg>
+          <svg v-else class="opcion__flecha" viewBox="0 0 24 24" fill="none" stroke="#52627a" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6 L15 12 L9 18" /></svg>
+        </button>
+      </section>
+
+      <p v-if="errorEjercicio" class="aviso aviso--ambar aviso--corto" role="alert" data-test="ejercicio-error">
+        {{ errorEjercicio }}
+      </p>
+
+      <p class="leoia__nota">Leo usa inteligencia artificial (Google Gemini) y puede equivocarse. Si algo no te cuadra, revísalo.</p>
     </div>
 
-    <!-- Botones principales -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-      <!-- Test Diagnóstico -->
-      <button @click="generarTest" 
-              :disabled="cargandoIA"
-              class="group bg-gradient-to-br from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 disabled:from-gray-400 disabled:to-gray-500 text-white p-6 rounded-2xl shadow-xl hover:shadow-2xl transition-all transform hover:scale-105 disabled:cursor-not-allowed disabled:opacity-50">
-        <div class="flex flex-col items-center text-center gap-3">
-          <div class="bg-white/20 backdrop-blur-sm rounded-full p-4">
-            <svg v-if="!cargandoIA" class="w-10 h-10" fill="currentColor" viewBox="0 0 20 20">
-              <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" />
-              <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd" />
-            </svg>
-            <svg v-else class="w-10 h-10 animate-spin" fill="none" viewBox="0 0 24 24">
-              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
+    <!-- Chat. Escritorio: columna a la derecha. Celular y tablet: pantalla completa,
+         sobre el menú inferior, con flecha para volver. -->
+    <transition name="chat">
+      <section
+        v-if="chatAbierto"
+        ref="chat"
+        class="chat"
+        :class="{ 'chat--completo': !esAncho }"
+        :role="esAncho ? null : 'dialog'"
+        :aria-modal="esAncho ? null : 'true'"
+        aria-labelledby="chat-titulo"
+        data-test="chat"
+      >
+        <header class="chat__cabecera">
+          <button
+            v-if="!esAncho"
+            ref="chatVolver"
+            type="button"
+            class="chat__boton-icono"
+            aria-label="Volver a LeoIA"
+            data-test="chat-cerrar"
+            @click="cerrarChat"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="#14233b" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6 L9 12 L15 18" /></svg>
+          </button>
+          <span class="chat__avatar" aria-hidden="true">
+            <img src="@/assets/icons/libro-sin-fondo-feliz.png" alt="" />
+          </span>
+          <div class="chat__titulos">
+            <h2 id="chat-titulo" class="chat__titulo">Chat con Leo</h2>
+            <p class="chat__subtitulo">Pregunta lo que quieras sobre lectura.</p>
           </div>
-          <div>
-            <p class="font-bold text-lg mb-1">🎯 Test Diagnóstico</p>
-            <p class="text-sm text-white/90">Evalúa tu nivel actual</p>
-          </div>
-        </div>
-      </button>
+          <button
+            v-if="esAncho"
+            type="button"
+            class="chat__boton-icono"
+            aria-label="Cerrar el chat"
+            data-test="chat-cerrar"
+            @click="cerrarChat"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="#3a4960" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6 L18 18 M18 6 L6 18" /></svg>
+          </button>
+        </header>
 
-      <!-- Ejercicio Aleatorio -->
-      <button @click="generarEjercicio" 
-              :disabled="!apiKeyValida || cargandoIA"
-              class="group bg-gradient-to-br from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 disabled:from-gray-400 disabled:to-gray-500 text-white p-6 rounded-2xl shadow-xl hover:shadow-2xl transition-all transform hover:scale-105 disabled:cursor-not-allowed disabled:opacity-50">
-        <div class="flex flex-col items-center text-center gap-3">
-          <div class="bg-white/20 backdrop-blur-sm rounded-full p-4">
-            <svg v-if="!cargandoIA" class="w-10 h-10" fill="currentColor" viewBox="0 0 20 20">
-              <path d="M13 7H7v6h6V7z" />
-              <path fill-rule="evenodd" d="M7 2a1 1 0 012 0v1h2V2a1 1 0 112 0v1h2a2 2 0 012 2v2h1a1 1 0 110 2h-1v2h1a1 1 0 110 2h-1v2a2 2 0 01-2 2h-2v1a1 1 0 11-2 0v-1H9v1a1 1 0 11-2 0v-1H5a2 2 0 01-2-2v-2H2a1 1 0 110-2h1V9H2a1 1 0 010-2h1V5a2 2 0 012-2h2V2zM5 5h10v10H5V5z" clip-rule="evenodd" />
-            </svg>
-            <svg v-else class="w-10 h-10 animate-spin" fill="none" viewBox="0 0 24 24">
-              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
-          </div>
-          <div>
-            <p class="font-bold text-lg mb-1">🎲 Ejercicio Aleatorio</p>
-            <p class="text-sm text-white/90">Práctica generada por IA</p>
-          </div>
-        </div>
-      </button>
-
-      <!-- Chat con IA -->
-      <button @click="toggleChat" 
-              :disabled="!apiKeyValida"
-              class="group bg-gradient-to-br from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 disabled:from-gray-400 disabled:to-gray-500 text-white p-6 rounded-2xl shadow-xl hover:shadow-2xl transition-all transform hover:scale-105 disabled:cursor-not-allowed disabled:opacity-50">
-        <div class="flex flex-col items-center text-center gap-3">
-          <div class="bg-white/20 backdrop-blur-sm rounded-full p-4">
-            <svg class="w-10 h-10" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd" d="M18 10c0 3.866-3.582 7-8 7a8.841 8.841 0 01-4.083-.98L2 17l1.338-3.123C2.493 12.767 2 11.434 2 10c0-3.866 3.582-7 8-7s8 3.134 8 7zM7 9H5v2h2V9zm8 0h-2v2h2V9zM9 9h2v2H9V9z" clip-rule="evenodd" />
-            </svg>
-          </div>
-          <div>
-            <p class="font-bold text-lg mb-1">💬 Chat con Leo</p>
-            <p class="text-sm text-white/90">Pregunta lo que quieras</p>
-          </div>
-        </div>
-      </button>
-    </div>
-
-    <!-- Panel de Chat (flotante) -->
-    <transition name="slide-up">
-      <div v-if="chatAbierto" class="bg-white rounded-2xl shadow-2xl border-2 border-indigo-300 overflow-hidden">
-        <!-- Header del chat -->
-        <div class="bg-gradient-to-r from-green-500 to-emerald-600 px-6 py-4 flex items-center justify-between">
-          <div class="flex items-center gap-3">
-            <div class="bg-white rounded-full p-2">
-              <img src="@/assets/icons/libro-sin-fondo-feliz.png" alt="Leo" class="w-8 h-8" />
+        <div ref="chatContainer" class="chat__mensajes" aria-live="polite" data-test="chat-mensajes">
+          <p v-if="!esAncho" class="chat__aviso-ia">Leo usa IA (Google Gemini) y puede equivocarse.</p>
+          <div
+            v-for="(mensaje, index) in historialChat"
+            :key="index"
+            class="mensaje"
+            :class="mensaje.rol === 'usuario' ? 'mensaje--mio' : 'mensaje--leo'"
+            data-test="chat-mensaje"
+          >
+            <div class="mensaje__globo">
+              <p class="mensaje__texto">{{ mensaje.texto }}</p>
+              <p class="mensaje__hora">{{ mensaje.hora }}</p>
             </div>
+          </div>
+
+          <!-- Leo escribiendo: los puntos quedan quietos si las animaciones están apagadas -->
+          <div v-if="cargandoChat" class="mensaje mensaje--leo" data-test="chat-escribiendo">
+            <div class="mensaje__globo escribiendo" role="status" aria-label="Leo está escribiendo">
+              <span></span><span></span><span></span>
+            </div>
+          </div>
+        </div>
+
+        <form class="chat__formulario" @submit.prevent="enviarMensaje">
+          <label for="chat-entrada" class="solo-lector">Escribe tu pregunta</label>
+          <input
+            id="chat-entrada"
+            ref="chatEntrada"
+            v-model="mensajeChat"
+            :disabled="cargandoChat"
+            type="text"
+            autocomplete="off"
+            placeholder="Escribe tu pregunta…"
+            class="chat__entrada"
+            data-test="chat-entrada"
+          />
+          <button
+            type="submit"
+            class="chat__enviar"
+            :disabled="!mensajeChat.trim() || cargandoChat"
+            :aria-label="esAncho ? null : 'Enviar'"
+            data-test="chat-enviar"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12 L20 4 L14 20 L11 13 Z" /></svg>
+            <span v-if="esAncho">Enviar</span>
+          </button>
+        </form>
+      </section>
+    </transition>
+
+    <!-- Test diagnóstico: una pregunta por vez -->
+    <LeoPanelDetalle :abierto="modalTestVisible" titulo="Test diagnóstico" @cerrar="cerrarModalTest">
+      <template #icono>
+        <span class="icono" style="background: #e3f3ea">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#1f7a47" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path :d="ICONOS.test" /></svg>
+        </span>
+      </template>
+
+      <template v-if="preguntaVisible">
+        <div class="avance-test">
+          <div class="avance-test__fila">
+            <span class="avance-test__actual" data-test="test-contador">Pregunta {{ preguntaActual + 1 }} de {{ totalPreguntas }}</span>
+            <span class="avance-test__respondidas">{{ respondidas }} {{ respondidas === 1 ? 'respondida' : 'respondidas' }}</span>
+          </div>
+          <LeoBarraProgreso :valor="respondidas" :maximo="totalPreguntas" color="verde" :alto="10" etiqueta="Avance del test" />
+        </div>
+
+        <div class="pregunta" data-test="test-pregunta">
+          <LeoEtiqueta tono="azul" class="pregunta__habilidad">{{ textoHabilidad(preguntaVisible.habilidad) }}</LeoEtiqueta>
+          <p class="pregunta__texto">{{ preguntaVisible.texto }}</p>
+          <p :id="`pregunta-${preguntaActual}`" class="pregunta__enunciado">{{ preguntaVisible.pregunta }}</p>
+          <div class="alternativas" role="radiogroup" :aria-labelledby="`pregunta-${preguntaActual}`">
+            <button
+              v-for="(alternativa, altIndex) in preguntaVisible.alternativas"
+              :key="altIndex"
+              type="button"
+              role="radio"
+              class="alternativa"
+              :class="{ 'alternativa--marcada': respuestasTest[preguntaActual] === altIndex }"
+              :aria-checked="respuestasTest[preguntaActual] === altIndex ? 'true' : 'false'"
+              data-test="test-alternativa"
+              @click="seleccionarRespuestaTest(preguntaActual, altIndex)"
+            >
+              <span class="alternativa__letra">{{ String.fromCharCode(65 + altIndex) }}</span>
+              <span class="alternativa__texto">{{ alternativa }}</span>
+            </button>
+          </div>
+        </div>
+      </template>
+
+      <template #pie>
+        <div class="pie-doble pie-doble--asimetrico">
+          <LeoBoton variante="secundario" :disabled="preguntaActual === 0" data-test="test-anterior" @click="irPregunta(-1)">Anterior</LeoBoton>
+          <LeoBoton
+            v-if="!esUltimaPregunta"
+            :disabled="respuestasTest[preguntaActual] === undefined"
+            data-test="test-siguiente"
+            @click="irPregunta(1)"
+          >Siguiente</LeoBoton>
+          <LeoBoton
+            v-else
+            :disabled="!testCompleto"
+            data-test="test-diagnostico"
+            @click="evaluarTest"
+          >Ver mi diagnóstico</LeoBoton>
+        </div>
+        <p v-if="esUltimaPregunta && !testCompleto" class="pie-nota">Te falta responder {{ totalPreguntas - respondidas }} {{ totalPreguntas - respondidas === 1 ? 'pregunta' : 'preguntas' }}.</p>
+      </template>
+    </LeoPanelDetalle>
+
+    <!-- Resultado del diagnóstico -->
+    <LeoPanelDetalle :abierto="modalDiagnosticoVisible" titulo="Tu diagnóstico" @cerrar="cerrarModalDiagnostico">
+      <div v-if="cargandoDiagnostico" class="estado-carga" role="status" data-test="diagnostico-cargando">
+        <svg class="estado-carga__giro giro" viewBox="0 0 24 24" fill="none" stroke="#2568c4" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 3 a9 9 0 1 1 -9 9" /></svg>
+        <p>Leo está revisando tus respuestas…</p>
+      </div>
+
+      <div v-else-if="errorDiagnostico" class="aviso aviso--ambar" role="alert" data-test="diagnostico-error">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#8a5a00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12 a9 9 0 1 0 18 0 a9 9 0 1 0 -18 0 M12 7.5 V12.5 M12 16 h0.01" /></svg>
+        <div>
+          <p class="aviso__titulo">No pude preparar tu diagnóstico</p>
+          <p class="aviso__texto">Puede ser la conexión o que Leo esté muy ocupado. Tus respuestas siguen guardadas: inténtalo de nuevo en un momento.</p>
+        </div>
+      </div>
+
+      <template v-else-if="diagnosticoIA">
+        <p class="diagnostico__bajada">Preparado por Leo según tus respuestas.</p>
+
+        <section class="bloque" aria-labelledby="diag-nivel" data-test="diagnostico">
+          <div class="bloque__cabecera">
+            <span class="icono" style="background: #e4f0fb">
+              <svg viewBox="0 0 24 24" fill="none" stroke="#2568c4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path :d="ICONOS.libro" /></svg>
+            </span>
             <div>
-              <p class="font-bold text-white text-lg">Leo IA</p>
-              <p class="text-sm text-green-100">En línea</p>
+              <p class="antetitulo" style="color: #1b4f9e">Tu nivel</p>
+              <h3 id="diag-nivel" class="bloque__nivel" data-test="diagnostico-nivel">{{ nombreNivel(diagnosticoIA.nivel) }}</h3>
             </div>
           </div>
-          <button @click="chatAbierto = false" class="text-white hover:bg-white/20 rounded-full p-2 transition-all">
-            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
-            </svg>
+          <LeoBurbuja v-if="diagnosticoIA.mensaje_motivacional" :mensaje="diagnosticoIA.mensaje_motivacional" disposicion="lado" :tamano="60" />
+        </section>
+
+        <section v-if="lista(diagnosticoIA.fortalezas).length" class="bloque bloque--verde" aria-labelledby="diag-fortalezas">
+          <div class="bloque__cabecera">
+            <svg class="bloque__icono" viewBox="0 0 24 24" fill="none" stroke="#1f7a47" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path :d="ICONOS.check" /></svg>
+            <h3 id="diag-fortalezas" class="bloque__titulo">Tus fortalezas</h3>
+          </div>
+          <ul class="bloque__lista" style="color: #1f4d33">
+            <li v-for="(fortaleza, index) in lista(diagnosticoIA.fortalezas)" :key="index">{{ fortaleza }}</li>
+          </ul>
+        </section>
+
+        <!-- Antes "Áreas a mejorar": mismo contenido, con el tono de "Para seguir creciendo" de Progreso -->
+        <section v-if="lista(diagnosticoIA.areas_mejorar).length" class="bloque bloque--ambar" aria-labelledby="diag-crecer" data-test="diagnostico-crecer">
+          <div class="bloque__cabecera">
+            <svg class="bloque__icono" viewBox="0 0 24 24" fill="none" stroke="#b07a00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path :d="ICONOS.brote" /></svg>
+            <h3 id="diag-crecer" class="bloque__titulo">Para seguir creciendo</h3>
+          </div>
+          <ul class="bloque__lista" style="color: #5c3d00">
+            <li v-for="(area, index) in lista(diagnosticoIA.areas_mejorar)" :key="index">{{ area }}</li>
+          </ul>
+        </section>
+
+        <section v-if="diagnosticoIA.recomendacion_inicio || diagnosticoIA.consejo_principal" class="bloque bloque--azul" aria-labelledby="diag-empezar">
+          <div class="bloque__cabecera">
+            <svg class="bloque__icono" viewBox="0 0 24 24" fill="none" stroke="#2568c4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path :d="ICONOS.bandera" /></svg>
+            <h3 id="diag-empezar" class="bloque__titulo">Por dónde empezar</h3>
+          </div>
+          <p v-if="diagnosticoIA.recomendacion_inicio" class="bloque__texto">{{ diagnosticoIA.recomendacion_inicio }}</p>
+          <p v-if="diagnosticoIA.consejo_principal" class="bloque__consejo"><strong>Consejo:</strong> {{ diagnosticoIA.consejo_principal }}</p>
+        </section>
+      </template>
+
+      <template #pie>
+        <div v-if="errorDiagnostico" class="pie-doble">
+          <LeoBoton variante="secundario" @click="cerrarModalDiagnostico">Cerrar</LeoBoton>
+          <LeoBoton data-test="diagnostico-reintentar" @click="evaluarTest">Intentar de nuevo</LeoBoton>
+        </div>
+        <div v-else-if="!cargandoDiagnostico" class="pie-doble">
+          <LeoBoton variante="secundario" data-test="diagnostico-repetir" @click="repetirTest">Repetir test</LeoBoton>
+          <LeoBoton data-test="diagnostico-volver" @click="cerrarModalDiagnostico">Volver a LeoIA</LeoBoton>
+        </div>
+      </template>
+    </LeoPanelDetalle>
+
+    <!-- Ejercicio aleatorio: mismo panel que el test -->
+    <LeoPanelDetalle :abierto="modalEjercicioVisible" titulo="Ejercicio aleatorio" @cerrar="cerrarModalEjercicio">
+      <template #icono>
+        <span class="icono" style="background: #fff3cf">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#b07a00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path :d="ICONOS.dado" /></svg>
+        </span>
+      </template>
+
+      <div v-if="cargandoIA" class="estado-carga" role="status">
+        <svg class="estado-carga__giro giro" viewBox="0 0 24 24" fill="none" stroke="#2568c4" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 3 a9 9 0 1 1 -9 9" /></svg>
+        <p>Leo está preparando otro ejercicio…</p>
+      </div>
+
+      <div v-else-if="ejercicioAleatorio" class="pregunta" data-test="ejercicio">
+        <LeoEtiqueta tono="ambar" class="pregunta__habilidad">{{ textoHabilidad(ejercicioAleatorio.habilidad) }}</LeoEtiqueta>
+        <p class="pregunta__texto">{{ ejercicioAleatorio.texto }}</p>
+        <p id="ejercicio-enunciado" class="pregunta__enunciado">{{ ejercicioAleatorio.pregunta }}</p>
+        <div class="alternativas" role="radiogroup" aria-labelledby="ejercicio-enunciado">
+          <button
+            v-for="(alternativa, index) in ejercicioAleatorio.alternativas"
+            :key="index"
+            type="button"
+            role="radio"
+            class="alternativa"
+            :class="claseAlternativaEjercicio(index)"
+            :aria-checked="respuestaEjercicio === index ? 'true' : 'false'"
+            :aria-disabled="feedbackEjercicio ? 'true' : null"
+            data-test="ejercicio-alternativa"
+            @click="seleccionarRespuestaEjercicio(index)"
+          >
+            <span class="alternativa__letra">{{ String.fromCharCode(65 + index) }}</span>
+            <span class="alternativa__texto">{{ alternativa }}</span>
           </button>
         </div>
-        
-        <!-- Mensajes del chat -->
-        <div class="h-96 overflow-y-auto p-6 space-y-4 bg-gray-50" ref="chatContainer">
-          <div v-for="(mensaje, index) in historialChat" :key="index" 
-               :class="mensaje.rol === 'usuario' ? 'flex justify-end' : 'flex justify-start'">
-            <div :class="mensaje.rol === 'usuario' 
-                 ? 'bg-green-500 text-white rounded-2xl rounded-br-none px-4 py-3 max-w-md shadow-md' 
-                 : 'bg-white text-gray-800 rounded-2xl rounded-bl-none px-4 py-3 max-w-md shadow-md border-2 border-gray-200'">
-              <p class="text-sm leading-relaxed whitespace-pre-wrap">{{ mensaje.texto }}</p>
-              <p :class="mensaje.rol === 'usuario' ? 'text-green-100' : 'text-gray-500'" 
-                 class="text-xs mt-2">{{ mensaje.hora }}</p>
-            </div>
-          </div>
-          
-          <!-- Indicador de escritura -->
-          <div v-if="cargandoChat" class="flex justify-start">
-            <div class="bg-white rounded-2xl rounded-bl-none px-4 py-3 shadow-md border-2 border-gray-200">
-              <div class="flex items-center gap-2">
-                <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-                <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
-                <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.4s"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        <!-- Input del chat -->
-        <div class="border-t-2 border-gray-200 p-4 bg-white">
-          <form @submit.prevent="enviarMensaje" class="flex gap-3">
-            <input v-model="mensajeChat" 
-                   :disabled="cargandoChat"
-                   type="text" 
-                   placeholder="Escribe tu pregunta..."
-                   class="flex-1 px-4 py-3 border-2 border-gray-300 rounded-xl focus:outline-none focus:border-green-500 disabled:bg-gray-100">
-            <button type="submit" 
-                    :disabled="!mensajeChat.trim() || cargandoChat"
-                    class="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 disabled:from-gray-400 disabled:to-gray-500 text-white px-6 py-3 rounded-xl font-bold transition-all disabled:cursor-not-allowed">
-              Enviar
-            </button>
-          </form>
-        </div>
-      </div>
-    </transition>
 
-    <!-- Modal Test Diagnóstico -->
-    <transition name="fade">
-      <div v-if="modalTestVisible" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4" @click.self="cerrarModalTest">
-        <div class="bg-white rounded-3xl shadow-2xl max-w-3xl w-full max-h-[90vh] flex flex-col overflow-hidden">
-          <!-- Header -->
-          <div class="bg-gradient-to-r from-blue-500 to-cyan-600 px-8 py-6 flex items-center justify-between flex-shrink-0">
-            <div class="flex items-center gap-4">
-              <div class="bg-white rounded-full p-3">
-                <svg class="w-8 h-8 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" />
-                  <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd" />
-                </svg>
-              </div>
-              <div>
-                <h2 class="text-2xl font-bold text-white">Test Diagnóstico</h2>
-                <p class="text-sm text-blue-100">5 preguntas para evaluar tu nivel</p>
-              </div>
-            </div>
-            <button @click="cerrarModalTest" class="text-white hover:bg-white/20 rounded-full p-2 transition-all">
-              <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
-              </svg>
-            </button>
-          </div>
-          
-          <!-- Contenido del test con scroll -->
-          <div class="flex-1 overflow-y-auto p-8">
-            <div v-if="testDiagnostico" class="space-y-6">
-              <!-- Preguntas -->
-              <div v-for="(pregunta, index) in testDiagnostico.preguntas" :key="index" 
-                   class="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-2xl p-6 border-2 border-blue-200">
-                <div class="flex items-start gap-3 mb-4">
-                  <div class="bg-blue-500 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold flex-shrink-0">
-                    {{ index + 1 }}
-                  </div>
-                  <div class="flex-1">
-                    <p class="text-xs font-bold text-blue-600 uppercase mb-2">{{ pregunta.habilidad.replace('_', ' ') }}</p>
-                    <p class="text-sm text-gray-700 leading-relaxed bg-white rounded-xl p-4 mb-4 border border-blue-200">
-                      {{ pregunta.texto }}
-                    </p>
-                    <p class="font-bold text-gray-800 mb-3">{{ pregunta.pregunta }}</p>
-                    
-                    <!-- Alternativas -->
-                    <div class="space-y-2">
-                      <button v-for="(alternativa, altIndex) in pregunta.alternativas" 
-                              :key="altIndex"
-                              @click="seleccionarRespuestaTest(index, altIndex)"
-                              :class="[
-                                'w-full text-left px-4 py-3 rounded-xl border-2 transition-all',
-                                respuestasTest[index] === altIndex 
-                                  ? 'bg-blue-500 text-white border-blue-600 shadow-lg' 
-                                  : 'bg-white text-gray-700 border-gray-300 hover:border-blue-400 hover:bg-blue-50'
-                              ]">
-                        <span class="font-bold mr-2">{{ String.fromCharCode(65 + altIndex) }})</span>
-                        {{ alternativa }}
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              
-              <!-- Botón enviar -->
-              <div class="flex justify-center pt-4">
-                <button @click="evaluarTest" 
-                        :disabled="Object.keys(respuestasTest).length !== testDiagnostico.preguntas.length"
-                        class="bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 disabled:from-gray-400 disabled:to-gray-500 text-white px-8 py-4 rounded-2xl font-bold text-lg shadow-xl hover:shadow-2xl transition-all transform hover:scale-105 disabled:cursor-not-allowed disabled:opacity-50">
-                  🤖 Generar Diagnóstico con IA ({{ Object.keys(respuestasTest).length }}/{{ testDiagnostico.preguntas.length }})
-                </button>
-              </div>
-            </div>
+        <div
+          v-if="feedbackEjercicio"
+          class="aviso"
+          :class="feedbackEjercicio.correcto ? 'aviso--verde' : 'aviso--ambar'"
+          role="status"
+          data-test="ejercicio-feedback"
+        >
+          <svg viewBox="0 0 24 24" fill="none" :stroke="feedbackEjercicio.correcto ? '#1f7a47' : '#8a5a00'" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path :d="feedbackEjercicio.correcto ? ICONOS.check : ICONOS.brote" /></svg>
+          <div>
+            <p class="aviso__titulo">{{ feedbackEjercicio.correcto ? '¡Bien hecho!' : 'Esta vez no, pero vas aprendiendo' }}</p>
+            <p class="aviso__texto">{{ feedbackEjercicio.mensaje }}</p>
+            <!-- UI-07: Gemini ya enviaba una explicación breve que antes no se mostraba -->
+            <p v-if="ejercicioAleatorio.explicacion" class="aviso__texto" data-test="ejercicio-explicacion">{{ ejercicioAleatorio.explicacion }}</p>
           </div>
         </div>
       </div>
-    </transition>
 
-    <!-- Modal Diagnóstico Personalizado -->
-    <transition name="fade">
-      <div v-if="modalDiagnosticoVisible" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4" @click.self="cerrarModalDiagnostico">
-        <div class="bg-white rounded-3xl shadow-2xl max-w-2xl w-full max-h-[90vh] flex flex-col overflow-hidden">
-          <!-- Header -->
-          <div class="bg-gradient-to-r from-indigo-500 to-purple-600 px-8 py-6 flex items-center justify-between flex-shrink-0">
-            <div class="flex items-center gap-4">
-              <div class="bg-white rounded-full p-3">
-                <svg class="w-8 h-8 text-indigo-600" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.838L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3zM3.31 9.397L5 10.12v4.102a8.969 8.969 0 00-1.05-.174 1 1 0 01-.89-.89 11.115 11.115 0 01.25-3.762zM9.3 16.573A9.026 9.026 0 007 14.935v-3.957l1.818.78a3 3 0 002.364 0l5.508-2.361a11.026 11.026 0 01.25 3.762 1 1 0 01-.89.89 8.968 8.968 0 00-5.35 2.524 1 1 0 01-1.4 0zM6 18a1 1 0 001-1v-2.065a8.935 8.935 0 00-2-.712V17a1 1 0 001 1z" />
-                </svg>
-              </div>
-              <div>
-                <h2 class="text-2xl font-bold text-white">Tu Diagnóstico Personalizado</h2>
-                <p class="text-sm text-indigo-100">Generado por Leo IA</p>
-              </div>
-            </div>
-            <button @click="cerrarModalDiagnostico" class="text-white hover:bg-white/20 rounded-full p-2 transition-all">
-              <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
-              </svg>
-            </button>
-          </div>
-          
-          <!-- Contenido del diagnóstico con scroll -->
-          <div class="flex-1 overflow-y-auto p-8">
-            <!-- Loading -->
-            <div v-if="cargandoDiagnostico" class="flex flex-col items-center justify-center py-12">
-              <svg class="w-16 h-16 animate-spin text-indigo-600 mb-4" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
-              <p class="text-gray-600 font-medium">Analizando tus resultados...</p>
-            </div>
-            
-            <!-- Diagnóstico -->
-            <div v-else-if="diagnosticoIA" class="space-y-6">
-              <!-- Nivel -->
-              <div class="text-center bg-gradient-to-br from-indigo-50 to-purple-50 rounded-2xl p-6 border-2 border-indigo-200">
-                <div class="inline-block bg-indigo-600 text-white px-6 py-2 rounded-full font-bold text-lg mb-3 uppercase">
-                  {{ diagnosticoIA.nivel }}
-                </div>
-                <p class="text-gray-700 text-lg font-medium">{{ diagnosticoIA.mensaje_motivacional }}</p>
-              </div>
-              
-              <!-- Fortalezas -->
-              <div class="bg-green-50 rounded-2xl p-6 border-2 border-green-200">
-                <div class="flex items-center gap-3 mb-4">
-                  <svg class="w-8 h-8 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-                  </svg>
-                  <h3 class="text-xl font-bold text-green-800">💪 Tus Fortalezas</h3>
-                </div>
-                <ul class="space-y-2">
-                  <li v-for="(fortaleza, index) in diagnosticoIA.fortalezas" :key="index" 
-                      class="flex items-start gap-2 text-green-700">
-                    <span class="text-green-500 font-bold">✓</span>
-                    <span>{{ fortaleza }}</span>
-                  </li>
-                </ul>
-              </div>
-              
-              <!-- Áreas a mejorar -->
-              <div class="bg-orange-50 rounded-2xl p-6 border-2 border-orange-200">
-                <div class="flex items-center gap-3 mb-4">
-                  <svg class="w-8 h-8 text-orange-600" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
-                  </svg>
-                  <h3 class="text-xl font-bold text-orange-800">🎯 Áreas a Mejorar</h3>
-                </div>
-                <ul class="space-y-2">
-                  <li v-for="(area, index) in diagnosticoIA.areas_mejorar" :key="index" 
-                      class="flex items-start gap-2 text-orange-700">
-                    <span class="text-orange-500 font-bold">→</span>
-                    <span>{{ area }}</span>
-                  </li>
-                </ul>
-              </div>
-              
-              <!-- Recomendación -->
-              <div class="bg-blue-50 rounded-2xl p-6 border-2 border-blue-200">
-                <div class="flex items-center gap-3 mb-4">
-                  <svg class="w-8 h-8 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
-                  </svg>
-                  <h3 class="text-xl font-bold text-blue-800">🚀 Por Dónde Empezar</h3>
-                </div>
-                <p class="text-blue-700 font-medium mb-3">{{ diagnosticoIA.recomendacion_inicio }}</p>
-                <div class="bg-white rounded-xl p-4 border border-blue-200">
-                  <p class="text-sm text-gray-700"><strong>Consejo:</strong> {{ diagnosticoIA.consejo_principal }}</p>
-                </div>
-              </div>
-              
-              <!-- Botón cerrar -->
-              <div class="flex justify-center pt-4">
-                <button @click="cerrarModalDiagnostico" 
-                        class="bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white px-8 py-4 rounded-2xl font-bold text-lg shadow-xl hover:shadow-2xl transition-all transform hover:scale-105">
-                  ¡Entendido! 🎉
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </transition>
+      <p v-if="errorEjercicio && modalEjercicioVisible" class="aviso aviso--ambar aviso--corto" role="alert">{{ errorEjercicio }}</p>
 
-    <!-- Modal Ejercicio Aleatorio -->
-    <transition name="fade">
-      <div v-if="modalEjercicioVisible" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4" @click.self="cerrarModalEjercicio">
-        <div class="bg-white rounded-3xl shadow-2xl max-w-2xl w-full max-h-[90vh] flex flex-col overflow-hidden">
-          <!-- Header -->
-          <div class="bg-gradient-to-r from-purple-500 to-pink-600 px-8 py-6 flex items-center justify-between flex-shrink-0">
-            <div class="flex items-center gap-4">
-              <div class="bg-white rounded-full p-3">
-                <svg class="w-8 h-8 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M13 7H7v6h6V7z" />
-                  <path fill-rule="evenodd" d="M7 2a1 1 0 012 0v1h2V2a1 1 0 112 0v1h2a2 2 0 012 2v2h1a1 1 0 110 2h-1v2h1a1 1 0 110 2h-1v2a2 2 0 01-2 2h-2v1a1 1 0 11-2 0v-1H9v1a1 1 0 11-2 0v-1H5a2 2 0 01-2-2v-2H2a1 1 0 110-2h1V9H2a1 1 0 010-2h1V5a2 2 0 012-2h2V2zM5 5h10v10H5V5z" clip-rule="evenodd" />
-                </svg>
-              </div>
-              <div>
-                <h2 class="text-2xl font-bold text-white">Ejercicio de Práctica</h2>
-                <p class="text-sm text-purple-100">Generado por IA</p>
-              </div>
-            </div>
-            <button @click="cerrarModalEjercicio" class="text-white hover:bg-white/20 rounded-full p-2 transition-all">
-              <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
-              </svg>
-            </button>
-          </div>
-          
-          <!-- Contenido del ejercicio con scroll -->
-          <div class="flex-1 overflow-y-auto p-8">
-            <div v-if="ejercicioAleatorio" class="space-y-6">
-              <!-- Habilidad -->
-              <div class="bg-purple-100 border-2 border-purple-300 rounded-xl px-4 py-2 inline-block">
-                <p class="text-sm font-bold text-purple-700 uppercase">
-                  🎯 {{ ejercicioAleatorio.habilidad.replace('_', ' ') }}
-                </p>
-              </div>
-              
-              <!-- Texto -->
-              <div class="bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl p-6 border-2 border-purple-200">
-                <p class="text-sm text-gray-700 leading-relaxed">{{ ejercicioAleatorio.texto }}</p>
-              </div>
-              
-              <!-- Pregunta -->
-              <div class="bg-white rounded-2xl p-6 border-2 border-gray-200">
-                <p class="font-bold text-gray-800 mb-4 text-lg">{{ ejercicioAleatorio.pregunta }}</p>
-                
-                <!-- Alternativas -->
-                <div class="space-y-3">
-                  <button v-for="(alternativa, index) in ejercicioAleatorio.alternativas" 
-                          :key="index"
-                          @click="seleccionarRespuestaEjercicio(index)"
-                          :class="[
-                            'w-full text-left px-5 py-4 rounded-xl border-2 transition-all text-base',
-                            respuestaEjercicio === index 
-                              ? 'bg-purple-500 text-white border-purple-600 shadow-lg font-bold' 
-                              : 'bg-white text-gray-700 border-gray-300 hover:border-purple-400 hover:bg-purple-50'
-                          ]">
-                    <span class="font-bold mr-2">{{ String.fromCharCode(65 + index) }})</span>
-                    {{ alternativa }}
-                  </button>
-                </div>
-              </div>
-              
-              <!-- Botón verificar -->
-              <div class="flex justify-center pt-4">
-                <button @click="verificarRespuestaEjercicio" 
-                        :disabled="respuestaEjercicio === null"
-                        class="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 disabled:from-gray-400 disabled:to-gray-500 text-white px-8 py-4 rounded-2xl font-bold text-lg shadow-xl hover:shadow-2xl transition-all transform hover:scale-105 disabled:cursor-not-allowed disabled:opacity-50">
-                  ✓ Verificar Respuesta
-                </button>
-              </div>
-              
-              <!-- Retroalimentación -->
-              <div v-if="feedbackEjercicio" 
-                   :class="[
-                     'rounded-2xl p-6 border-2',
-                     feedbackEjercicio.correcto 
-                       ? 'bg-green-50 border-green-300' 
-                       : 'bg-red-50 border-red-300'
-                   ]">
-                <div class="flex items-start gap-3">
-                  <div :class="[
-                    'rounded-full p-2',
-                    feedbackEjercicio.correcto ? 'bg-green-500' : 'bg-red-500'
-                  ]">
-                    <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
-                      <path v-if="feedbackEjercicio.correcto" fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
-                      <path v-else fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
-                    </svg>
-                  </div>
-                  <div class="flex-1">
-                    <p :class="[
-                      'font-bold text-lg mb-2',
-                      feedbackEjercicio.correcto ? 'text-green-700' : 'text-red-700'
-                    ]">
-                      {{ feedbackEjercicio.correcto ? '¡Correcto! 🎉' : 'Incorrecto 😞' }}
-                    </p>
-                    <p :class="feedbackEjercicio.correcto ? 'text-green-600' : 'text-red-600'" class="text-sm">
-                      {{ feedbackEjercicio.mensaje }}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+      <template #pie>
+        <div v-if="!feedbackEjercicio" class="pie-uno">
+          <LeoBoton ancho :disabled="respuestaEjercicio === null || cargandoIA" data-test="ejercicio-revisar" @click="verificarRespuestaEjercicio">Revisar respuesta</LeoBoton>
         </div>
-      </div>
-    </transition>
+        <div v-else class="pie-doble">
+          <LeoBoton variante="secundario" @click="cerrarModalEjercicio">Cerrar</LeoBoton>
+          <LeoBoton :disabled="cargandoIA" data-test="ejercicio-otro" @click="otroEjercicio">Otro ejercicio</LeoBoton>
+        </div>
+      </template>
+    </LeoPanelDetalle>
   </div>
 </template>
 
 <script>
 import { esAPIKeyValida, generarDiagnosticoPersonalizado, generarEjercicioAleatorio, chatConversacional } from '../utils/geminiClient'
 import { testDiagnostico } from '../data/test_diagnostico'
+import LeoTarjeta from './base/LeoTarjeta.vue'
+import LeoBurbuja from './base/LeoBurbuja.vue'
+import LeoBoton from './base/LeoBoton.vue'
+import LeoEtiqueta from './base/LeoEtiqueta.vue'
+import LeoBarraProgreso from './base/LeoBarraProgreso.vue'
+import LeoPanelDetalle from './base/LeoPanelDetalle.vue'
+import { primerNombre } from '../utils/nombre'
+
+// UI-07: íconos de trazo (mismo estilo que Inicio y Progreso)
+const ICONOS = {
+  chat: 'M4 5 H20 V16 H10 L5 20 V16 H4 Z M8 9.5 H16 M8 12.5 H13',
+  test: 'M9 3 H15 V6 H9 Z M7 4.5 H5 V21 H19 V4.5 H17 M9 14 L11 16 L15 11.5',
+  dado: 'M4 4 H20 V20 H4 Z M8.5 8.5 h0.01 M15.5 8.5 h0.01 M12 12 h0.01 M8.5 15.5 h0.01 M15.5 15.5 h0.01',
+  libro: 'M3 6 C6 5 9 5 12 7 C15 5 18 5 21 6 V19 C18 18 15 18 12 20 C9 18 6 18 3 19 Z M12 7 V20',
+  check: 'M3 12 a9 9 0 1 0 18 0 a9 9 0 1 0 -18 0 M8 12 L11 15 L16 9',
+  brote: 'M12 20 V11 M12 11 C12 7 9 5 5 5 C5 9 8 11 12 11 M12 13 C12 10 14.5 8 19 8 C19 11.5 16 13 12 13',
+  bandera: 'M5 21 V4 M5 4 H16 L14 8 L16 12 H5'
+}
+
+// Gemini responde el nivel en minúsculas y sin tilde ("basico/intermedio/avanzado")
+const NOMBRES_NIVEL = { basico: 'Básico', básico: 'Básico', intermedio: 'Intermedio', avanzado: 'Avanzado' }
+
+const ANCHO_ESCRITORIO = '(min-width: 1024px)'
 
 export default {
   name: 'AsistenteIA',
+  components: { LeoTarjeta, LeoBurbuja, LeoBoton, LeoEtiqueta, LeoBarraProgreso, LeoPanelDetalle },
+  props: {
+    // UI-07: nombre del alumno para el saludo de Leo (lo entrega PantallaLeoIA)
+    nombre: { type: String, default: '' }
+  },
   data() {
     return {
+      ICONOS,
       apiKeyValida: false,
       cargandoIA: false,
-      
+
       // Chat
       chatAbierto: false,
       mensajeChat: '',
       historialChat: [],
       cargandoChat: false,
-      
+
       // Test Diagnóstico
       modalTestVisible: false,
       testDiagnostico: null,
@@ -475,24 +443,145 @@ export default {
       diagnosticoIA: null,
       modalDiagnosticoVisible: false,
       cargandoDiagnostico: false,
-      
+
       // Ejercicio Aleatorio
       modalEjercicioVisible: false,
       ejercicioAleatorio: null,
       respuestaEjercicio: null,
-      feedbackEjercicio: null
+      feedbackEjercicio: null,
+
+      // UI-07: solo de pantalla
+      preguntaActual: 0, // el test se muestra de a una pregunta
+      errorDiagnostico: false, // reemplaza el alert() cuando falla Gemini
+      errorEjercicio: '', // reemplaza el alert() del ejercicio
+      esAncho: false, // escritorio (menú lateral): el chat va al lado
+      consultaAncho: null
     }
+  },
+  computed: {
+    saludo() {
+      const nombre = primerNombre(this.nombre)
+      const hola = nombre ? `Hola, ${nombre}.` : 'Hola.'
+      if (!this.apiKeyValida) return `${hola} Ahora no puedo conectarme, pero vuelve pronto.`
+      return `${hola} Puedo conversar contigo, medir tu nivel o darte un ejercicio nuevo.`
+    },
+    cantidadPreguntasTest() {
+      return (testDiagnostico.preguntas || []).length
+    },
+    totalPreguntas() {
+      return this.testDiagnostico ? this.testDiagnostico.preguntas.length : 0
+    },
+    preguntaVisible() {
+      return this.testDiagnostico ? this.testDiagnostico.preguntas[this.preguntaActual] || null : null
+    },
+    respondidas() {
+      return Object.keys(this.respuestasTest).length
+    },
+    esUltimaPregunta() {
+      return this.preguntaActual >= this.totalPreguntas - 1
+    },
+    testCompleto() {
+      return this.totalPreguntas > 0 && this.respondidas === this.totalPreguntas
+    }
+  },
+  watch: {
+    // En celular el chat ocupa toda la pantalla: el fondo no se desplaza mientras está abierto
+    chatAbierto() { this.bloquearFondo() },
+    esAncho() { this.bloquearFondo() }
   },
   mounted() {
     this.verificarAPIKey()
+    try {
+      this.consultaAncho = window.matchMedia(ANCHO_ESCRITORIO)
+      this.esAncho = this.consultaAncho.matches
+      this.consultaAncho.addEventListener('change', this.alCambiarAncho)
+    } catch (error) {
+      console.warn('No se pudo medir el ancho de la pantalla:', error)
+    }
+  },
+  beforeUnmount() {
+    if (this.consultaAncho) this.consultaAncho.removeEventListener('change', this.alCambiarAncho)
+    document.body.style.overflow = ''
+    document.removeEventListener('keydown', this.alTeclearChat)
   },
   methods: {
     verificarAPIKey() {
       this.apiKeyValida = esAPIKeyValida()
       console.log('🔑 API Key válida:', this.apiKeyValida)
       console.log('🔑 API Key value:', process.env.VUE_APP_GEMINI_API_KEY ? 'Configurada' : 'NO configurada')
+      // UI-07: antes esta instrucción se mostraba en pantalla a todos los alumnos.
+      // Ahora el alumno ve un aviso neutro y la instrucción queda aquí, para quien desarrolla.
+      if (!this.apiKeyValida) {
+        console.info('[LeoIA] Para activar Leo IA, agrega VUE_APP_GEMINI_API_KEY en .env.local y reinicia el servidor. La clave se crea en Google AI Studio.')
+      }
     },
-    
+
+    // ========== UI-07: pantalla ==========
+    alCambiarAncho(evento) {
+      this.esAncho = evento.matches
+    },
+    bloquearFondo() {
+      const completo = this.chatAbierto && !this.esAncho
+      try {
+        document.body.style.overflow = completo ? 'hidden' : ''
+      } catch (error) {
+        console.warn('No se pudo bloquear el scroll del fondo:', error)
+      }
+      // Con el chat abierto, Esc lo cierra (aunque el foco haya quedado fuera del campo)
+      document.removeEventListener('keydown', this.alTeclearChat)
+      if (this.chatAbierto) document.addEventListener('keydown', this.alTeclearChat)
+    },
+    alTeclearChat(evento) {
+      // Si hay un panel abierto encima, Esc lo cierra a él primero (LeoPanelDetalle)
+      if (evento.key !== 'Escape' || this.modalTestVisible || this.modalDiagnosticoVisible || this.modalEjercicioVisible) return
+      this.cerrarChat()
+    },
+    abrirChat() {
+      if (!this.chatAbierto) this.toggleChat()
+      this.$nextTick(() => {
+        // En celular no se abre el teclado solo: el foco va a la flecha de volver
+        const destino = this.esAncho ? this.$refs.chatEntrada : this.$refs.chatVolver
+        if (destino) destino.focus()
+      })
+    },
+    cerrarChat() {
+      this.chatAbierto = false
+      this.$nextTick(() => this.$refs.opcionChat && this.$refs.opcionChat.focus())
+    },
+    textoHabilidad(habilidad) {
+      return String(habilidad || '').replace(/_/g, ' ')
+    },
+    nombreNivel(nivel) {
+      const clave = String(nivel || '').trim().toLowerCase()
+      if (NOMBRES_NIVEL[clave]) return NOMBRES_NIVEL[clave]
+      return clave ? clave.charAt(0).toUpperCase() + clave.slice(1) : 'Sin nivel'
+    },
+    lista(valor) {
+      return Array.isArray(valor) ? valor.filter(Boolean) : []
+    },
+    irPregunta(paso) {
+      const destino = this.preguntaActual + paso
+      if (destino < 0 || destino >= this.totalPreguntas) return
+      this.preguntaActual = destino
+    },
+    repetirTest() {
+      this.cerrarModalDiagnostico()
+      this.generarTest()
+    },
+    otroEjercicio() {
+      this.generarEjercicio()
+    },
+    claseAlternativaEjercicio(index) {
+      const elegida = this.respuestaEjercicio === index
+      if (!this.feedbackEjercicio) return { 'alternativa--marcada': elegida }
+      const correcta = this.ejercicioAleatorio && this.ejercicioAleatorio.respuesta_correcta === index
+      return {
+        'alternativa--correcta': correcta,
+        'alternativa--revisar': elegida && !correcta,
+        'alternativa--apagada': !correcta && !elegida
+      }
+    },
+
     // ========== CHAT ==========
     toggleChat() {
       this.chatAbierto = !this.chatAbierto
@@ -504,26 +593,26 @@ export default {
         })
       }
     },
-    
+
     async enviarMensaje() {
       if (!this.mensajeChat.trim()) return
-      
+
       const mensajeUsuario = this.mensajeChat
       this.mensajeChat = ''
-      
+
       this.historialChat.push({
         rol: 'usuario',
         texto: mensajeUsuario,
         hora: this.obtenerHora()
       })
-      
+
       this.cargandoChat = true
       this.scrollToBottom()
-      
+
       try {
         console.log('💬 Enviando mensaje a Gemini...')
         const respuesta = await chatConversacional(mensajeUsuario, this.historialChat.map(msg => ({ rol: msg.rol, mensaje: msg.texto })))
-        
+
         this.historialChat.push({
           rol: 'asistente',
           texto: respuesta,
@@ -533,15 +622,18 @@ export default {
         console.error('Error al enviar mensaje:', error)
         this.historialChat.push({
           rol: 'asistente',
-          texto: '❌ Lo siento, hubo un error al procesar tu mensaje. ¿Puedes intentarlo de nuevo?',
+          // UI-07: mismo mensaje, sin emoji
+          texto: 'Lo siento, hubo un error al procesar tu mensaje. ¿Puedes intentarlo de nuevo?',
           hora: this.obtenerHora()
         })
       } finally {
         this.cargandoChat = false
         this.scrollToBottom()
+        // UI-07: el foco vuelve al campo para seguir escribiendo
+        this.$nextTick(() => this.$refs.chatEntrada && this.$refs.chatEntrada.focus())
       }
     },
-    
+
     scrollToBottom() {
       this.$nextTick(() => {
         const container = this.$refs.chatContainer
@@ -550,58 +642,63 @@ export default {
         }
       })
     },
-    
+
     obtenerHora() {
       const ahora = new Date()
       return ahora.toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' })
     },
-    
+
     // ========== TEST DIAGNÓSTICO ==========
     generarTest() {
       console.log('🎯 Cargando test diagnóstico pre-diseñado...');
       this.testDiagnostico = testDiagnostico;
       this.respuestasTest = {};
       this.diagnosticoIA = null;
+      this.preguntaActual = 0; // UI-07: el test parte en la primera pregunta
       this.modalTestVisible = true;
       console.log('✅ Test cargado:', this.testDiagnostico);
     },
-    
+
     seleccionarRespuestaTest(preguntaIndex, alternativaIndex) {
       this.respuestasTest = {
         ...this.respuestasTest,
         [preguntaIndex]: alternativaIndex
       }
     },
-    
+
     async evaluarTest() {
       if (!this.apiKeyValida) {
-        alert('⚠️ Configura tu API Key de Gemini para obtener un diagnóstico personalizado');
+        // UI-07: sin API key las opciones quedan desactivadas, así que aquí no se llega
+        // desde la pantalla. Se mantiene la guarda, sin el alert.
+        // alert('⚠️ Configura tu API Key de Gemini para obtener un diagnóstico personalizado');
+        console.warn('[LeoIA] Diagnóstico sin API key de Gemini.');
         return;
       }
-      
+
       // Calcular resultados
       let correctas = 0;
       const habilidadesEvaluadas = [];
-      
+
       this.testDiagnostico.preguntas.forEach((pregunta, index) => {
         const esCorrecta = this.respuestasTest[index] === pregunta.respuesta_correcta;
         if (esCorrecta) correctas++;
-        
+
         habilidadesEvaluadas.push({
           nombre: pregunta.habilidad.replace('_', ' '),
           correcta: esCorrecta
         });
       });
-      
+
       const incorrectas = this.testDiagnostico.preguntas.length - correctas;
-      
+
       // Cerrar modal del test
       this.modalTestVisible = false;
-      
+
       // Generar diagnóstico con IA
+      this.errorDiagnostico = false;
       this.cargandoDiagnostico = true;
       this.modalDiagnosticoVisible = true;
-      
+
       try {
         console.log('🤖 Generando diagnóstico personalizado con IA...');
         this.diagnosticoIA = await generarDiagnosticoPersonalizado({
@@ -612,36 +709,43 @@ export default {
         console.log('✅ Diagnóstico generado:', this.diagnosticoIA);
       } catch (error) {
         console.error('❌ Error al generar diagnóstico:', error);
-        alert(`❌ Error al generar el diagnóstico: ${error.message}`);
-        this.modalDiagnosticoVisible = false;
+        // UI-07: el error se muestra dentro del panel, con "Intentar de nuevo"
+        // (las respuestas del test se conservan para reintentar).
+        // alert(`❌ Error al generar el diagnóstico: ${error.message}`);
+        // this.modalDiagnosticoVisible = false;
+        this.errorDiagnostico = true;
       } finally {
         this.cargandoDiagnostico = false;
       }
     },
-    
+
     cerrarModalTest() {
       this.modalTestVisible = false
       this.testDiagnostico = null
       this.respuestasTest = {}
     },
-    
+
     cerrarModalDiagnostico() {
       this.modalDiagnosticoVisible = false;
       this.diagnosticoIA = null;
+      this.errorDiagnostico = false;
     },
-    
+
     // ========== EJERCICIO ALEATORIO ==========
     async generarEjercicio() {
       if (!this.apiKeyValida) {
-        alert('⚠️ Configura tu API Key de Gemini primero')
+        // UI-07: el botón está desactivado sin API key; se deja la guarda sin el alert.
+        // alert('⚠️ Configura tu API Key de Gemini primero')
+        console.warn('[LeoIA] Ejercicio sin API key de Gemini.')
         return
       }
-      
+
+      this.errorEjercicio = ''
       this.cargandoIA = true
       try {
         const habilidades = ['idea_principal', 'inferencia', 'causa_efecto', 'secuencia', 'detalle_especifico']
         const habilidadAleatoria = habilidades[Math.floor(Math.random() * habilidades.length)]
-        
+
         console.log('🎲 Generando ejercicio con Gemini de:', habilidadAleatoria)
         this.ejercicioAleatorio = await generarEjercicioAleatorio(habilidadAleatoria)
         console.log('✅ Ejercicio generado:', this.ejercicioAleatorio)
@@ -650,56 +754,479 @@ export default {
         this.modalEjercicioVisible = true
       } catch (error) {
         console.error('❌ Error al generar ejercicio:', error)
-        alert(`❌ Error: ${error.message}\n\nVerifica:\n1. API Key válida\n2. Acceso a Gemini habilitado`)
+        // UI-07: mensaje dentro de la app en vez del alert con instrucciones técnicas
+        // alert(`❌ Error: ${error.message}\n\nVerifica:\n1. API Key válida\n2. Acceso a Gemini habilitado`)
+        this.errorEjercicio = 'No pude crear el ejercicio. Inténtalo de nuevo en un momento.'
       } finally {
         this.cargandoIA = false
       }
     },
-    
+
     seleccionarRespuestaEjercicio(index) {
       if (!this.feedbackEjercicio) {
         this.respuestaEjercicio = index
       }
     },
-    
+
     verificarRespuestaEjercicio() {
       const esCorrecta = this.respuestaEjercicio === this.ejercicioAleatorio.respuesta_correcta
       this.feedbackEjercicio = {
         correcto: esCorrecta,
-        mensaje: esCorrecta 
-          ? '¡Excelente! Has identificado correctamente la respuesta.' 
+        mensaje: esCorrecta
+          ? '¡Excelente! Has identificado correctamente la respuesta.'
           : `La respuesta correcta es: ${this.ejercicioAleatorio.alternativas[this.ejercicioAleatorio.respuesta_correcta]}`
       }
     },
-    
+
     cerrarModalEjercicio() {
       this.modalEjercicioVisible = false
       this.ejercicioAleatorio = null
       this.respuestaEjercicio = null
       this.feedbackEjercicio = null
+      this.errorEjercicio = ''
     }
   }
 }
 </script>
 
 <style scoped>
-/* Animaciones */
-.slide-up-enter-active, .slide-up-leave-active {
-  transition: all 0.3s ease;
+/* UI-07: estilos anteriores (degradados y animaciones de los modales), sin uso desde el rework.
+   Se dejan comentados como referencia.
+.slide-up-enter-active, .slide-up-leave-active { transition: all 0.3s ease; }
+.slide-up-enter-from { transform: translateY(20px); opacity: 0; }
+.slide-up-leave-to { transform: translateY(20px); opacity: 0; }
+.fade-enter-active, .fade-leave-active { transition: all 0.3s ease; }
+.fade-enter-from, .fade-leave-to { opacity: 0; }
+*/
+
+.leoia {
+  max-width: 44rem;
+  margin: 0 auto;
+  padding: 1.25rem 1rem 2rem;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1.5rem;
+  align-items: start;
+  text-align: left;
+  font-family: 'Atkinson Hyperlegible', system-ui, sans-serif;
+  color: #3a4960;
 }
-.slide-up-enter-from {
-  transform: translateY(20px);
-  opacity: 0;
+.leoia__columna { display: flex; flex-direction: column; gap: 1rem; }
+.leoia__titulo {
+  margin: 0;
+  font-family: 'Lexend', system-ui, sans-serif;
+  font-weight: 600;
+  font-size: 1.625rem;
+  line-height: 1.2;
+  color: #14233b;
 }
-.slide-up-leave-to {
-  transform: translateY(20px);
-  opacity: 0;
+.leoia__bajada { margin: 0.25rem 0 0; font-size: 1rem; color: #52627a; }
+.leoia__nota { margin: 0; font-size: 0.8125rem; line-height: 1.4; color: #52627a; }
+
+.bienvenida { padding: 1rem; }
+
+.icono {
+  width: 2.75rem;
+  height: 2.75rem;
+  flex-shrink: 0;
+  border-radius: 0.8rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.icono svg { width: 1.5rem; height: 1.5rem; }
+
+.antetitulo {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
 }
 
-.fade-enter-active, .fade-leave-active {
-  transition: all 0.3s ease;
+/* Opciones */
+.opciones { display: flex; flex-direction: column; gap: 0.625rem; }
+.opcion {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: 4.5rem;
+  box-sizing: border-box;
+  padding: 0.75rem 0.875rem;
+  background: #ffffff;
+  border: 1px solid #d9e4f1;
+  border-radius: 1.125rem;
+  text-align: left;
+  font-family: inherit;
+  cursor: pointer;
+  box-shadow: 0 1px 2px rgba(20, 35, 59, 0.05);
 }
-.fade-enter-from, .fade-leave-to {
-  opacity: 0;
+.opcion:hover:not(:disabled) { border-color: #9db7dd; }
+.opcion:focus-visible { outline: 3px solid #14233b; outline-offset: 2px; }
+.opcion--activa { border: 2px solid #2568c4; padding: calc(0.75rem - 1px) calc(0.875rem - 1px); }
+.opcion:disabled { cursor: not-allowed; background: #f6f8fb; opacity: 0.6; box-shadow: none; }
+.opcion__textos { flex: 1; min-width: 0; }
+.opcion__nombre {
+  display: block;
+  font-family: 'Lexend', system-ui, sans-serif;
+  font-weight: 600;
+  font-size: 1.0625rem;
+  color: #14233b;
 }
+.opcion__desc { display: block; margin-top: 0.125rem; font-size: 0.875rem; color: #52627a; }
+.opcion__flecha { width: 1.375rem; height: 1.375rem; flex-shrink: 0; }
+
+/* Avisos */
+.aviso {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0.875rem 1rem;
+  border-radius: 1rem;
+  font-size: 0.9375rem;
+  line-height: 1.4;
+}
+.aviso svg { width: 1.5rem; height: 1.5rem; flex-shrink: 0; }
+.aviso--ambar { background: #fff3cf; border: 1px solid #ecd28a; color: #3a4960; }
+.aviso--verde { background: #e3f3ea; border: 1px solid #b9dcc7; color: #1f4d33; }
+.aviso--corto { color: #5c3d00; }
+.aviso__titulo { margin: 0; font-weight: 700; font-size: 1rem; color: #14233b; }
+.aviso__texto { margin: 0.125rem 0 0; }
+
+/* Chat */
+.chat {
+  display: flex;
+  flex-direction: column;
+  background: #ffffff;
+  border: 1px solid #d9e4f1;
+  border-radius: 1.25rem;
+  overflow: hidden;
+  box-shadow: 0 1px 2px rgba(20, 35, 59, 0.05);
+}
+.chat--completo {
+  position: fixed;
+  inset: 0;
+  z-index: 45; /* sobre la barra superior (30) y el menú inferior (40) */
+  border: 0;
+  border-radius: 0;
+  background: #fbfcfe;
+}
+.chat__cabecera {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem 0.75rem 1.25rem;
+  border-bottom: 1px solid #d9e4f1;
+  background: #ffffff;
+}
+.chat--completo .chat__cabecera { min-height: 3.5rem; box-sizing: border-box; padding: 0.375rem 0.75rem 0.375rem 0.5rem; }
+.chat__avatar {
+  width: 2.75rem;
+  height: 2.75rem;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: #e4f0fb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.chat__avatar img { width: 2.125rem; height: 2.125rem; object-fit: contain; }
+.chat--completo .chat__avatar { width: 2.25rem; height: 2.25rem; background: transparent; }
+.chat__titulos { flex: 1; min-width: 0; }
+.chat__titulo {
+  margin: 0;
+  font-family: 'Lexend', system-ui, sans-serif;
+  font-weight: 600;
+  font-size: 1.125rem;
+  color: #14233b;
+}
+.chat__subtitulo { margin: 0.0625rem 0 0; font-size: 0.875rem; color: #52627a; }
+.chat--completo .chat__subtitulo { display: none; }
+.chat__boton-icono {
+  width: 2.75rem;
+  height: 2.75rem;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 0.75rem;
+  background: transparent;
+  cursor: pointer;
+}
+.chat__boton-icono svg { width: 1.5rem; height: 1.5rem; }
+.chat__boton-icono:hover { background: #eef3f9; }
+.chat__boton-icono:focus-visible { outline: 3px solid #14233b; outline-offset: 2px; }
+
+.chat__mensajes {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  background: #fbfcfe;
+}
+.chat__aviso-ia { margin: 0 0 0.25rem; text-align: center; font-size: 0.8125rem; color: #52627a; }
+.mensaje { display: flex; }
+.mensaje--mio { justify-content: flex-end; }
+.mensaje--leo { justify-content: flex-start; }
+.mensaje__globo { max-width: 85%; padding: 0.6875rem 0.8125rem; }
+.mensaje--leo .mensaje__globo { background: #ffffff; border: 1px solid #d9e4f1; border-radius: 1rem 1rem 1rem 0.25rem; }
+.mensaje--mio .mensaje__globo { background: #2568c4; border-radius: 1rem 1rem 0.25rem 1rem; }
+.mensaje__texto { margin: 0; font-size: 1rem; line-height: 1.45; white-space: pre-wrap; overflow-wrap: anywhere; color: #14233b; }
+.mensaje--mio .mensaje__texto { color: #ffffff; }
+.mensaje__hora { margin: 0.375rem 0 0; font-size: 0.75rem; color: #52627a; }
+.mensaje--mio .mensaje__hora { color: #dbe8f8; }
+
+.escribiendo { display: flex; gap: 0.375rem; padding: 0.875rem 1rem; }
+.escribiendo span {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: #8a99ad;
+  animation: escribiendo 1.2s ease-in-out infinite;
+}
+.escribiendo span:nth-child(2) { animation-delay: 0.15s; }
+.escribiendo span:nth-child(3) { animation-delay: 0.3s; }
+@keyframes escribiendo {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.6; }
+  30% { transform: translateY(-4px); opacity: 1; }
+}
+
+.chat__formulario {
+  flex-shrink: 0;
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.75rem 0.75rem 1rem;
+  border-top: 1px solid #d9e4f1;
+  background: #ffffff;
+}
+.chat__entrada {
+  flex: 1;
+  min-width: 0;
+  height: 3rem;
+  box-sizing: border-box;
+  padding: 0 0.875rem;
+  border: 1px solid #b9c9dd;
+  border-radius: 0.875rem;
+  font-family: inherit;
+  font-size: 1rem; /* 16px: evita el zoom automático en iPhone */
+  color: #14233b;
+  background: #ffffff;
+}
+.chat__entrada::placeholder { color: #6b7a90; }
+.chat__entrada:focus { outline: 3px solid #2568c4; outline-offset: 1px; border-color: #2568c4; }
+.chat__entrada:disabled { background: #f6f8fb; }
+.chat__enviar {
+  height: 3rem;
+  min-width: 3rem;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0 0.75rem;
+  border: 0;
+  border-radius: 0.875rem;
+  background: #2568c4;
+  color: #ffffff;
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+}
+.chat__enviar svg { width: 1.375rem; height: 1.375rem; }
+.chat__enviar:hover:not(:disabled) { background: #1b4f9e; }
+.chat__enviar:disabled { background: #8aa9d2; cursor: not-allowed; }
+.chat__enviar:focus-visible { outline: 3px solid #14233b; outline-offset: 2px; }
+
+.chat-enter-active, .chat-leave-active { transition: opacity 0.2s ease, transform 0.2s ease; }
+.chat-enter-from, .chat-leave-to { opacity: 0; transform: translateY(12px); }
+
+/* Test y ejercicio */
+.avance-test { display: flex; flex-direction: column; gap: 0.4375rem; }
+.avance-test__fila { display: flex; justify-content: space-between; align-items: baseline; gap: 0.5rem; }
+.avance-test__actual { font-size: 0.9375rem; font-weight: 700; color: #14233b; }
+.avance-test__respondidas { font-size: 0.875rem; color: #52627a; }
+
+.pregunta { display: flex; flex-direction: column; gap: 0.875rem; }
+.pregunta__habilidad { align-self: flex-start; text-transform: uppercase; }
+.pregunta__texto {
+  margin: 0;
+  padding: 0.75rem 0.875rem;
+  background: #f3f8fd;
+  border: 1px solid #d9e4f1;
+  border-radius: 0.875rem;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: #14233b;
+}
+.pregunta__enunciado {
+  margin: 0;
+  font-family: 'Lexend', system-ui, sans-serif;
+  font-weight: 600;
+  font-size: 1.0625rem;
+  line-height: 1.35;
+  color: #14233b;
+}
+.alternativas { display: flex; flex-direction: column; gap: 0.5rem; }
+.alternativa {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.625rem;
+  min-height: 3.25rem;
+  box-sizing: border-box;
+  padding: 0.75rem 0.875rem;
+  border: 2px solid #d9e4f1;
+  border-radius: 0.875rem;
+  background: #ffffff;
+  text-align: left;
+  font-family: inherit;
+  font-size: 1rem;
+  line-height: 1.35;
+  color: #14233b;
+  cursor: pointer;
+}
+.alternativa:hover { border-color: #9db7dd; }
+.alternativa:focus-visible { outline: 3px solid #14233b; outline-offset: 2px; }
+.alternativa__letra {
+  width: 1.625rem;
+  height: 1.625rem;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: #eef2f7;
+  color: #3a4960;
+  font-weight: 700;
+  font-size: 0.875rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.alternativa__texto { padding-top: 0.125rem; }
+.alternativa--marcada { border-color: #2568c4; background: #e4f0fb; }
+.alternativa--marcada .alternativa__letra { background: #2568c4; color: #ffffff; }
+.alternativa--correcta { border-color: #1f7a47; background: #e3f3ea; cursor: default; }
+.alternativa--correcta .alternativa__letra { background: #1f7a47; color: #ffffff; }
+.alternativa--revisar { border-color: #b07a00; background: #fffaeb; cursor: default; }
+.alternativa--revisar .alternativa__letra { background: #8a5a00; color: #ffffff; }
+.alternativa--apagada { cursor: default; color: #52627a; }
+.alternativa--correcta:hover, .alternativa--revisar:hover, .alternativa--apagada:hover { border-color: inherit; }
+.alternativa--apagada:hover { border-color: #d9e4f1; }
+
+.pie-doble { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.625rem; }
+.pie-doble > * { width: 100%; padding-left: 0.75rem; padding-right: 0.75rem; }
+.pie-doble--asimetrico { grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr); }
+.pie-uno { display: flex; }
+.pie-nota { margin: 0.5rem 0 0; text-align: center; font-size: 0.875rem; color: #52627a; }
+
+/* Carga */
+.estado-carga {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 2rem 0;
+  text-align: center;
+  color: #3a4960;
+}
+.estado-carga p { margin: 0; font-size: 1rem; }
+.estado-carga__giro { width: 2.5rem; height: 2.5rem; }
+.giro { animation: giro 0.9s linear infinite; }
+@keyframes giro { to { transform: rotate(360deg); } }
+
+/* Diagnóstico */
+.diagnostico__bajada { margin: -0.5rem 0 0; font-size: 0.875rem; color: #52627a; }
+.bloque {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+  padding: 1rem;
+  border: 1px solid #d9e4f1;
+  border-radius: 1.125rem;
+}
+.bloque--verde { background: #f1f8f4; border-color: #cfe7d9; }
+.bloque--ambar { background: #fffaeb; border-color: #f0dfa8; }
+.bloque--azul { background: #f3f8fd; }
+.bloque__cabecera { display: flex; align-items: center; gap: 0.625rem; }
+.bloque__icono { width: 1.5rem; height: 1.5rem; flex-shrink: 0; }
+.bloque__nivel {
+  margin: 0.125rem 0 0;
+  font-family: 'Lexend', system-ui, sans-serif;
+  font-weight: 600;
+  font-size: 1.1875rem;
+  color: #14233b;
+}
+.bloque__titulo {
+  margin: 0;
+  font-family: 'Lexend', system-ui, sans-serif;
+  font-weight: 600;
+  font-size: 1.0625rem;
+  color: #14233b;
+}
+.bloque__lista { margin: 0; padding: 0 0 0 1.25rem; display: flex; flex-direction: column; gap: 0.375rem; font-size: 0.9375rem; line-height: 1.4; }
+.bloque__texto { margin: 0; font-size: 0.9375rem; line-height: 1.45; color: #14233b; }
+.bloque__consejo {
+  margin: 0;
+  padding: 0.625rem 0.75rem;
+  background: #ffffff;
+  border: 1px solid #d9e4f1;
+  border-radius: 0.75rem;
+  font-size: 0.9375rem;
+  line-height: 1.45;
+  color: #3a4960;
+}
+.bloque__consejo strong { color: #14233b; }
+
+.solo-lector {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* Escritorio: opciones a la izquierda y chat a la derecha */
+@media (min-width: 768px) {
+  .leoia { padding: 1.5rem 1.5rem 2rem; }
+  .leoia__titulo { font-size: 2rem; }
+  .leoia__bajada { font-size: 1.125rem; }
+  .bienvenida { padding: 1.25rem 1.375rem; }
+  .icono { width: 3rem; height: 3rem; border-radius: 0.875rem; }
+  .icono svg { width: 1.625rem; height: 1.625rem; }
+  .opcion { min-height: 4.75rem; padding: 0.75rem 1rem; gap: 0.875rem; }
+  .opcion--activa { padding: calc(0.75rem - 1px) calc(1rem - 1px); }
+  .opcion__nombre { font-size: 1.125rem; }
+  .opcion__desc { font-size: 0.9375rem; }
+  .leoia__nota { font-size: 0.875rem; }
+}
+@media (min-width: 1024px) {
+  .leoia { padding: 1.25rem 2.5rem 2rem 1.5rem; }
+  .leoia--con-chat {
+    max-width: 72rem;
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  }
+  .leoia--con-chat .chat {
+    position: sticky;
+    top: 1rem;
+    height: min(48rem, calc(100vh - 6.5rem));
+  }
+  .mensaje__globo { max-width: 82%; }
+  .chat__formulario { padding: 0.875rem 1rem; gap: 0.625rem; }
+  .chat__enviar { padding: 0 1.125rem; }
+}
+
+/* Animaciones: se apagan con "reducir movimiento" y con la preferencia de la app */
+@media (prefers-reduced-motion: reduce) {
+  .escribiendo span, .giro { animation: none; }
+  .chat-enter-active, .chat-leave-active { transition: none; }
+}
+html[data-animaciones="off"] .escribiendo span,
+html[data-animaciones="off"] .giro { animation: none; }
+html[data-animaciones="off"] .chat-enter-active,
+html[data-animaciones="off"] .chat-leave-active { transition: none; }
 </style>
