@@ -193,6 +193,13 @@ export default {
         case 'leoia':
           // UI-07: el nombre es solo para el saludo de Leo
           return { playerName: this.playerName }
+        case 'ajustes':
+          // UI-08: datos del perfil (solo lectura)
+          return {
+            playerName: this.playerName,
+            correo: this.usuario ? this.usuario.email || '' : '',
+            esDocente: this.esDocente
+          }
         case 'docente':
           return { nombreDocente: this.playerName }
         case 'docente-proyector':

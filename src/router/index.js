@@ -31,7 +31,10 @@ import LeoIdeasAlumno from '../components/leo_ideas/LeoIdeasAlumno.vue'
 import MiProgreso from '../components/MiProgreso.vue'
 import PantallaProgreso from '../components/PantallaProgreso.vue'
 import PantallaLeoIA from '../components/PantallaLeoIA.vue'
-import SeccionEnConstruccion from '../components/menu/SeccionEnConstruccion.vue'
+// UI-08: Ajustes ya tiene su pantalla; SeccionEnConstruccion queda sin uso (se deja el archivo
+// por si se necesita para una sección futura).
+// import SeccionEnConstruccion from '../components/menu/SeccionEnConstruccion.vue'
+import PantallaAjustes from '../components/PantallaAjustes.vue'
 import RutaAprendizaje from '../components/ruta/RutaAprendizaje.vue'
 import pant_reglas_game1 from '../components/pant_reglas_game1.vue'
 import pant_game_1 from '../components/pant_game_1.vue'
@@ -84,7 +87,7 @@ const routes = [
   // UI-03/UI-04: secciones del menú (Ajustes sigue provisional hasta UI-08)
   { path: '/progreso', name: 'progreso', component: PantallaProgreso, meta: { ...APP, seccion: 'progreso', ancho: true, titulo: 'Progreso' } },
   { path: '/leoia', name: 'leoia', component: PantallaLeoIA, meta: { ...APP, seccion: 'leoia', ancho: true, titulo: 'LeoIA' } },
-  { path: '/ajustes', name: 'ajustes', component: SeccionEnConstruccion, meta: { ...APP, seccion: 'ajustes', titulo: 'Ajustes' } },
+  { path: '/ajustes', name: 'ajustes', component: PantallaAjustes, meta: { ...APP, seccion: 'ajustes', ancho: true, titulo: 'Ajustes' } },
   { path: '/ruta', name: 'ruta', component: RutaAprendizaje, meta: { ...APP, seccion: 'inicio', titulo: 'Unidad 1 · Las palabras', atras: 'inicio' } },
   { path: '/juego/1/:textId/reglas', name: 'juego1-reglas', component: pant_reglas_game1, meta: { ...APP, seccion: 'inicio', titulo: 'Instrucciones', atras: 'inicio' }, beforeEnter: textoJuego1Valido },
   { path: '/juego/1/:textId', name: 'juego1', component: pant_game_1, meta: { ...JUEGO, mascota: true, avance: to => ({ juego: 1, contenido: to.params.textId }) }, beforeEnter: textoJuego1Valido },
