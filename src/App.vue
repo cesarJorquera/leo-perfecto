@@ -94,7 +94,10 @@ import MenuPrincipal from './components/menu/MenuPrincipal.vue'
 // src/components/pant_bienvenida.vue sigue intacto por si se quiere reutilizar
 // (por ejemplo como ruta /bienvenida).
 // import pant_bienvenida from './components/pant_bienvenida.vue'
-import mascota from './components/mascota.vue'
+// UI-09: la mascota de los juegos usa el Leo nuevo (MascotaJuego.vue, misma lógica y métodos).
+// Para volver a la mascota anterior, usar la línea comentada de abajo en lugar de la nueva.
+// import mascota from './components/mascota.vue'
+import mascota from './components/MascotaJuego.vue'
 import { supabaseConfigurado } from './utils/supabaseClient'
 import {
   entrarConGoogle,
