@@ -10,7 +10,6 @@
       </template>
       <p v-else class="animate-pulse">Cargando…</p>
     </div>
-
     <router-view v-else v-slot="{ Component, route }">
       <!-- Pantalla completa, sin navbar: landing, login, sala de ideas y proyector -->
       <component
@@ -190,6 +189,8 @@ export default {
           }
         case 'progreso':
           return { playerName: this.playerName, userProgress: this.userProgress || [] }
+        case 'ruta-unidad2':
+          return { esDocente: this.esDocente }
         case 'leoia':
           // UI-07: el nombre es solo para el saludo de Leo
           return { playerName: this.playerName }
@@ -229,9 +230,12 @@ export default {
             'start-game2': this.handleStartGame2,
             'start-game3': this.handleStartGame3,
             'start-game4': this.handleStartGame4,
-            'abrir-ruta': this.irARuta
+            'abrir-ruta': this.irARuta,
+            'abrir-ruta-unidad2': this.irARutaUnidad2
           }
         case 'ruta':
+          return { salir: this.goToProgreso }
+        case 'ruta-unidad2':
           return { salir: this.goToProgreso }
         case 'docente':
           return {
@@ -398,6 +402,9 @@ export default {
     // RUTA (5/5): abre la ruta de aprendizaje (desde la tarjeta Unidad 1 de MiProgreso)
     irARuta() {
       this.$router.push({ name: 'ruta' })
+    },
+    irARutaUnidad2() {
+      this.$router.push({ name: 'ruta-unidad2' })
     },
     handleUnirseSala(codigo) {
       const limpio = String(codigo || '').trim()

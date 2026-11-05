@@ -1,7 +1,7 @@
 # Leo Perfecto — guía del proyecto y contexto técnico
 
 > Documento canónico de producto y código. Describe el estado del repositorio al
-> 22 de octubre de 2026. Si el código cambia, actualizar esta guía en el mismo
+> 5 de noviembre de 2026. Si el código cambia, actualizar esta guía en el mismo
 > trabajo. No contiene credenciales ni datos reales de estudiantes.
 
 ## 1. Qué es el proyecto
@@ -50,8 +50,12 @@ pedagógico validado con la profesora.
 
 ### Parcial o pendiente; no presentarlo como terminado
 
-- El panel docente visible en la navegación es solo una pantalla provisional.
-  Aún no consulta alumnos ni tiene dashboard real.
+- Leo Dash incluye un prototipo visual de rendimiento lector con filtros por
+  periodo, unidad y estudiante, tarjetas de actividad, precisión, finalización,
+  habilidades y sesiones recientes. Usa datos ficticios locales: no consulta
+  Supabase ni representa estudiantes reales.
+- La pestaña de control de Leo Ideas conserva el acceso a la sesión en vivo.
+- El panel docente aún no consulta alumnos ni tiene un dashboard conectado.
 - No existen cursos, matrículas, relación docente-curso ni políticas para que
   una docente consulte a sus estudiantes.
 - La vista de progreso del alumno (`MiProgreso.vue`) contiene métricas y lógica
@@ -66,9 +70,37 @@ pedagógico validado con la profesora.
 - No se importa automáticamente el historial antiguo guardado en
   `localStorage`. El progreso nuevo se asocia a la cuenta autenticada.
 - No se ha definido el dashboard de la profesora ni el modelo pedagógico final
-  de KPIs.
+  de KPIs conectado a datos reales; el prototipo visual de Leo Dash usa datos
+  ficticios y no debe presentarse como telemetría real.
 - El catálogo actual etiqueta ítems como `basic_concept`, `reading_skill`,
   `text_type` u `other`; no es una validación académica de dominio.
+- La Unidad 2 tiene un prototipo de ruta con siete habilidades y cuatro
+  minijuegos por habilidad, con dinámicas variadas. Al abrir una habilidad, el
+  estudiante entra directamente al primer reto no aprobado; los retos restantes
+  se encadenan, y al terminar cada uno recibe feedback y continúa desde la misma
+  experiencia. Una habilidad se marca aprobada al completar tres de sus cuatro
+  minijuegos con respuesta correcta.
+  Cada inicio de un minijuego crea una sesión en las tablas existentes; los
+  reintentos dentro de ese minijuego se guardan como respuestas con un
+  `attempt_number` creciente. Esta regla de avance es provisional y aún debe
+  validarse con la profesora.
+- La Unidad 2 usa `game_id = 3`, ya definido como Comprensión lectora de Unidad
+  2 en la migración `003_game_progress.sql`. El código está conectado al tracker
+  compartido para crear sesiones en `game_sessions`, guardar respuestas en
+  `game_responses` con tipo/código de evaluación y cerrar sesiones como
+  completadas o abandonadas. Esto confirma el flujo implementado en código,
+  pero no confirma que las migraciones estén aplicadas en el Supabase remoto ni
+  sustituye una prueba de escritura/lectura en ese entorno.
+- Las cuentas con rol `docente` tienen una vista de exploración que permite
+  abrir cualquier minijuego de la Unidad 2 sin guardar resultados. En
+  desarrollo local, el botón de modo desarrollador también permite probarlos
+  con una cuenta autenticada sin rol docente. No reemplaza las reglas de acceso
+  de Supabase ni constituye una vista del dashboard.
+- La exploración de todos los minijuegos con `?demoRuta2=1` o desde la acción
+  docente solo está disponible para cuentas autenticadas con rol `docente`;
+  desactiva el guardado y no modifica el avance del alumno. Mi Progreso muestra
+  un porcentaje técnico basado en los minijuegos aprobados; no es todavía un
+  indicador pedagógico validado ni un dashboard docente.
 - No hay ranking global implementado como requisito de esta etapa.
 - No hay registro separado de visitas a la aplicación.
 - El contenido administrable por la profesora pertenece a una etapa posterior.
@@ -382,6 +414,8 @@ presentar evidencia suficiente.
 
 ### Contenido de `src/data/`
 
+- `ruta/unidad2.js`: catálogo estático de las siete habilidades y sus 28
+  actividades evaluables de comprensión lectora.
 - `game1_texts.js`: `game1Texts`, `getTextById`, `getAllTextIds`,
   `getNextText`; textos/títulos del Juego 1.
 - `quest_game_keyword.js`: `questionsByText`, `getQuestionsByTextId` y
