@@ -9,7 +9,7 @@
 [![Netlify Status](https://img.shields.io/badge/Deployed%20on-Netlify-00c7b7.svg)](https://netlify.com/)
 [![License](https://img.shields.io/badge/License-Academic-blue.svg)](LICENSE)
 
-[Demo en Vivo](https://frabjous-mooncake-af96b6.netlify.app/) | [Documentación](./docs/proyecto.md) | [Reportar Bug](https://github.com/cesarJorquera/leo-perfecto/issues)
+[Demo en Vivo](https://leo-perfecto.netlify.app/) | [Documentación](./docs/proyecto.md) | [Reportar Bug](https://github.com/cesarJorquera/leo-perfecto/issues)
 
 </div>
 
