@@ -23,6 +23,15 @@
         Clasifica las palabras
       </h2>
 
+      <!-- MEJ-03: aviso al retomar una partida interrumpida (se oculta al colocar otra palabra) -->
+      <p
+        v-if="retomado"
+        class="mb-6 bg-blue-50 border border-blue-200 text-blue-900 rounded-xl px-4 py-3 text-base text-center"
+        role="status"
+      >
+        Retomaste tu partida donde la dejaste.
+      </p>
+
       <!-- Barra de progreso, puntaje y vidas -->
       <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
         <div class="w-full md:w-2/3">
@@ -246,9 +255,16 @@
 // ============================================
 // IMPORTACIONES
 // ============================================
-import mascota from './mascota.vue'
+// UI-09: la mascota de los juegos usa el Leo nuevo (MascotaJuego.vue, misma lógica y métodos).
+// Para volver a la mascota anterior, usar la línea comentada de abajo en lugar de la nueva.
+// import mascota from './mascota.vue'
+import mascota from './MascotaJuego.vue'
 import { createGameManager } from '../utils/gameManager'
 import { getGame2TextById } from '../data/game2_texts'
+import { createGameProgressTracker } from '../utils/supabaseProgress'
+import { guardarAvance, borrarAvance, tomarAvance } from '../utils/avanceJuego'
+import { registrarSalida, liberarSalida } from '../utils/confirmarSalida'
+import { wordSlotAssessment } from '../utils/assessment'
 
 export default {
   name: 'GameDragDrop',
@@ -288,6 +304,9 @@ export default {
       aciertos: 0,
       errores: 0,
       erroresJuego: [],       // Array de errores específicos
+      intentosPorEspacio: {},
+      progressTracker: null,
+      progressClosed: false,
       vidasMaximas: 4,
       pistaActiva: false,
       indicePista: null,
@@ -303,7 +322,11 @@ export default {
       ],
       audioContext: null,
       hasNextText: false,
-      nextTextId: null
+      nextTextId: null,
+      // MEJ-03: retomar una partida interrumpida (ver utils/avanceJuego.js)
+      iniciadaEn: null,
+      sessionIdRetomada: null,
+      retomado: false
     }
   },
   computed: {
@@ -331,12 +354,49 @@ export default {
       return Math.max(0, this.vidasMaximas - this.errores)
     }
   },
-  mounted() {
-    // Cargar datos del texto
+  created() {
+    // MEJ-03: si el alumno recargó a mitad de partida, volver a donde iba.
+    // Los datos del texto se cargan aquí (antes se cargaban en mounted) para poder
+    // colocar las palabras que ya había puesto. El router ya comprobó que la
+    // partida sigue abierta en Supabase.
     this.loadTextData()
+    const avance = tomarAvance(2, this.textId)
+    if (avance && this.restaurarEstado(avance.estado)) {
+      this.sessionIdRetomada = avance.sessionId
+      this.iniciadaEn = avance.iniciadaEn
+      this.retomado = true
+    }
+  },
+  mounted() {
+    // MEJ-03: avisar antes de salir si ya jugó algo y no terminó (ni se quedó sin vidas)
+    this.avisoSalida = () => (
+      this.aciertos + this.errores > 0 && !this.mostrarResultado && !this.mostrarVidasAgotadas ? { tipo: 'juego' } : null
+    )
+    registrarSalida(this.avisoSalida)
+    // Cargar datos del texto (ya se cargaron en created; esto cubre el caso de que no)
+    if (!this.currentTextData) this.loadTextData()
+    if (!this.iniciadaEn) this.iniciadaEn = Date.now()
+
+    if (this.hasValidData && this.totalEspacios > 0) {
+      this.progressTracker = createGameProgressTracker({
+        gameId: 2,
+        contentId: this.textId,
+        totalQuestions: this.totalEspacios,
+        resumeSessionId: this.sessionIdRetomada || undefined // sigue en la misma partida (sin fila nueva)
+      })
+    }
     
     // Inicializar AudioContext para sonidos
     this.audioContext = new (window.AudioContext || window.webkitAudioContext)()
+  },
+  beforeUnmount() {
+    liberarSalida(this.avisoSalida)
+    if (this.progressTracker && !this.progressClosed) {
+      this.progressTracker.abandon().catch(error => {
+        console.error('❌ No se pudo registrar el abandono del Juego 2:', error)
+      })
+      borrarAvance(2, this.textId) // abandonar la partida descarta su avance guardado
+    }
   },
   methods: {
     /**
@@ -412,8 +472,13 @@ export default {
       event.preventDefault()
       if (!this.palabraActual) return
       if (espacio.palabraColocada) return
+      this.retomado = false
       
       const palabra = this.palabraActual
+      const espacioIndex = this.espaciosTexto.indexOf(espacio)
+      const itemId = `${this.textId}:slot${espacioIndex + 1}`
+      const attemptNumber = (this.intentosPorEspacio[itemId] || 0) + 1
+      this.intentosPorEspacio[itemId] = attemptNumber
       // Solo es correcto si el id de la palabra es el correcto para ese espacio
       const esCorrecto = palabra.id === espacio.palabraCorrectaId
       
@@ -457,10 +522,77 @@ export default {
           this.mostrarVidasAgotadas = true
         }
       }
+
+      const assessment = wordSlotAssessment(espacio)
+      this.progressTracker.record({
+        itemId,
+        attemptNumber,
+        assessmentType: assessment.type,
+        assessmentCode: assessment.code,
+        answer: {
+          wordId: palabra.id,
+          word: palabra.texto,
+          wordType: palabra.tipo
+        },
+        isCorrect: esCorrecto
+      }).then(() => this.guardarAvanceActual()).catch(error => {
+        console.error('❌ No se pudo guardar la respuesta del Juego 2:', error)
+      })
       
       this.pistaActiva = false
       this.indicePista = null
       this.verificarFinJuego()
+    },
+    // MEJ-03: avance de la partida para poder retomarla tras una recarga.
+    // Se guarda cuando la respuesta ya llegó a Supabase, para que ambos coincidan.
+    async guardarAvanceActual() {
+      if (this.progressClosed || this.mostrarResultado || this.mostrarVidasAgotadas) return
+      const sessionId = await this.progressTracker.sessionId()
+      // Qué palabra quedó en cada espacio: { numeroDeEspacio: idDePalabra }
+      const colocadas = {}
+      this.espaciosTexto.forEach((espacio, i) => {
+        if (espacio.tipo === 'espacio' && espacio.palabraColocada) colocadas[i] = espacio.palabraColocada.id
+      })
+      guardarAvance(2, this.textId, {
+        sessionId,
+        iniciadaEn: this.iniciadaEn,
+        estado: {
+          colocadas,
+          aciertos: this.aciertos,
+          errores: this.errores,
+          erroresJuego: this.erroresJuego,
+          intentosPorEspacio: this.intentosPorEspacio
+        }
+      })
+    },
+    // Devuelve false (y no toca nada) si la copia guardada no es coherente con este texto.
+    restaurarEstado(e) {
+      if (!this.hasValidData || !e || !e.colocadas || typeof e.colocadas !== 'object') return false
+      const palabras = Object.values(this.palabrasPorTipo).flat()
+      const entero = n => Number.isInteger(n) && n >= 0
+      const indices = Object.keys(e.colocadas)
+      const coherente =
+        entero(e.aciertos) && entero(e.errores) &&
+        Array.isArray(e.erroresJuego) &&
+        e.intentosPorEspacio && typeof e.intentosPorEspacio === 'object' &&
+        e.aciertos === indices.length &&
+        indices.every(i => {
+          const espacio = this.espaciosTexto[i]
+          const palabra = palabras.find(p => p.id === e.colocadas[i])
+          return espacio && espacio.tipo === 'espacio' && palabra && palabra.id === espacio.palabraCorrectaId
+        })
+      if (!coherente) return false
+      indices.forEach(i => {
+        const espacio = this.espaciosTexto[i]
+        const palabra = palabras.find(p => p.id === e.colocadas[i])
+        palabra.colocada = true
+        espacio.palabraColocada = palabra
+      })
+      this.aciertos = e.aciertos
+      this.errores = e.errores
+      this.erroresJuego = e.erroresJuego
+      this.intentosPorEspacio = e.intentosPorEspacio
+      return true
     },
     getEspacioClase(espacio) {
       if (!espacio.palabraColocada) {
@@ -554,6 +686,13 @@ export default {
         })
 
         if (resultado.success) {
+          this.progressClosed = true
+          borrarAvance(2, this.textId) // partida terminada: ya no hay nada que retomar
+          this.progressTracker.complete().catch(error => {
+            this.progressClosed = false
+            console.error('❌ No se pudo cerrar la sesión del Juego 2:', error)
+          })
+
           console.log('✅ Progreso Juego 2 guardado')
           console.log(resultado.mensaje)
           

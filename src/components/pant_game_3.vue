@@ -1,5 +1,13 @@
 <template>
   <div>
+    <!-- MEJ-03: aviso al retomar una partida interrumpida (se oculta al responder o pasar de texto) -->
+    <p
+      v-if="retomado"
+      class="fixed top-4 left-4 right-4 md:left-1/2 md:right-auto md:-translate-x-1/2 z-50 bg-blue-50 border border-blue-200 text-blue-900 rounded-xl px-4 py-3 text-base text-center shadow-lg"
+      role="status"
+    >
+      Retomaste tu partida donde la dejaste.
+    </p>
     <!-- Pantalla de instrucciones -->
     <pant-instrucciones-game3
       v-if="mostrarInstrucciones"
@@ -29,7 +37,7 @@
       <transition name="slide-fade" mode="out-in">
         <!-- Durante el juego -->
         <div v-if="!juegoTerminado" 
-             class="relative w-full max-w-4xl bg-gradient-to-br from-blue-50 to-green-50 rounded-3xl shadow-2xl p-8 md:p-10 border-4 border-white/50 backdrop-blur-sm mb-8"
+             class="relative w-full max-w-4xl bg-gradient-to-br from-blue-50 to-green-50 rounded-3xl shadow-2xl p-3 md:p-10 border-4 border-white/50 backdrop-blur-sm mb-8"
              :key="textoActual?.id">
           
           <!-- Timer (solo en modo desafío) -->
@@ -49,10 +57,10 @@
           </div>
 
           <!-- Contenedor con fondo blanco para texto + pregunta + alternativas -->
-          <div class="bg-white rounded-3xl p-8 shadow-xl border-2 border-blue-100">
+          <div class="bg-white rounded-3xl p-3 md:p-8 shadow-xl border-2 border-blue-100">
             
             <!-- Texto principal (PRIMERO) -->
-            <div class="relative bg-gradient-to-br from-green-300 via-teal-300 to-cyan-300 rounded-3xl p-8 mb-8 shadow-lg border-3 border-green-400/50 transform hover:scale-[1.01] transition-all">
+            <div class="relative bg-gradient-to-br from-green-300 via-teal-300 to-cyan-300 rounded-3xl p-4 md:p-8 mb-8 shadow-lg border-3 border-green-400/50 transform hover:scale-[1.01] transition-all">
               <!-- Icono de libro decorativo -->
               <div class="absolute -top-4 -left-4 bg-white rounded-full p-3 shadow-lg">
                 <svg class="w-8 h-8 text-green-600" fill="currentColor" viewBox="0 0 20 20">
@@ -67,7 +75,7 @@
             <!-- Pregunta y alternativas (antes de responder) -->
             <div v-if="!mostrarFeedback">
               <!-- Pregunta con icono -->
-              <div class="flex items-start space-x-4 mb-8 bg-gradient-to-r from-blue-100 to-cyan-100 rounded-2xl p-6 shadow-md border-2 border-blue-200">
+              <div class="flex items-start space-x-3 md:space-x-4 mb-8 bg-gradient-to-r from-blue-100 to-cyan-100 rounded-2xl p-3 md:p-6 shadow-md border-2 border-blue-200">
                 <div class="flex-shrink-0 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-full p-3 shadow-lg">
                   <svg class="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" />
@@ -85,10 +93,10 @@
                   :key="alt.id"
                   @click="seleccionarRespuesta(alt)"
                   :disabled="respuestaSeleccionada !== null"
-                  class="w-full bg-gradient-to-r from-white to-blue-50 hover:from-blue-100 hover:to-cyan-100 border-3 border-blue-200 hover:border-blue-400 rounded-2xl p-6 text-left transition-all duration-300 transform hover:scale-[1.03] hover:shadow-2xl disabled:cursor-not-allowed group"
+                  class="w-full bg-gradient-to-r from-white to-blue-50 hover:from-blue-100 hover:to-cyan-100 border-3 border-blue-200 hover:border-blue-400 rounded-2xl p-3 md:p-6 text-left transition-all duration-300 transform hover:scale-[1.03] hover:shadow-2xl disabled:cursor-not-allowed group"
                 >
-                  <div class="flex items-center space-x-5">
-                    <div class="flex-shrink-0 w-14 h-14 bg-blue-400 text-white rounded-2xl flex items-center justify-center font-bold text-2xl shadow-lg group-hover:scale-110 group-hover:rotate-3 transition-transform">
+                  <div class="flex items-center space-x-3 md:space-x-5">
+                    <div class="flex-shrink-0 w-10 h-10 md:w-14 md:h-14 bg-blue-400 text-white rounded-2xl flex items-center justify-center font-bold text-2xl shadow-lg group-hover:scale-110 group-hover:rotate-3 transition-transform">
                       {{ alt.id }}
                     </div>
                     <p class="flex-1 text-lg font-semibold text-gray-800 group-hover:text-gray-900 transition-colors">
@@ -107,7 +115,7 @@
             <div v-else>
               <!-- Resultado -->
               <div :class="[
-                'rounded-3xl p-10 mb-8 text-center shadow-2xl transform transition-all duration-500 border-4',
+                'rounded-3xl p-4 md:p-10 mb-8 text-center shadow-2xl transform transition-all duration-500 border-4',
                 respuestaCorrecta 
                   ? 'bg-gradient-to-br from-green-400 via-emerald-400 to-teal-400 border-green-300' 
                   : 'bg-gradient-to-br from-red-400 via-pink-400 to-rose-400 border-red-300'
@@ -135,7 +143,7 @@
                   v-for="alt in textoActual?.alternativas"
                   :key="alt.id"
                   :class="[
-                    'w-full rounded-2xl p-6 border-3 transition-all duration-300',
+                    'w-full rounded-2xl p-3 md:p-6 border-3 transition-all duration-300',
                     alt.correcta 
                       ? 'bg-green-100 border-green-500 shadow-lg' 
                       : respuestaSeleccionada?.id === alt.id 
@@ -143,9 +151,9 @@
                         : 'bg-gray-50 border-gray-300 opacity-50'
                   ]"
                 >
-                  <div class="flex items-center space-x-4">
+                  <div class="flex items-center space-x-3 md:space-x-4">
                     <div :class="[
-                      'flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center font-bold text-xl shadow-lg',
+                      'flex-shrink-0 w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center font-bold text-xl shadow-lg',
                       alt.correcta 
                         ? 'bg-green-500 text-white' 
                         : respuestaSeleccionada?.id === alt.id 
@@ -164,8 +172,8 @@
               </div>
 
               <!-- Explicación -->
-              <div class="bg-gradient-to-r from-blue-50 to-green-50 border-l-4 border-blue-500 rounded-2xl p-8 shadow-lg mb-6">
-                <div class="flex items-start space-x-4">
+              <div class="bg-gradient-to-r from-blue-50 to-green-50 border-l-4 border-blue-500 rounded-2xl p-4 md:p-8 shadow-lg mb-6">
+                <div class="flex items-start space-x-3 md:space-x-4">
                   <!-- Icono bombilla SVG -->
                   <div class="flex-shrink-0 bg-gradient-to-br from-yellow-400 to-orange-400 rounded-full p-3 shadow-lg">
                     <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
@@ -300,6 +308,10 @@
 import { game3Texts } from '@/data/game3_texts.js';
 import { createGameManager } from '@/utils/gameManager.js';
 import { emitter } from '@/utils/eventBus.js';
+import { createGameProgressTracker } from '@/utils/supabaseProgress.js';
+import { guardarAvance, borrarAvance, tomarAvance } from '@/utils/avanceJuego.js';
+import { registrarSalida, liberarSalida } from '@/utils/confirmarSalida.js';
+import { readingQuestionAssessment } from '@/utils/assessment.js';
 import PantInstruccionesGame3 from './pant_instrucciones_game3.vue';
 
 export default {
@@ -345,7 +357,15 @@ export default {
       // Control de textos
       textosJugados: [],
       hasNextText: true,
-      textosDisponibles: []
+      textosDisponibles: [],
+      progressTracker: null,
+      progressClosed: false,
+
+      // MEJ-03: retomar una partida interrumpida (ver utils/avanceJuego.js)
+      iniciadaEn: null,
+      sessionIdRetomada: null,   // partida de Supabase del texto actual, si sigue abierta
+      sessionIdGuardada: null,   // última partida registrada en la copia local (aunque esté cerrada)
+      retomado: false
     };
   },
   computed: {
@@ -354,19 +374,61 @@ export default {
       return Math.round((this.respuestasCorrectas / this.textosProcesados) * 100);
     }
   },
+  created() {
+    // MEJ-03: si el alumno recargó a mitad de la carrera, volver a donde iba.
+    // El router ya comprobó (sin exigir que la partida siga abierta, ver avanceJuego.js).
+    const avance = tomarAvance(3, 'principal');
+    if (avance && this.restaurarEstado(avance.estado)) {
+      this.iniciadaEn = avance.iniciadaEn;
+      this.sessionIdRetomada = avance.partidaAbierta ? avance.sessionId : null;
+      this.sessionIdGuardada = avance.sessionId;
+      this.retomado = true;
+    }
+  },
   mounted() {
+    // MEJ-03: avisar antes de salir si ya respondió algún texto y la carrera no terminó
+    this.avisoSalida = () => (this.textosProcesados > 0 && !this.juegoTerminado ? { tipo: 'carrera' } : null);
+    registrarSalida(this.avisoSalida);
     // No cargar texto hasta que se elija el modo
+    if (this.retomado) {
+      // MEJ-03: seguir en la partida abierta del texto actual (si la hay)
+      if (this.sessionIdRetomada && !this.respuestaSeleccionada) {
+        this.progressClosed = false;
+        this.progressTracker = createGameProgressTracker({
+          gameId: 3,
+          contentId: this.textoActual.id,
+          totalQuestions: 1,
+          mode: this.modoJuego,
+          resumeSessionId: this.sessionIdRetomada
+        });
+      } else {
+        this.progressClosed = true; // la partida de este texto ya estaba cerrada
+      }
+      if (this.modoJuego === 'desafio' && !this.juegoTerminado) {
+        this.iniciarTimer();
+      } else if (this.juegoTerminado) {
+        this.abandonarSesionActual();
+      }
+    }
   },
   beforeUnmount() {
+    liberarSalida(this.avisoSalida);
     // Limpiar timer si existe
     if (this.timerInterval) {
       clearInterval(this.timerInterval);
     }
+    if (this.progressTracker && !this.progressClosed) {
+      this.progressTracker.abandon().catch(error => {
+        console.error('❌ No se pudo registrar el abandono del Juego 3:', error);
+      });
+    }
+    borrarAvance(3, 'principal'); // salir de la carrera descarta su avance guardado
   },
   methods: {
     iniciarConModo(modo) {
       this.modoJuego = modo;
       this.mostrarInstrucciones = false;
+      this.iniciadaEn = Date.now();
       
       // Si es modo desafío, iniciar timer
       if (modo === 'desafio') {
@@ -384,8 +446,20 @@ export default {
         if (this.tiempoRestante <= 0) {
           clearInterval(this.timerInterval);
           this.juegoTerminado = true;
+          borrarAvance(3, 'principal'); // se acabó el tiempo: nada que retomar
+          this.abandonarSesionActual();
         }
       }, 1000);
+    },
+
+    abandonarSesionActual() {
+      if (!this.progressTracker || this.progressClosed) return
+
+      this.progressClosed = true
+      this.progressTracker.abandon().catch(error => {
+        this.progressClosed = false
+        console.error('❌ No se pudo registrar el abandono del Juego 3:', error);
+      });
     },
     
     formatearTiempo(segundos) {
@@ -407,6 +481,14 @@ export default {
         const textoId = textosNoJugados[randomIndex];
         this.textoActual = game3Texts[textoId];
         this.hasNextText = textosNoJugados.length > 1;
+        this.progressClosed = false;
+        this.progressTracker = createGameProgressTracker({
+          gameId: 3,
+          contentId: textoId,
+          totalQuestions: 1,
+          mode: this.modoJuego
+        });
+        this.guardarAvanceActual();
       } else {
         // No hay más textos, terminar
         this.juegoTerminado = true;
@@ -415,6 +497,7 @@ export default {
 
     seleccionarRespuesta(alternativa) {
       if (this.respuestaSeleccionada) return;
+      this.retomado = false;
       
       this.respuestaSeleccionada = alternativa;
       this.respuestaCorrecta = alternativa.correcta;
@@ -438,6 +521,22 @@ export default {
           respuestaCorrecta: this.textoActual.alternativas.find(a => a.correcta)?.texto
         });
       }
+
+      const assessment = readingQuestionAssessment(this.textoActual.habilidad);
+      // MEJ-03: tras retomar un texto cuya partida ya estaba cerrada no hay tracker (igual que
+      // en los textos 2 en adelante, cuyo tracker queda cerrado): solo se guarda el avance local.
+      (this.progressTracker ? this.progressTracker.record({
+        itemId: this.textoActual.id,
+        assessmentType: assessment.type,
+        assessmentCode: assessment.code,
+        answer: {
+          alternativeId: alternativa.id,
+          text: alternativa.texto
+        },
+        isCorrect: this.respuestaCorrecta
+      }) : Promise.resolve()).catch(error => {
+        console.error('❌ No se pudo guardar la respuesta del Juego 3:', error);
+      }).then(() => this.guardarAvanceActual());
       
       // Guardar progreso
       this.guardarProgreso();
@@ -450,6 +549,7 @@ export default {
     },
 
     siguienteTexto() {
+      this.retomado = false;
       // Registrar texto actual como jugado
       this.textosJugados.push(this.textoActual.id);
       
@@ -469,10 +569,82 @@ export default {
         const textoId = textosNoJugados[randomIndex];
         this.textoActual = game3Texts[textoId];
         this.hasNextText = textosNoJugados.length > 1;
+        this.guardarAvanceActual();
       } else {
         // Terminar juego - todos los textos completados
         this.juegoTerminado = true;
+        borrarAvance(3, 'principal');
       }
+    },
+
+    // MEJ-03: avance de la carrera para poder retomarla tras una recarga.
+    // Se guarda al mostrar cada texto y cuando la respuesta ya llegó a Supabase.
+    // El tiempo se guarda como la HORA en que se acaba (no como segundos restantes):
+    // así, aunque la página esté cerrada, el reloj del desafío sigue corriendo.
+    async guardarAvanceActual() {
+      if (this.juegoTerminado || !this.textoActual) return;
+      // Sin tracker (se retomó un texto cuya partida ya estaba cerrada): se conserva el último sessionId
+      const sessionId = this.progressTracker ? await this.progressTracker.sessionId() : this.sessionIdGuardada;
+      if (!sessionId) return;
+      guardarAvance(3, 'principal', {
+        sessionId,
+        iniciadaEn: this.iniciadaEn,
+        estado: {
+          modoJuego: this.modoJuego,
+          finTimerEn: this.modoJuego === 'desafio' ? Date.now() + this.tiempoRestante * 1000 : null,
+          textoActualId: this.textoActual.id,
+          numeroTextoActual: this.numeroTextoActual,
+          respuestaSeleccionadaId: this.respuestaSeleccionada ? this.respuestaSeleccionada.id : null,
+          mostrarFeedback: this.mostrarFeedback,
+          respuestaCorrecta: this.respuestaCorrecta,
+          respuestasCorrectas: this.respuestasCorrectas,
+          respuestasIncorrectas: this.respuestasIncorrectas,
+          textosProcesados: this.textosProcesados,
+          erroresJuego: this.erroresJuego,
+          textosJugados: this.textosJugados,
+          hasNextText: this.hasNextText
+        }
+      });
+    },
+    // Devuelve false (y no toca nada) si la copia guardada no es coherente.
+    restaurarEstado(e) {
+      const entero = n => Number.isInteger(n) && n >= 0;
+      const texto = e && game3Texts[e.textoActualId];
+      if (
+        !e || !texto || !['practica', 'desafio'].includes(e.modoJuego) ||
+        !Array.isArray(e.textosJugados) || !e.textosJugados.every(id => game3Texts[id]) ||
+        !Array.isArray(e.erroresJuego) ||
+        !entero(e.numeroTextoActual) || !entero(e.respuestasCorrectas) ||
+        !entero(e.respuestasIncorrectas) || !entero(e.textosProcesados) ||
+        (e.modoJuego === 'desafio' && typeof e.finTimerEn !== 'number')
+      ) return false;
+      const alternativa = e.respuestaSeleccionadaId
+        ? texto.alternativas.find(a => a.id === e.respuestaSeleccionadaId)
+        : null;
+      if (e.respuestaSeleccionadaId && !alternativa) return false;
+
+      this.modoJuego = e.modoJuego;
+      this.mostrarInstrucciones = false;
+      this.textoActual = texto;
+      this.numeroTextoActual = e.numeroTextoActual;
+      this.respuestaSeleccionada = alternativa;
+      this.mostrarFeedback = Boolean(alternativa) && e.mostrarFeedback === true;
+      this.respuestaCorrecta = Boolean(alternativa) && e.respuestaCorrecta === true;
+      this.respuestasCorrectas = e.respuestasCorrectas;
+      this.respuestasIncorrectas = e.respuestasIncorrectas;
+      this.textosProcesados = e.textosProcesados;
+      this.erroresJuego = e.erroresJuego;
+      this.textosJugados = e.textosJugados;
+      this.hasNextText = e.hasNextText !== false;
+      if (e.modoJuego === 'desafio') {
+        // El reloj siguió corriendo mientras la página estuvo cerrada
+        this.tiempoRestante = Math.max(0, Math.ceil((e.finTimerEn - Date.now()) / 1000));
+        if (this.tiempoRestante <= 0) {
+          this.juegoTerminado = true;
+          borrarAvance(3, 'principal'); // se acabó el tiempo mientras no estaba: se muestran los resultados
+        }
+      }
+      return true;
     },
 
     guardarProgreso() {
@@ -493,6 +665,12 @@ export default {
         });
         
         if (resultado.success) {
+          this.progressClosed = true;
+          if (this.progressTracker) this.progressTracker.complete().catch(error => {
+            this.progressClosed = false;
+            console.error('❌ No se pudo cerrar la sesión del Juego 3:', error);
+          });
+
           console.log('✅ Progreso guardado:', resultado.message);
         }
       } catch (error) {
